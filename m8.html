@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<title>A Tile You Can Hold</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* layout: the tile cross-section beside the temperature plots (stacked on phones), story captions, then the design-and-solver lab */
+:root{--bg:#0e1730;--panel:#1b2647;--panel2:#26335c;--ink:#f2f5ff;--muted:#a6b1d4;--heat:#ff8a3d;--sea:#2fd3d3;--plum:#b48cff;--sun:#ffd640;--stop:#ff5d6c;--go:#58d68d;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:880px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--heat)}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+p{margin:0}.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.28);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.08rem;font-weight:700;line-height:1.4}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;overflow-x:auto}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--body);font-size:1rem;white-space:nowrap}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play,.big{background:var(--heat);color:#1a0d00;font-family:var(--display);font-weight:600;font-size:1.08rem}
+.big{padding:12px 20px;min-height:50px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--heat)}
+.lab{display:flex;flex-direction:column;gap:10px}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctl>span{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--heat);height:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--panel);border-radius:14px;padding:10px 12px;min-width:0}
+.stat span{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat small{display:block;color:var(--muted);font-size:.8rem}
+.mission{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border-radius:14px;padding:10px 12px}
+.mission i{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;color:transparent}
+.mission.done i{background:var(--go);border-color:var(--go);color:#062312}
+.mission small{color:var(--muted);display:block}
+.memo{font-size:.88rem;color:var(--muted);border-top:1px solid var(--panel2);padding-top:10px}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:14px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--panel2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.view{display:grid;grid-template-columns:0.55fr 1fr;gap:12px}
+@media (max-width:720px){.view{grid-template-columns:1fr}}
+.view .stage{min-width:0}
+.study{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.study canvas{display:block;width:100%;height:auto}
+</style>
+
+</head><body>
+<div class="app">
+  <div><p class="muted">MAE 384 · Module 8 · partial differential equations</p><h1>A Tile You <span>Can Hold</span></h1></div>
+
+  <div class="view">
+    <div class="stage"><canvas id="tile" aria-label="Cross-section of a heat-shield tile, coloured by temperature"></canvas></div>
+    <div class="stage"><canvas id="pl" aria-label="Temperature through the tile and at the aluminium, against time"></canvas></div>
+  </div>
+
+  <div class="cap"><span class="n" id="capN"></span><div class="t" id="capT"></div><div class="sheet"><span id="shL"></span><code id="shF"></code></div></div>
+  <div class="transport"><button id="back">◀ Back</button><button class="play" id="play">▶ Play</button><button id="next">Next ▶</button><div class="dots" id="dots"></div></div>
+
+  <div class="lab" id="lab" hidden>
+    <div class="grid">
+      <div class="ctl"><label for="thk">Tile thickness <output id="thkO">6.0 cm</output></label><input id="thk" type="range" min="2.5" max="12.7" step="0.1" value="6"><small class="muted">Real shuttle tiles ranged from 2.5 to 12.7 cm (1 to 5 in). Thicker means heavier.</small></div>
+      <div class="ctl"><span>Spatial grid: M subintervals</span><div class="row"><button data-m="5">5</button><button data-m="10">10</button><button data-m="20" aria-pressed="true">20</button><button data-m="40">40</button><button data-m="80">80</button></div>
+        <span>Back-face boundary condition</span><div class="row"><button data-bc="1">First order</button><button data-bc="2" aria-pressed="true">Second order</button></div></div>
+      <div class="ctl"><span>Time stepping</span><div class="row"><button data-t="euler" aria-pressed="true">Explicit Euler</button><button data-t="rk2">Modified Euler</button><button data-t="imp">Implicit Euler</button></div>
+        <span>r = αΔt / Δx²</span><div class="row"><button data-r="0.25">0.25</button><button data-r="0.4" aria-pressed="true">0.4</button><button data-r="0.5">0.5</button><button data-r="0.6">0.6</button><button data-r="2">2</button><button data-r="10">10</button></div></div>
+    </div>
+    <div class="row"><button class="big" id="fly">▶ Fly the reentry</button><button id="study">📉 Run a grid study</button><span class="muted" id="hint"></span></div>
+    <div class="grid">
+      <div class="stat"><span>Hottest aluminium</span><b id="mx">–</b><small id="mxT">&nbsp;</small></div>
+      <div class="stat"><span>Verdict</span><b id="vd">–</b><small>limit about 175 °C (350 °F)</small></div>
+      <div class="stat"><span>Time step Δt</span><b id="dt">–</b><small id="steps">&nbsp;</small></div>
+      <div class="stat"><span>Tile mass per m²</span><b id="mass">–</b><small>LI-900 silica, 144 kg/m³</small></div>
+    </div>
+    <div class="study" id="studyWrap" hidden><canvas id="st" aria-label="Error against number of subintervals, log-log"></canvas></div>
+    <div class="mission" id="m1"><i>✓</i><div><b>Save the airframe, save the weight.</b><small>With an accurate solver (M ≥ 20, stable steps), find a tile 10.5 cm or thinner that keeps the aluminium below 175 °C.</small></div></div>
+    <div class="mission" id="m2"><i>✓</i><div><b>Break the solver.</b><small>Make an explicit method blow up. What value of r does it take?</small></div></div>
+    <div class="mission" id="m3"><i>✓</i><div><b>Giant steps.</b><small>Fly with implicit Euler at r = 10. It stays stable, but is it still right?</small></div></div>
+    <div class="mission" id="m4"><i>✓</i><div><b>The lowest order wins.</b><small>Run a grid study with a first-order and then a second-order boundary condition. Read the slopes.</small></div></div>
+    <p class="memo">Facts from NASA's Orbiter Thermal Protection System fact sheet: tile surfaces up to 1,260 °C (2,300 °F); LI-900 silica tiles at 144 kg/m³ (9 lb/ft³); an aluminium airframe that softens above about 175 °C (350 °F); tiles 2.5 to 12.7 cm thick. This model uses one representative diffusivity (α = 6×10⁻⁷ m²/s), an assumed surface-temperature history, and an insulated back face, the worst case. It is a teaching model, not the orbiter's design analysis.</p>
+  </div>
+</div>
+
+<script>window.KIT_PAGE='m8';window.KIT_HUB='index.html';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id),css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NARROW=window.innerWidth<720,A=6.0e-7,LIM=175,TEND=3600;
+/* surface temperature during reentry (assumed history): heating, peak, cool-down, landing */
+const Ts=t=>{const m=t/60;if(m<5)return 20+1240*m/5;if(m<15)return 1260;if(m<25)return 1260-1040*(m-15)/10;return 220-200*(1-Math.exp(-(m-25)/10))};
+/* method of lines: central differences in x, then explicit Euler, Modified Euler or implicit Euler in time */
+function solve({L,M,r,meth,bc,tEnd=TEND,every=0}){const dx=L/M,dt=r*dx*dx/A;let T=new Float64Array(M+1).fill(20),t=0,mx=20,tm=0,blown=false,steps=0,next=0;const fr=[];
+  const back=U=>{U[M]=bc===2?(4*U[M-1]-U[M-2])/3:U[M-1]};const F=U=>{const k=new Float64Array(M+1);for(let i=1;i<M;i++)k[i]=A*(U[i+1]-2*U[i]+U[i-1])/dx/dx;return k};
+  if(every)fr.push([0,T.slice()]);
+  while(t<tEnd-1e-9){const h=Math.min(dt,tEnd-t),rr=A*h/dx/dx;let N;
+    if(meth==='euler'){const k=F(T);N=T.map((v,i)=>v+h*k[i]);N[0]=Ts(t+h);back(N)}
+    else if(meth==='rk2'){const k1=F(T),P=T.map((v,i)=>v+h*k1[i]);P[0]=Ts(t+h);back(P);const k2=F(P);N=T.map((v,i)=>v+h/2*(k1[i]+k2[i]));N[0]=Ts(t+h);back(N)}
+    else{const n=M-1,a=new Float64Array(n),b=new Float64Array(n),c=new Float64Array(n),d=new Float64Array(n),T0=Ts(t+h);
+      for(let j=0;j<n;j++){a[j]=-rr;b[j]=1+2*rr;c[j]=-rr;d[j]=T[j+1]}d[0]+=rr*T0;a[0]=0;if(bc===2){b[n-1]=1+2*rr/3;a[n-1]=-2*rr/3}else{b[n-1]=1+rr;a[n-1]=-rr}c[n-1]=0;
+      for(let j=1;j<n;j++){const m=a[j]/b[j-1];b[j]-=m*c[j-1];d[j]-=m*d[j-1]}const x=new Float64Array(n);x[n-1]=d[n-1]/b[n-1];for(let j=n-2;j>=0;j--)x[j]=(d[j]-c[j]*x[j+1])/b[j];
+      N=new Float64Array(M+1);N[0]=T0;for(let j=0;j<n;j++)N[j+1]=x[j];back(N)}
+    T=N;t+=h;steps++;if(!isFinite(T[M])||Math.max(...T.map(Math.abs))>4000){blown=true;if(every)fr.push([t,T.slice()]);break}if(T[M]>mx){mx=T[M];tm=t}
+    if(every&&t>=next){fr.push([t,T.slice()]);next=t+every}}
+  return {T,mx,tm,blown,steps,dt,fr}}
+/* ---------- drawing ---------- */
+const tc=$('tile'),tx=tc.getContext('2d'),TW=NARROW?640:380,TH=NARROW?420:560;tc.width=TW;tc.height=TH;tc.style.aspectRatio=TW+'/'+TH;
+const pc=$('pl'),px=pc.getContext('2d'),PW=NARROW?640:640,PH=NARROW?560:560;pc.width=PW;pc.height=PH;pc.style.aspectRatio=PW+'/'+PH;
+const STOPS=[[20,[27,42,94]],[150,[70,40,130]],[400,[190,50,60]],[800,[255,140,40]],[1260,[255,244,190]]];
+function heat(T){T=Math.max(20,Math.min(1260,T));for(let i=1;i<STOPS.length;i++)if(T<=STOPS[i][0]){const [a,ca]=STOPS[i-1],[b,cb]=STOPS[i],f=(T-a)/(b-a);return `rgb(${ca.map((v,k)=>Math.round(v+f*(cb[k]-v))).join(',')})`}return 'rgb(255,244,190)'}
+function txt(c,t,x,y,col,size=18,weight=700,align='left'){c.fillStyle=col;c.font=`${weight} ${size}px Nunito, sans-serif`;c.textAlign=align;c.fillText(t,x,y);c.textAlign='left'}
+/* tile cross-section: hot face on top, aluminium at the bottom */
+function drawTile(T,t,o={}){const c=tx,M=T.length-1,top=74,bot=TH-110,x0=TW*0.2,x1=TW*0.8,now=performance.now();c.clearRect(0,0,TW,TH);c.fillStyle=css('--panel');c.fillRect(0,0,TW,TH);
+  const s=Ts(t);if(s>300){const g=c.createLinearGradient(0,0,0,top);g.addColorStop(0,'rgba(255,120,40,0)');g.addColorStop(1,`rgba(255,${120+Math.min(120,s/10)},60,${Math.min(0.9,s/1400)})`);c.fillStyle=g;c.fillRect(x0-30,0,x1-x0+60,top);
+    for(let i=0;i<14;i++){const xx=x0+((i*53+now/6)%(x1-x0)),yy=top-10-((i*37+now/9)%50);c.fillStyle=`rgba(255,240,200,${0.5*s/1260})`;c.fillRect(xx,yy,2,8)}}
+  txt(c,o.noLabels?'':'plasma side',TW/2,22,css('--muted'),16,800,'center');
+  for(let y=top;y<bot;y++){const u=(y-top)/(bot-top)*M,i=Math.floor(u),f=u-i,v=i>=M?T[M]:T[i]+(T[i+1]-T[i])*f;c.fillStyle=heat(v);c.fillRect(x0,y,x1-x0,1)}
+  c.strokeStyle=css('--ink');c.lineWidth=2;c.strokeRect(x0,top,x1-x0,bot-top);
+  // aluminium skin
+  const al=T[M];c.fillStyle=al>LIM?css('--stop'):'#9aa6c4';c.fillRect(x0-12,bot,x1-x0+24,16);txt(c,'aluminium',TW/2,bot+40,css('--ink'),17,800,'center');txt(c,Math.round(al)+' °C',TW/2,bot+64,al>LIM?css('--stop'):css('--go'),22,800,'center');
+  // grid nodes
+  if(o.nodes!==false){const n=Math.min(M,o.showN==null?M:o.showN);for(let i=0;i<=n;i++){const y=top+(bot-top)*i/M,hl=o.hl&&o.hl.includes(i);c.fillStyle=hl?css('--sun'):css('--ink');c.beginPath();c.arc(x1+16,y,hl?7:4,0,7);c.fill();
+      if(M<=10||i===0||i===M||hl)txt(c,'x'+(i+1<10?'₁₂₃₄₅₆₇₈₉'[i]:subs(i+1)),x1+28,y+6,hl?css('--sun'):css('--muted'),15,800)}}
+  txt(c,Math.round(s)+' °C',x0-8,top-6,css('--heat'),18,800,'right');
+  if(o.hand){c.fillStyle='rgba(240,200,170,.95)';[x0-6,x1+6].forEach((x,k)=>{c.beginPath();c.ellipse(x,(top+bot)/2,16,34,0,0,7);c.fill()})}
+  if(o.blown)txt(c,'SOLVER BLEW UP',TW/2,(top+bot)/2,css('--stop'),24,800,'center')}
+const subs=n=>String(n).split('').map(d=>'₀₁₂₃₄₅₆₇₈₉'[+d]).join('');
+/* right panel: temperature through the tile (top) and the aluminium against time (bottom) */
+function drawPlot(T,L,hist,o={}){const c=px;c.clearRect(0,0,PW,PH);const M=T.length-1,Lf=64,R=20;
+  const h1=PH*0.48,X=d=>Lf+(PW-Lf-R)*d/L,Y=v=>h1-26-(h1-70)*(Math.max(-300,Math.min(1500,v))/1300);
+  txt(c,'Temperature through the tile',Lf,26,css('--ink'),18,800);c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(Lf,40);c.lineTo(Lf,h1-26);c.lineTo(PW-R,h1-26);c.stroke();
+  [0,500,1000].forEach(v=>txt(c,String(v),Lf-6,Y(v)+5,css('--muted'),15,700,'right'));txt(c,'hot face',Lf,h1-6,css('--muted'),15,700);txt(c,'depth → aluminium',PW-R,h1-6,css('--muted'),15,700,'right');
+  c.strokeStyle=css('--heat');c.lineWidth=3;c.beginPath();T.forEach((v,i)=>{const x=X(L*i/M),y=Y(v);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+  T.forEach((v,i)=>{c.fillStyle=o.hl&&o.hl.includes(i)?css('--sun'):css('--heat');c.beginPath();c.arc(X(L*i/M),Y(v),M>40?2.5:5,0,7);c.fill()});
+  const y0=h1+20,y1=PH-50,tX=t=>Lf+(PW-Lf-R)*t/TEND,tY=v=>y1-(y1-y0-20)*(Math.max(0,Math.min(400,v))/400);
+  txt(c,'Aluminium temperature',Lf,y0+6,css('--ink'),18,800);c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(Lf,y0+16);c.lineTo(Lf,y1);c.lineTo(PW-R,y1);c.stroke();
+  [0,10,20,30,40,50,60].forEach(m=>txt(c,String(m),tX(m*60),y1+20,css('--muted'),15,700,'center'));txt(c,'minutes',PW-R,y1+40,css('--muted'),15,700,'right');[0,200,400].forEach(v=>txt(c,String(v),Lf-6,tY(v)+5,css('--muted'),15,700,'right'));
+  c.strokeStyle=css('--stop');c.setLineDash([8,6]);c.lineWidth=2;c.beginPath();c.moveTo(Lf,tY(LIM));c.lineTo(PW-R,tY(LIM));c.stroke();c.setLineDash([]);txt(c,'175 °C limit',PW-R-4,tY(LIM)-8,css('--stop'),15,800,'right');
+  c.strokeStyle=css('--sea');c.globalAlpha=0.5;c.lineWidth=2;c.beginPath();for(let t=0;t<=TEND;t+=30){const v=Ts(t)/4;t?c.lineTo(tX(t),tY(v)):c.moveTo(tX(t),tY(v))}c.stroke();c.globalAlpha=1;txt(c,'surface ÷ 4',tX(1260),tY(Ts(1260)/4)-8,css('--sea'),14,800,'center');
+  if(hist&&hist.length){c.strokeStyle=css('--heat');c.lineWidth=4;c.beginPath();hist.forEach(([t,v],k)=>k?c.lineTo(tX(t),tY(v)):c.moveTo(tX(t),tY(v)));c.stroke()}}
+/* grid study: error at the aluminium after 30 minutes against M, on log-log axes */
+const sc=$('st'),sx=sc.getContext('2d'),SW=NARROW?640:860,SH=NARROW?420:360;sc.width=SW;sc.height=SH;sc.style.aspectRatio=SW+'/'+SH;
+function drawStudy(rows){const c=sx;c.clearRect(0,0,SW,SH);const Lf=80,R=24,T=40,B=56,lx=m=>Lf+(SW-Lf-R)*(Math.log10(m)-Math.log10(4))/(Math.log10(100)-Math.log10(4)),ly=e=>SH-B-(SH-T-B)*(Math.log10(e)+3)/5;
+  txt(c,'Grid study: error in the aluminium temperature at 30 min',Lf,26,css('--ink'),17,800);c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(Lf,T);c.lineTo(Lf,SH-B);c.lineTo(SW-R,SH-B);c.stroke();
+  [5,10,20,40,80].forEach(m=>txt(c,String(m),lx(m),SH-B+22,css('--muted'),15,700,'center'));txt(c,'M (subintervals)',SW-R,SH-8,css('--muted'),15,700,'right');[-3,-2,-1,0,1,2].forEach(p=>txt(c,'10'+['⁻³','⁻²','⁻¹','⁰','¹','²'][p+3],Lf-8,ly(10**p)+5,css('--muted'),15,700,'right'));
+  [[1,'slope −1'],[2,'slope −2']].forEach(([s,l],k)=>{c.strokeStyle=css('--muted');c.setLineDash([5,6]);c.lineWidth=1.5;const e0=k?40:30;c.beginPath();c.moveTo(lx(5),ly(e0));c.lineTo(lx(80),ly(e0*Math.pow(16,-s)));c.stroke();c.setLineDash([]);txt(c,l,lx(80)+4,ly(e0*Math.pow(16,-s))+(k?14:-6),css('--muted'),14,800,'right')});
+  rows.forEach(({bc,pts,col,slope})=>{c.strokeStyle=col;c.fillStyle=col;c.lineWidth=3;c.beginPath();pts.forEach(([m,e],k)=>{const p=[lx(m),ly(Math.max(1e-3,e))];k?c.lineTo(...p):c.moveTo(...p)});c.stroke();pts.forEach(([m,e])=>{c.beginPath();c.arc(lx(m),ly(Math.max(1e-3,e)),6,0,7);c.fill()});
+    const last=pts[pts.length-1];txt(c,(bc===2?'second-order BC':'first-order BC')+`: slope ≈ −${slope.toFixed(1)}`,lx(last[0])-8,ly(Math.max(1e-3,last[1]))+(bc===2?28:-14),col,15,800,'right')})}
+/* ---------- story ---------- */
+const PREV=solve({L:0.06,M:20,r:0.4,meth:'euler',bc:2,every:15});
+const frAt=(F,t)=>{let k=0;while(k<F.length-1&&F[k+1][0]<=t)k++;return F[k]};
+const SC=[
+ {dur:5000,cap:'April 1981. Space shuttle Columbia returns from orbit for the first time, hitting the atmosphere at Mach 25. Its belly tiles glow at up to 1,260 °C. A few centimetres below them is an aluminium airframe that softens above about 175 °C.',sheet:['The question','How thick must a tile be so the heat never reaches the aluminium in time?',1],
+  draw(p){const t=p*12*60,f=frAt(PREV.fr,t);drawTile(f[1],t,{nodes:false});drawPlot(f[1],0.06,PREV.fr.filter(q=>q[0]<=t).map(q=>[q[0],q[1][20]]));if(this.k<0){this.k=1;Kit.noise(1.5,500,0.5);Kit.tone(70,1.2,0.3,'sine')}}},
+ {dur:5000,cap:'The tiles are mostly empty space: 94% air, held in fine silica fibres. They conduct heat so poorly that a technician can hold one by its edges while it still glows red. Heat creeps through the tile slowly, and the heat equation describes how.',sheet:['📄 Module 8 · A PDE needs initial and boundary conditions','\\dfrac{\\partial T}{\\partial t}=\\alpha\\,\\dfrac{\\partial^{2}T}{\\partial x^{2}},\\qquad T(x,0)=20^{\\circ}\\text{C},\\qquad T(0,t)=T_s(t),\\qquad \\dfrac{\\partial T}{\\partial x}(L,t)=0'],
+  draw(p){const t=6*60+p*20*60,f=frAt(PREV.fr,t);drawTile(f[1],t,{nodes:false,hand:p>0.3});drawPlot(f[1],0.06,PREV.fr.filter(q=>q[0]<=t).map(q=>[q[0],q[1][20]]))}},
+ {dur:5200,cap:'Steps 1 and 2 of the procedure: split the thickness into a grid of points, xᵢ = (i − 1)Δx, and replace the second derivative in x with a central difference. Every interior point now has its own ordinary differential equation.',sheet:['📄 Module 8 · Discretize, then replace ∂²T/∂x²','\\dfrac{dT_i}{dt}=\\alpha\\,\\dfrac{T_{i+1}-2T_i+T_{i-1}}{\\Delta x^{2}},\\qquad i=2,\\dots,M'],
+  draw(p){const n=Math.floor(p*21),f=frAt(PREV.fr,15*60),i=Math.max(1,Math.min(19,n-1));drawTile(f[1],15*60,{showN:n,hl:n>2?[i-1,i,i+1]:null});drawPlot(f[1],0.06,null,{hl:n>2?[i-1,i,i+1]:null});if(n!==this.k){this.k=n;Kit.tone(400+n*30,0.05,0.12)}}},
+ {dur:5200,cap:'Step 3: the boundary conditions. The hot face simply takes the surface temperature. The back face is insulated, ∂T/∂x = 0, and it has no point beyond it, so it needs a one-sided formula. A second-order one keeps the whole method second order.',sheet:['📄 Module 5 → 8 · Three-point backward difference at x_{M+1}','\\dfrac{T_{M-1}-4T_{M}+3T_{M+1}}{2\\Delta x}=0\\;\\;\\Rightarrow\\;\\;T_{M+1}=\\dfrac{4T_{M}-T_{M-1}}{3},\\qquad T_1=T_s(t)'],
+  draw(p){const f=frAt(PREV.fr,15*60),hl=p<0.45?[0]:[18,19,20];drawTile(f[1],15*60,{hl});drawPlot(f[1],0.06,null,{hl});const k=p<0.45?0:1;if(k!==this.k){this.k=k;Kit.tone(k?880:520,0.15,0.18)}}},
+ {dur:6500,cap:'Step 4: solve the system of ODEs with any Module 7 method. With explicit Euler the time step is tied to the grid: r = αΔt/Δx² must stay at or below ½. Here r = 0.6, and the solution blows up in a sawtooth.',sheet:['📄 Module 7 → 8 · Explicit Euler on every node','T_i^{\\,n+1}=T_i^{\\,n}+r\\left(T_{i+1}^{\\,n}-2T_i^{\\,n}+T_{i-1}^{\\,n}\\right),\\qquad r=\\dfrac{\\alpha\\,\\Delta t}{\\Delta x^{2}}\\le\\dfrac12'],
+  enter(){this.B=solve({L:0.06,M:20,r:0.6,meth:'euler',bc:2,every:3})},draw(p){const B=this.B,k=Math.min(B.fr.length-1,Math.floor(p*B.fr.length)),f=B.fr[k],end=k===B.fr.length-1&&B.blown;drawTile(f[1].map(v=>Math.max(-200,Math.min(1500,v))),f[0],{blown:end});drawPlot(f[1],0.06,null);
+   if(k!==this.k){this.k=k;if(k%4===0)Kit.tone(300+Math.min(1500,Math.max(...f[1].map(Math.abs)))*0.6,0.06,0.12,'sawtooth');if(end)Kit.tone(90,0.8,0.35,'sawtooth')}}},
+ {dur:0,lab:true,cap:'Your turn. Choose the thickness, the grid, the boundary-condition formula and the time stepping. Then fly a full reentry and see whether the aluminium survives.',sheet:['📄 Module 7 → 8 · Explicit Euler on every node','T_i^{\\,n+1}=T_i^{\\,n}+r\\left(T_{i+1}^{\\,n}-2T_i^{\\,n}+T_{i-1}^{\\,n}\\right),\\qquad r=\\dfrac{\\alpha\\,\\Delta t}{\\Delta x^{2}}\\le\\dfrac12'],
+  enter(){labStats()},draw(){if(!L.anim)labDraw()}}
+];
+/* ---------- lab ---------- */
+const L={thk:6,M:20,bc:2,meth:'euler',r:0.4,anim:0,res:null,seen:{}};
+const SHEETS={euler:SC[4].sheet,rk2:['📄 Module 7 → 8 · Modified Euler on the whole vector','\\vec k_1=\\vec f\\!\\left(\\vec T^{\\,n}\\right),\\quad \\vec k_2=\\vec f\\!\\left(\\vec T^{\\,n}+\\Delta t\\,\\vec k_1\\right),\\quad \\vec T^{\\,n+1}=\\vec T^{\\,n}+\\tfrac{\\Delta t}{2}\\left(\\vec k_1+\\vec k_2\\right)'],
+ imp:['📄 Module 7 + 2 → 8 · Implicit Euler: a tridiagonal system each step','-r\\,T_{i-1}^{\\,n+1}+(1+2r)\\,T_i^{\\,n+1}-r\\,T_{i+1}^{\\,n+1}=T_i^{\\,n}\\qquad\\text{(Gauss elimination)}']};
+function cfg(){return {L:L.thk/100,M:L.M,r:L.r,meth:L.meth,bc:L.bc}}
+function labStats(){const o=cfg(),R=solve({...o,every:15});L.res=R;$('thkO').textContent=L.thk.toFixed(1)+' cm ('+(L.thk/2.54).toFixed(1)+' in)';
+  $('mx').textContent=R.blown?'—':Math.round(R.mx)+' °C';$('mxT').textContent=R.blown?'the numbers blew up':'at '+(R.tm/60).toFixed(0)+' min';
+  $('vd').textContent=R.blown?'solver failed':R.mx<LIM?'airframe safe':'airframe damaged';$('vd').style.color=R.blown?css('--sun'):R.mx<LIM?css('--go'):css('--stop');
+  $('dt').textContent=R.dt<1?R.dt.toFixed(2)+' s':R.dt<100?R.dt.toFixed(1)+' s':Math.round(R.dt)+' s';$('steps').textContent=R.steps.toLocaleString()+' steps'+(R.blown?' before blowing up':'');
+  $('mass').textContent=(144*L.thk/100).toFixed(1)+' kg';$('shL').textContent=SHEETS[L.meth][0];Kit.tex('shF',SHEETS[L.meth][1]);
+  $('hint').textContent=L.meth!=='imp'&&L.r>0.5?'r is above ½: explicit methods will blow up.':L.meth==='imp'&&L.r>2?'Stable, but each step now spans '+Math.round(R.dt/60)+' min.':'';labDraw()}
+function labDraw(){const R=L.res;if(!R)return;const f=R.fr[R.fr.length-1];const hist=R.fr.map(q=>[q[0],q[1][q[1].length-1]]);let peak=R.fr[0];R.fr.forEach(q=>{if(q[1][q[1].length-1]>=peak[1][peak[1].length-1])peak=q});
+  drawTile((R.blown?f:peak)[1].map(v=>Math.max(-200,Math.min(1500,v))),(R.blown?f:peak)[0],{blown:R.blown});drawPlot((R.blown?f:peak)[1],L.thk/100,R.blown?null:hist)}
+$('fly').onclick=()=>{Kit.wake();if(L.anim)return;const R=L.res;L.anim=1;$('fly').disabled=true;Kit.mood('drive');const plasma=Kit.loop(700,0.35),t0=performance.now(),dur=Math.max(2,9*Math.min(1,R.fr[R.fr.length-1][0]/TEND));let lk=-1,warned=false;
+  (function f(){const u=Math.min(1,(performance.now()-t0)/(dur*1000)),k=Math.min(R.fr.length-1,Math.floor(u*(R.fr.length-1))),fr=R.fr[k],al=fr[1][fr[1].length-1];
+    drawTile(fr[1].map(v=>Math.max(-200,Math.min(1500,v))),fr[0],{blown:R.blown&&u>=1});drawPlot(fr[1],L.thk/100,R.fr.slice(0,k+1).map(q=>[q[0],q[1][q[1].length-1]]));
+    if(k!==lk){lk=k;if(k%3===0)Kit.tone(160+Math.max(0,Math.min(500,al))*2,0.05,0.08,'sine');if(fr[0]>25*60)plasma.stop()}if(!warned&&al>LIM){warned=true;Kit.tone(880,0.18,0.25,'square');Kit.tone(660,0.18,0.25,'square',0.2)}
+    if(u<1)requestAnimationFrame(f);else{plasma.stop();L.anim=0;$('fly').disabled=false;Kit.mood('calm');finish()}})()};
+function finish(){const R=L.res,acc=L.M>=20&&((L.meth!=='imp'&&L.r<=0.5)||(L.meth==='imp'&&L.r<=2));
+  if(R.blown){Kit.tone(90,0.8,0.35,'sawtooth');if(L.meth!=='imp')$('m2').classList.add('done')}
+  else if(R.mx<LIM){[0,4,7,12].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.45,0.2,'triangle',i*0.08));if(acc&&L.thk<=10.5)$('m1').classList.add('done')}else{Kit.noise(0.6,400,0.5);Kit.tone(110,0.6,0.3,'sawtooth')}
+  if(L.meth==='imp'&&L.r>=10&&!R.blown){$('m3').classList.add('done');const ref=solve({...cfg(),meth:'euler',r:0.4,M:Math.max(20,L.M)});$('hint').textContent=`Stable with Δt = ${Math.round(R.dt)} s, but the aluminium peaks at ${Math.round(R.mx)} °C against ${Math.round(ref.mx)} °C with small steps. Stable is not the same as accurate.`}}
+$('study').onclick=()=>{Kit.wake();const o=cfg(),ref=solve({L:o.L,M:320,r:0.4,meth:'euler',bc:2,tEnd:1800}).T[320],rows=[];
+  for(const bc of [1,2]){const pts=[5,10,20,40,80].map(M=>{const R=solve({L:o.L,M,r:L.meth==='imp'?L.r:Math.min(L.r,0.5),meth:L.meth,bc,tEnd:1800});return [M,R.blown?1e3:Math.abs(R.T[M]-ref)]});
+    const s=Math.log2(pts[3][1]/pts[4][1]);rows.push({bc,pts,col:bc===2?css('--go'):css('--heat'),slope:s});L.seen['bc'+bc]=1}
+  $('studyWrap').hidden=false;drawStudy(rows);[0,1,2,3,4].forEach(i=>Kit.tone(880/Math.pow(1.3,i),0.1,0.15,'sine',i*0.08));
+  $('hint').textContent=`With a first-order back-face formula the whole solution is first order (slope ≈ −${rows[0].slope.toFixed(1)}), even though every interior point is second order. The lowest-order piece sets the error.`;if(L.seen.bc1&&L.seen.bc2)$('m4').classList.add('done')};
+function press(sel,attr,v){document.querySelectorAll(sel).forEach(b=>b.setAttribute('aria-pressed',b.getAttribute(attr)===String(v)))}
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{L.M=+b.dataset.m;press('[data-m]','data-m',L.M);Kit.tone(520,0.07,0.14);labStats()});
+document.querySelectorAll('[data-bc]').forEach(b=>b.onclick=()=>{L.bc=+b.dataset.bc;press('[data-bc]','data-bc',L.bc);Kit.tone(600,0.07,0.14);labStats()});
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{L.meth=b.dataset.t;press('[data-t]','data-t',L.meth);Kit.tone(660,0.07,0.14);labStats()});
+document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{L.r=+b.dataset.r;press('[data-r]','data-r',L.r);Kit.tone(440+L.r*40,0.07,0.14);labStats()});
+let thT=0;$('thk').oninput=()=>{L.thk=+$('thk').value;$('thkO').textContent=L.thk.toFixed(1)+' cm';clearTimeout(thT);thT=setTimeout(labStats,60)};
+Kit.story(SC);
+</script>
+
+</body></html>

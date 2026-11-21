@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<title>Training Bay</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+:root{--bg:#0e1730;--panel:#1b2647;--panel2:#26335c;--ink:#f2f5ff;--muted:#a6b1d4;--heat:#ff8a3d;--sea:#2fd3d3;--plum:#b48cff;--sun:#ffd640;--stop:#ff5d6c;--go:#58d68d;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:880px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--heat)}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+p{margin:0}.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.28);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.08rem;font-weight:700;line-height:1.4}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;overflow-x:auto}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--body);font-size:1rem;white-space:nowrap}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play,.big{background:var(--heat);color:#1a0d00;font-family:var(--display);font-weight:600;font-size:1.08rem}
+.big{padding:12px 20px;min-height:50px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--heat)}
+.lab{display:flex;flex-direction:column;gap:10px}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctl>span{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--heat);height:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--panel);border-radius:14px;padding:10px 12px;min-width:0}
+.stat span{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat small{display:block;color:var(--muted);font-size:.8rem}
+.mission{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border-radius:14px;padding:10px 12px}
+.mission i{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;color:transparent}
+.mission.done i{background:var(--go);border-color:var(--go);color:#062312}
+.mission small{color:var(--muted);display:block}
+.memo{font-size:.88rem;color:var(--muted);border-top:1px solid var(--panel2);padding-top:10px}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:14px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--panel2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* layout: header, module picker, three tabs (drills, guided solves, find the bug), the active panel, then the module's missions */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{flex:1 1 150px}
+.panel{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h2{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.card h2 small{font-family:var(--body);font-size:.8rem;color:var(--muted);font-weight:800}
+.prompt{font-size:1.05rem;font-weight:700;line-height:1.5;overflow-x:auto}
+.prompt mjx-container{font-size:108%}
+.fill{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.fill label{display:flex;align-items:center;gap:6px;font-weight:700}
+.fill input{font:inherit;font-weight:700;width:7.5em;padding:8px 10px;border-radius:10px;border:2px solid var(--panel2);background:var(--bg);color:var(--ink);min-height:42px}
+.fill input.ok{border-color:var(--go)}.fill input.bad{border-color:var(--stop)}
+.go{background:var(--heat);color:#1a0d00}
+.fb{font-weight:700;min-height:1.4em}
+.fb.ok{color:var(--go)}.fb.bad{color:var(--stop)}
+.hint{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;font-size:.95rem;overflow-x:auto}
+.hint .lbl{color:var(--sun);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;display:block;font-weight:800}
+.lines button mjx-container{font-size:92%}
+@media (max-width:480px){.lines button mjx-container{font-size:80%}.lines button{padding:8px 10px}}
+.pips{display:flex;gap:6px}
+.pips i{width:14px;height:14px;border-radius:50%;background:var(--panel2)}
+.pips i.on{background:var(--go)}
+.drills{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.drills button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.drills button small{color:var(--muted);font-weight:700}
+.drills button.passed{outline:2px solid var(--go)}
+.drills button[aria-pressed="true"] small{color:#3a1d00}
+.mc{display:flex;flex-direction:column;gap:8px}
+.mc button{text-align:left;justify-content:flex-start;display:flex;overflow-x:auto}
+.mc button.ok{background:var(--go);color:#062312}.mc button.bad{background:var(--stop);color:#2a0006}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{border:2px solid var(--panel2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.step.done{border-color:var(--go)}
+.step .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lines{display:flex;flex-direction:column;gap:6px}
+.lines button{text-align:left;justify-content:flex-start;display:flex;overflow-x:auto;background:var(--panel2);font-weight:600}
+.lines button.ok{background:var(--go);color:#062312}.lines button.bad{background:var(--stop);color:#2a0006}
+.levels{display:flex;gap:6px;flex-wrap:wrap}
+.levels button{flex:1 1 140px;font-size:.92rem}
+.story{color:var(--muted)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem}
+.missions{display:flex;flex-direction:column;gap:8px}
+.weak{display:flex;flex-direction:column;gap:8px}
+#statsCard .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+table.st th,table.st td{padding:6px 5px;font-size:.88rem}
+table.st th{letter-spacing:.04em}
+.weak button{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.weak button small{color:var(--muted);font-weight:700}
+.tabs button[data-sub="stats"]{flex:1 1 100%}
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:6px}
+.mods button{display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;font-size:.9rem;padding:8px 10px}
+.mods button small{color:var(--sun);letter-spacing:.08em}
+.mods button[aria-pressed="true"] small{color:#3a1d00}
+</style>
+
+</head><body>
+<div class="app">
+  <div><p class="muted">MAE 384 · practice for every module</p><h1>Training <span>Bay</span></h1>
+  <p class="muted">Pick a module. Drill the math underneath, walk through a solve step by step, then hunt for planted mistakes. Every problem is new each time, and every answer is exact (no calculator).</p></div>
+  <div class="mods" id="mods" role="group" aria-label="Module"></div>
+  <h2 id="modTitle"></h2>
+  <div class="tabs" role="tablist">
+    <button data-sub="drill" aria-pressed="true">1 · Drills</button>
+    <button data-sub="guide" aria-pressed="false">2 · Guided solve</button>
+    <button data-sub="bug" aria-pressed="false">3 · Find the bug</button>
+    <button data-sub="stats" aria-pressed="false">My progress</button>
+  </div>
+  <section class="panel" id="p_drill">
+    <p class="muted">Quick drills on the math underneath every step. Get <b>three in a row</b> to pass a drill. Type fractions like <span class="mono">-11/16</span>.</p>
+    <div class="drills" id="drillBtns"></div>
+    <div class="card" id="drillCard"></div>
+  </section>
+  <section class="panel" id="p_guide" hidden>
+    <div class="tabs" id="gpick"></div>
+    <div class="levels" id="levels"></div>
+    <div class="card" id="guideCard"></div>
+  </section>
+  <section class="panel" id="p_bug" hidden>
+    <p class="muted">This worked solution has <b>exactly one</b> wrong line, and every line after it follows correctly from it. Tap the line where it first goes wrong.</p>
+    <div class="card" id="bugCard"></div>
+  </section>
+  <section class="panel" id="p_stats" hidden>
+    <div class="card" id="statsCard"></div>
+  </section>
+  <h2>Missions</h2>
+  <div class="missions" id="missions"></div>
+  <p class="memo">Module 9 (Fourier transforms) will be added once its materials are ready.</p>
+</div>
+
+<script>window.KIT_PAGE='tb';window.KIT_HUB='index.html';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+
+<script>
+/* ================= exact fractions ================= */
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+class Q{constructor(n,d=1){if(d<0){n=-n;d=-d}const g=gcd(n,d);this.n=n/g;this.d=d/g}
+  static of(x){return x instanceof Q?x:new Q(x,1)}
+  add(o){o=Q.of(o);return new Q(this.n*o.d+o.n*this.d,this.d*o.d)}
+  sub(o){o=Q.of(o);return new Q(this.n*o.d-o.n*this.d,this.d*o.d)}
+  mul(o){o=Q.of(o);return new Q(this.n*o.n,this.d*o.d)}
+  div(o){o=Q.of(o);return new Q(this.n*o.d,this.d*o.n)}
+  neg(){return new Q(-this.n,this.d)}
+  pow(k){let r=new Q(1);for(let i=0;i<k;i++)r=r.mul(this);return r}
+  get v(){return this.n/this.d}
+  isZero(){return this.n===0}
+  eq(o){o=Q.of(o);return this.n===o.n&&this.d===o.d}
+  tex(){if(this.d===1)return String(this.n);return (this.n<0?'-':'')+`\\frac{${Math.abs(this.n)}}{${this.d}}`}
+  str(){return this.d===1?String(this.n):this.n+'/'+this.d}}
+const q=(n,d=1)=>new Q(n,d);
+const R=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const M=s=>'\\('+s+'\\)';
+const paren=x=>{const t=Q.of(x).tex();return Q.of(x).n<0||Q.of(x).d!==1?`\\left(${t}\\right)`:t};
+/* a term like "+ \frac12 y^3" for a polynomial written left to right */
+function term(c,v,first){c=Q.of(c);if(c.isZero())return '';const s=c.n<0?'-':(first?'':'+');const a=new Q(Math.abs(c.n),c.d);return `${s}${a.eq(1)&&v?'':a.tex()}${v}`}
+const pw=(v,k)=>k===0?'':k===1?v:`${v}^{${k}}`;
+
+/* parse what a student types; accept fractions, integers and decimals */
+function parse(s){s=String(s).trim().replace(/[−–]/g,'-').replace(/\s+/g,'');if(!s)return null;let m=s.match(/^([+-]?\d+)\/([+-]?\d+)$/);
+  if(m){const d=+m[2];if(!d)return null;return {v:+m[1]/d,frac:true}}
+  m=s.match(/^[+-]?(\d+\.?\d*|\.\d+)$/);if(m)return {v:+s,frac:!s.includes('.')};return null}
+function match(inp,target){const p=parse(inp);if(!p)return {ok:false,empty:!String(inp).trim()};const t=Q.of(target).v;
+  if(Math.abs(p.v-t)<1e-9*Math.max(1,Math.abs(t)))return {ok:true,exact:true};
+  if(!p.frac&&Math.abs(p.v-t)<5e-4*Math.max(1,Math.abs(t)))return {ok:true,exact:false};return {ok:false}}
+
+function typeset(el){if(window.MathJax&&MathJax.typesetPromise){try{MathJax.typesetClear&&MathJax.typesetClear([el])}catch(e){}MathJax.typesetPromise([el]).catch(()=>{})}else setTimeout(()=>typeset(el),250)}
+const $=id=>document.getElementById(id);
+const st=Kit.store;
+function done(id){const el=$(id);if(el&&!el.classList.contains('done'))el.classList.add('done')}
+function gc(path){try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'training/'+path,title:'training',event:true})}catch(e){}}
+function good(){Kit.tone(784,0.12,0.2);Kit.tone(1047,0.18,0.2,'triangle',0.08)}
+function bad(){Kit.tone(196,0.22,0.22,'sawtooth')}
+
+/* a fill-in widget: blanks = [{label, ans}], returns a check function */
+function blanks(host,items,onRight,opts={}){
+  const wrap=document.createElement('div');wrap.className='fill';
+  items.forEach((it,i)=>{const l=document.createElement('label');l.innerHTML=(it.label||'')+`<input aria-label="${(it.aria||'answer '+(i+1))}" autocomplete="off" spellcheck="false" inputmode="text" placeholder="${it.ph||'e.g. 3/4'}">`;wrap.appendChild(l)});
+  const btn=document.createElement('button');btn.className='go';btn.textContent='Check';wrap.appendChild(btn);
+  const fb=document.createElement('div');fb.className='fb';fb.setAttribute('aria-live','polite');
+  host.appendChild(wrap);host.appendChild(fb);typeset(wrap);
+  const ins=[...wrap.querySelectorAll('input')];let tries=0,solved=false;
+  function check(){if(solved)return;let all=true,inexact=false,empty=false;
+    ins.forEach((inp,i)=>{const r=match(inp.value,items[i].ans);inp.classList.toggle('ok',r.ok);inp.classList.toggle('bad',!r.ok&&!r.empty);if(!r.ok)all=false;if(r.empty)empty=true;if(r.ok&&!r.exact)inexact=true});
+    if(empty&&!all){fb.className='fb';fb.textContent='Fill in every box.';return}
+    if(all){solved=true;btn.disabled=true;ins.forEach(i=>i.disabled=true);good();fb.className='fb ok';fb.textContent=inexact?'Correct. On the exam, write it as an exact fraction: '+items.map(i=>Q.of(i.ans).str()).join(', ')+'.':R(['Correct.','Nailed it.','Exactly right.','Yes.']);onRight(tries===0);return}
+    tries++;bad();fb.className='fb bad';
+    if(tries>=3&&opts.reveal!==false){fb.innerHTML='Answer: '+items.map(i=>(i.label?i.label.replace(/<[^>]+>/g,'').trim()+' ':'')+M(Q.of(i.ans).tex())).join(', ')+'. Type it in to continue.';typeset(fb)}
+    else{fb.innerHTML=(opts.why?opts.why(ins.map(i=>i.value),tries):'Not yet.')+(tries===2&&opts.reveal!==false?' One more try, then the answer appears.':'');typeset(fb)}
+    if(opts.onWrong)opts.onWrong()}
+  btn.onclick=check;ins.forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')check()}));
+  return {focus(){ins[0]&&ins[0].focus({preventScroll:true})}}}
+
+/* a multiple-choice widget */
+function choice(host,opts,onRight,why){const box=document.createElement('div');box.className='mc';let first=true,solved=false;
+  shuffle(opts.slice()).forEach(o=>{const b=document.createElement('button');b.innerHTML=o.html;if(location.hash==='#test'&&o.ok)b.dataset.ok='1';b.onclick=()=>{if(solved)return;
+    if(o.ok){solved=true;b.classList.add('ok');good();fb.className='fb ok';fb.innerHTML=o.why||'Correct.';typeset(fb);box.querySelectorAll('button').forEach(x=>x.disabled=x!==b);onRight(first)}
+    else{first=false;b.classList.add('bad');b.disabled=true;bad();fb.className='fb bad';fb.innerHTML=o.why||why||'Not this one.';typeset(fb)}};box.appendChild(b)});
+  const fb=document.createElement('div');fb.className='fb';fb.setAttribute('aria-live','polite');host.appendChild(box);host.appendChild(fb);typeset(box)}
+
+const DEN=[2,3,4,5,8];
+const frac=(lo=1,hi=7)=>{const d=R(DEN);let n;do{n=lo+Math.floor(Math.random()*(hi-lo+1))}while(n%d===0);return q(n,d)};
+const DRILLS=[
+ {id:'frac',name:'Fractions',sub:'by hand, no calculator',gen(){const a=frac(),b=frac(),c=frac(),d=frac(1,5);const k=R([0,1,2,3,4]);
+   if(k===0)return {p:`${M(a.tex()+'+'+b.tex())}`,ans:[a.add(b)]};
+   if(k===1)return {p:`${M(a.tex()+'-'+b.tex())}`,ans:[a.sub(b)]};
+   if(k===2)return {p:`${M(a.tex()+'\\cdot'+b.tex())}`,ans:[a.mul(b)]};
+   if(k===3)return {p:`${M('\\dfrac{'+a.tex()+'}{'+b.tex()+'}')}`,ans:[a.div(b)]};
+   const g=R([a,a.neg()]);return {p:`A Newton update: ${M(c.tex()+'-\\dfrac{'+g.tex()+'}{'+d.tex()+'}')}`,ans:[c.sub(g.div(d))],h:'Divide first: flip the bottom fraction and multiply. Then subtract. Minus a negative is plus.'}}},
+ {id:'deriv',name:'Derivatives',sub:"g′ at a point",gen(){const n=R([2,3]),a=frac(1,3),c=frac(1,9),y0=R([q(1),q(1,2),q(2)]);
+   const g=`g(y)=y${term(a,pw('y',n))}-${c.tex()}`,dg=q(1).add(a.mul(n).mul(y0.pow(n-1)));
+   return {p:`${M(g)}. Find ${M("g'("+y0.tex()+")")}.`,ans:[dg],h:`Differentiate term by term: ${M('\\frac{d}{dy}\\,a\\,y^{n}=n\\,a\\,y^{n-1}')}, and the constant disappears. Here ${M("g'(y)=1+"+a.mul(n).tex()+pw('y',n-1))}.`}}},
+ {id:'plug',name:'Plug in',sub:'evaluate f(x, y)',gen(){const p=R([1,2,3,4,5]),m=R([1,2]),qq=R([1,2,3]),n=R([2,3]),x=R([q(1,2),q(1),q(1,4),q(2)]),y=R([q(-1),q(1,2),q(2),q(-1,2),q(1)]);
+   const f=`f(x,y)=${p===1?'':p}${pw('x',m)}${R([true,false])?'y':''}`;const hasY=f.endsWith('y');
+   const val=q(p).mul(x.pow(m)).mul(hasY?y:q(1)).sub(q(qq).mul(y.pow(n)));
+   return {p:`${M(f+'-'+(qq===1?'':qq)+pw('y',n))}. Find ${M('f\\!\\left('+x.tex()+',\\,'+y.tex()+'\\right)')}.`,ans:[val],h:'Put every negative or fractional value in parentheses before you raise it to a power: (−1)³ = −1, (−1)² = +1.'}}},
+ {id:'mat',name:'A z + b',sub:'matrix times vector',gen(){const c=R([1,2,3,4]),b=R([2,3,4,5]),F=R([2,4,6,8]),z1=R([q(0),q(1,2),q(1,4),q(1)]),z2=R([q(1),q(3,2),q(1,2),q(2)]);
+   const A=`\\begin{bmatrix}0&1\\\\-${c}&-${b}\\end{bmatrix}`,r2=q(F).sub(q(c).mul(z1)).sub(q(b).mul(z2));
+   return {p:`${M(A+'\\begin{bmatrix}'+z1.tex()+'\\\\'+z2.tex()+'\\end{bmatrix}+\\begin{bmatrix}0\\\\'+F+'\\end{bmatrix}')}`,ans:[z2,r2],labels:['top','bottom'],h:'Row times column: top = 0·(top) + 1·(bottom) + 0. Bottom = (−c)·(top) + (−b)·(bottom) + F.'}}},
+ {id:'sys',name:'Highest derivative',sub:'set up the system',mc:true,gen(){const a=R([1,1,2]),b=R([2,3,4,5]),F=R([2,4,6,8]);let c;do{c=R([1,2,3,4,6])}while(c===b);
+   const eq=`${a===1?'':a}x''+${b}x'+${c}x=${F}`;const D=a===1?'':a;const fr=(t)=>a===1?t:`\\tfrac{1}{${a}}\\left(${t}\\right)`;
+   const right=fr(`${F}-${c}z_1-${b}z_2`);
+   const opts=[{html:M("z_2'="+right),ok:true,why:`Solve for the highest derivative${a===1?'':' and divide by '+a}: ${M("x''="+right.replace(/z_1/g,'x').replace(/z_2/g,"x'"))}.`},
+    {html:M("z_2'="+fr(`${F}+${c}z_1+${b}z_2`)),why:'Moving terms across the equals sign flips their signs.'},
+    {html:M("z_2'="+fr(`${F}-${b}z_1-${c}z_2`)),why:`${M('z_1=x')} goes with the ${M('x')} coefficient (${c}), ${M("z_2=x'")} with the ${M("x'")} coefficient (${b}).`},
+    {html:M("z_2'="+(a===1?`${c}z_1+${b}z_2-${F}`:`${F}-${c}z_1-${b}z_2`)),why:a===1?'That is the negative of the right answer: solve for x″ so that it stands alone on the left.':`Divide the whole right side by ${a}, the coefficient of x″.`}];
+   return {p:`${M(eq)} with ${M("z_1=x,\\; z_2=x'")}. Which is the second equation?`,opts}}}];
+/* ================= problem generators shared by guided solves and bug hunts ================= */
+function genA(){let P;do{const p=R([1,2,3,4]),qq=R([1,2]),n=R([2,3]),m=R([1,2]),h=q(1,2);P={p,qq,n,m,h};
+  const c1=h.mul(qq),c0=q(1).add(h.mul(p).mul(h.pow(m))),g1=q(1).add(c1).sub(c0),d=h.mul(qq).mul(n),dg1=q(1).add(d);Object.assign(P,{c1,c0,g1,d,dg1,y2:q(1).sub(g1.div(dg1))})}while(P.g1.isZero());return P}
+const fA=P=>`${P.p===1?'':P.p}${pw('x',P.m)}-${P.qq===1?'':P.qq}${pw('y',P.n)}`;
+function genB(){let P;do{const b=R([2,3,4,5]),c=R([1,2,3,4]),F=R([2,4,6,8]),x0=R([0,1]),v0=R([1,2]),dt=q(1,2);P={b,c,F,x0:q(x0),v0:q(v0),dt}}while(P.F===P.c*P.x0.v+P.b*P.v0.v||P.b===P.c);
+  const f=(z1,z2)=>[z2,q(P.F).sub(q(P.c).mul(z1)).sub(q(P.b).mul(z2))];P.f=f;P.k1=f(P.x0,P.v0);const h2=P.dt.div(2);P.zh=[P.x0.add(h2.mul(P.k1[0])),P.v0.add(h2.mul(P.k1[1]))];
+  P.k2=f(...P.zh);P.z2=[P.x0.add(P.dt.mul(P.k2[0])),P.v0.add(P.dt.mul(P.k2[1]))];return P}
+const eqB=P=>[`x''+${P.b}x'+${P.c}x=${P.F}`,`x(0)=${P.x0.tex()}`,`x'(0)=${P.v0.tex()}`].map(M).join(', ');
+const vec=a=>`\\left(${a[0].tex()},\\;${a[1].tex()}\\right)`;
+
+function stepsA(P){const h=P.h.tex(),x2=P.h.tex();return [
+  {t:'Where is f evaluated?',sheet:'y_{i+1}=y_i+h\\,f\\!\\left(x_{i+1},\\,y_{i+1}\\right)',hint:'Implicit Euler uses the slope at the <b>new</b> point, which is what makes the unknown appear on both sides.',
+   mc:[{html:M('\\left(x_2,\\;y_2\\right)\\text{, the new point}'),ok:true,why:`Right. With ${M('x_2='+x2)}: ${M('y_2=1+'+h+'\\,f\\!\\left('+x2+',\\,y_2\\right)')}.`},{html:M('\\left(x_1,\\;y_1\\right)\\text{, the old point}'),why:'That is explicit Euler.'},{html:M('\\left(x_1,\\;y_2\\right)'),why:'Old x with new y was a common Exam 4 slip. Both x and y are new.'},{html:M('\\left(x_1+\\tfrac{h}{2},\\;y_2\\right)'),why:'That half step belongs to the midpoint method.'}]},
+  {t:'Build g(y₂) = 0',sheet:'g(y_2)=y_2-y_1-h\\,f\\!\\left(x_2,\\,y_2\\right)=0',hint:`${M('y_2=1+'+h+'\\left('+(P.p===1?'':P.p)+paren(P.h)+(P.m===2?'^2':'')+'-'+(P.qq===1?'':P.qq)+'y_2^{'+P.n+'}\\right)')}. Expand and move everything to the left.`,
+   p:`${M('g(y_2)=y_2+\\boxed{\\phantom{0}}\\;y_2^{'+P.n+'}-\\boxed{\\phantom{0}}')}`,fill:[{label:M('y_2^{'+P.n+'}')+' coefficient',ans:P.c1},{label:'constant',ans:P.c0}]},
+  {t:'Differentiate g',sheet:"\\frac{d}{dy}\\,a\\,y^{n}=n\\,a\\,y^{n-1}",hint:`The ${M('y_2')} term gives 1, the constant gives 0, and ${M(P.c1.tex()+'y^{'+P.n+'}')} gives ${M(P.n+'\\cdot'+P.c1.tex()+pw('y',P.n-1))}.`,
+   p:M("g'(y)=1+\\boxed{\\phantom{0}}\\;"+pw('y',P.n-1)),fill:[{label:'coefficient',ans:P.d}]},
+  {t:'Evaluate at the guess',sheet:'y_2^{(1)}=y_1=1',hint:'The initial condition is a safe starting guess: the solution has not moved far in one small step.',
+   p:`Start from ${M('y_2^{(1)}=1')}.`,fill:[{label:M('g(1)='),ans:P.g1},{label:M("g'(1)="),ans:P.dg1}]},
+  {t:'One Newton update',sheet:"y_2^{(2)}=y_2^{(1)}-\\frac{g\\left(y_2^{(1)}\\right)}{g'\\left(y_2^{(1)}\\right)}",hint:`${M('1-\\dfrac{'+P.g1.tex()+'}{'+P.dg1.tex()+'}')}: divide first, then subtract. Watch the sign if g(1) is negative.`,
+   p:M('y_2^{(2)}=1-\\dfrac{g(1)}{g\'(1)}'),fill:[{label:M('y_2^{(2)}='),ans:P.y2}]},
+  {t:'The same step in MATLAB',sheet:"g(y)=y-y_i-h\\,f(x_i+h,\\,y)\\;\\Rightarrow\\;g'(y)=1-h\\,\\frac{\\partial f}{\\partial y}(x_i+h,\\,y)",hint:'Differentiate the general g with respect to y: y gives 1, y_i is a constant, and the chain rule leaves −h times ∂f/∂y at the new point.',
+   p:'<span class="mono">dfdy(x,y)</span> returns ∂f/∂y. Which line is g′(y) for Newton\'s method?',
+   mc:[{html:'<span class="mono">dg = @(y) 1 - h*dfdy(xi + h, y)</span>',ok:true,why:'Right: new x, the unknown y, and a minus sign.'},{html:'<span class="mono">dg = @(y) 1 - h*dfdy(xi, y)</span>',why:'That uses the old x. The slope is taken at the new point.'},{html:'<span class="mono">dg = @(y) 1 + h*dfdy(xi + h, y)</span>',why:'Sign: g has −h f, so its derivative has −h ∂f/∂y.'},{html:'<span class="mono">dg = @(y) 1 - h*dfdy(xi + h, yi)</span>',why:'g′ must depend on the unknown y, not the old value yi.'}]}]}
+function stepsB(P){const h2=P.dt.div(2);return [
+  {t:'Second equation',sheet:"z_1'=z_2,\\qquad z_2'=x''",hint:"Solve the ODE for x'' and replace x with z₁ and x' with z₂.",
+   mc:[{html:M(`z_2'=${P.F}-${P.c}z_1-${P.b}z_2`),ok:true},{html:M(`z_2'=${P.F}+${P.c}z_1+${P.b}z_2`),why:'Moving terms across the equals sign flips their signs.'},{html:M(`z_2'=${P.F}-${P.b}z_1-${P.c}z_2`),why:"z₁ = x goes with the x coefficient; z₂ = x' with the x' coefficient."},{html:M(`z_2'=${P.c}z_1+${P.b}z_2-${P.F}`),why:"That is the negative of x''."}]},
+  {t:'A and b',sheet:"\\vec z\\,'=A\\vec z+\\vec b",hint:'Row 2 of A holds the coefficients of z₁ and z₂ in the second equation, signs included. The constant forcing goes in b, not in A.',
+   p:M(`A=\\begin{bmatrix}0&1\\\\ \\square&\\square\\end{bmatrix},\\qquad \\vec b=\\begin{bmatrix}0\\\\ \\square\\end{bmatrix}`),fill:[{label:'A row 2, left',ans:q(-P.c)},{label:'A row 2, right',ans:q(-P.b)},{label:'b bottom',ans:q(P.F)}]},
+  {t:'k₁ at the start',sheet:'\\vec k_1=A\\vec z^{(1)}+\\vec b',hint:`${M('\\vec z^{(1)}='+vec([P.x0,P.v0]))}. Top: ${M('z_2')}. Bottom: ${M(P.F+'-'+P.c+'z_1-'+P.b+'z_2')}.`,
+   p:M('\\vec k_1=\\left(\\square,\\;\\square\\right)'),fill:[{label:'top',ans:P.k1[0]},{label:'bottom',ans:P.k1[1]}]},
+  {t:'The half step',sheet:'\\vec z^{(1)}+\\frac{\\Delta t}{2}\\,\\vec k_1',hint:`${M('\\frac{\\Delta t}{2}='+h2.tex())}, not ${M('\\Delta t')}. Half a step forward with the starting slope.`,
+   p:M(vec([P.x0,P.v0])+'+'+h2.tex()+vec(P.k1)+'=\\left(\\square,\\;\\square\\right)'),fill:[{label:'top',ans:P.zh[0]},{label:'bottom',ans:P.zh[1]}]},
+  {t:'k₂ at the half step',sheet:'\\vec k_2=A\\left(\\vec z^{(1)}+\\tfrac{\\Delta t}{2}\\vec k_1\\right)+\\vec b',hint:'Same rule as k₁, but with the half-step state.',
+   p:M('\\vec k_2=\\left(\\square,\\;\\square\\right)'),fill:[{label:'top',ans:P.k2[0]},{label:'bottom',ans:P.k2[1]}]},
+  {t:'The full step',sheet:'\\vec z^{(2)}=\\vec z^{(1)}+\\Delta t\\,\\vec k_2',hint:`Full ${M('\\Delta t='+P.dt.tex())}, with ${M('\\vec k_2')} (not ${M('\\vec k_1')}), starting from ${M('\\vec z^{(1)}')} (not the half-step state).`,
+   p:M(vec([P.x0,P.v0])+'+'+P.dt.tex()+vec(P.k2)+'=\\left(\\square,\\;\\square\\right)'),fill:[{label:M('x(\\tfrac12)\\approx'),ans:P.z2[0]},{label:M("x'(\\tfrac12)\\approx"),ans:P.z2[1]}]}]}
+
+function linesA(P,bug){const h=P.h,xe=bug==='oldx'?q(0):h,c1=h.mul(P.qq),c0=q(1).add(h.mul(P.p).mul(xe.pow(P.m)));
+  let d=h.mul(P.qq).mul(P.n);if(bug==='noh')d=q(P.qq*P.n);const sgn=bug==='dsign'?-1:1;const g1=q(1).add(c1).sub(c0),dg1=q(1).add(d.mul(sgn));
+  const y=bug==='nsign'?q(1).add(g1.div(dg1)):q(1).sub(g1.div(dg1));
+  return [{tex:`y_2=1+h\\,f\\!\\left(${bug==='oldx'?'x_1':'x_2'},y_2\\right)=1+${h.tex().replace('\\frac','\\tfrac')}\\left(${P.p===1?'':P.p+'\\cdot'}${paren(xe)}${P.m===2?'^2':''}-${P.qq===1?'':P.qq}y_2^{${P.n}}\\right)`,bad:bug==='oldx'},
+   {tex:`g(y_2)=y_2${term(c1,'y_2^{'+P.n+'}')}-${c0.tex()}=0`},
+   {tex:`g'(y)=1${sgn<0?'-':'+'}${d.tex()}${pw('y',P.n-1)}`,bad:bug==='noh'||bug==='dsign'},
+   {tex:`g(1)=${g1.tex()},\\qquad g'(1)=${dg1.tex()}`},
+   {tex:`y_2^{(2)}=1${bug==='nsign'?'+':'-'}\\dfrac{${g1.tex()}}{${dg1.tex()}}=${y.tex()}`,bad:bug==='nsign'}]}
+const WHY_A={oldx:'Implicit Euler evaluates f at the new point (x₂, y₂). This line used the old x₁ = 0.',noh:'The derivative of the term h·q·yⁿ is n·h·q·yⁿ⁻¹. The factor h was dropped.',dsign:'g has +h·q·yⁿ, so g′ has a plus sign too. The sign flipped while differentiating.',nsign:'Newton subtracts: y − g/g′. This line added.'};
+function linesB(P,bug){const c=bug==='sign'?-P.c:P.c,bv=bug==='bvec'?[q(P.F),q(0)]:[q(0),q(P.F)];
+  const f=(z1,z2)=>[z2.add(bv[0]),q(-c).mul(z1).sub(q(P.b).mul(z2)).add(bv[1])];const z=[P.x0,P.v0],k1=f(...z),fac=bug==='fullstep'?P.dt:P.dt.div(2);
+  const zh=[z[0].add(fac.mul(k1[0])),z[1].add(fac.mul(k1[1]))],k2=f(...zh),kk=bug==='usek1'?k1:k2,uf=bug==='halfupd'?P.dt.div(2):P.dt;const z2=[z[0].add(uf.mul(kk[0])),z[1].add(uf.mul(kk[1]))];
+  return [{tex:`z_1'=z_2,\\qquad z_2'=${P.F}${c<0?'+':'-'}${Math.abs(c)}z_1-${P.b}z_2`,bad:bug==='sign'},
+   {tex:`A=\\begin{bmatrix}0&1\\\\ ${-c}&${-P.b}\\end{bmatrix},\\qquad \\vec b=\\begin{bmatrix}${bv[0].tex()}\\\\ ${bv[1].tex()}\\end{bmatrix}`,bad:bug==='bvec'},
+   {tex:`\\vec k_1=A\\vec z^{(1)}+\\vec b=${vec(k1)}`},
+   {tex:`\\vec z^{(1)}+${fac.tex()}\\,\\vec k_1=${vec(zh)}`,bad:bug==='fullstep'},
+   {tex:`\\vec k_2=A${vec(zh)}+\\vec b=${vec(k2)}`},
+   {tex:`\\vec z^{(2)}=\\vec z^{(1)}+${uf.tex()}\\,\\vec k_${bug==='usek1'?1:2}=${vec(z2)}`,bad:bug==='usek1'||bug==='halfupd'}]}
+const WHY_B={sign:'Solving for x″ flips the sign of every term moved across: it should be −c·z₁.',bvec:'The forcing acts on x″, so it belongs in the bottom entry of b.',fullstep:'The midpoint method takes a half step, Δt/2, to reach the midpoint.',usek1:'The full step uses k₂, the slope at the midpoint. Using k₁ is just explicit Euler.',halfupd:'The full step uses the full Δt. Only the trip to the midpoint uses Δt/2.'};
+/* ================= helpers for the module content ================= */
+const T=String.raw;
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const absQ=x=>new Q(Math.abs(x.n),x.d);
+const big=x=>Math.max(Math.abs(x.n),x.d);
+const aug=S=>T`\left[\begin{array}{rrr|r}`+S.map(r=>r.map(v=>v.tex()).join('&')).join('\\\\')+T`\end{array}\right]`;
+const signed=(c,v,first)=>{c=Q.of(c);if(c.isZero())return '';const neg=c.n<0,a=absQ(c);return (neg?'-':(first?'':'+'))+(a.eq(1)&&v?'':a.tex())+v};
+const xtex=x=>{if(x.d===1)return String(x.n);for(const p of [10,100,1000])if(p%x.d===0)return String(x.v);return x.tex()};
+
+/* ================= Module 1: precision ================= */
+const PREC={single:{m:23,bias:127,nexp:8},double:{m:52,bias:1023,nexp:11}};
+const XS=[q(10),q(100),q(1,10),q(5),q(1000),q(3,10),q(6),q(40),q(3),q(1,3),q(250),q(7,8),q(20),q(1,5)];
+const p2=x=>{let p=0,t=q(1);if(x.v>=1){while(t.mul(2).v<=x.v){t=t.mul(2);p++}}else{while(t.v>x.v){t=t.div(2);p--}}return p};
+const M1={id:'m1',name:'Precision',title:'Module 1 · Precision and accuracy',
+ drills:[
+  {id:'p10',name:'Base-10 exponent',sub:'normalized form',gen(){const k=ri(-5,4),mant=ri(101,989),s=(mant*Math.pow(10,k-2)).toFixed(Math.max(0,2-k));
+    return {p:`Write ${M('x='+s)} as ${M(T`d.dd\times10^{p}`)}. What is ${M('p')}?`,ans:[q(k)],h:`${M(T`p=\lfloor\log_{10}x\rfloor`)}: count where the first nonzero digit sits. ⌊ ⌋ rounds down, so log₁₀ x = −2.34 gives p = −3.`}}},
+  {id:'p2',name:'Base-2 exponent',sub:'2ᵖ ≤ x < 2ᵖ⁺¹',gen(){const x=R(XS);return {p:`Find ${M('p')} with ${M(T`2^{p}\le ${xtex(x)}<2^{p+1}`)}.`,ans:[q(p2(x))],h:'List powers of 2 around x: …, 1/8, 1/4, 1/2, 1, 2, 4, 8, 16, …. For x below 1, p is negative.'}}},
+  {id:'gap',name:'Gap size',sub:'interval 2ᵖ⁻ᵐ',gen(){const x=R(XS),pr=R(['single','double']),P=PREC[pr];return {p:`In ${pr} precision (${M('m='+P.m)} mantissa bits), the gap between ${M('x='+xtex(x))} and the next stored number is ${M('2^{\\square}')}. Enter the exponent.`,ans:[q(p2(x)-P.m)],h:`First find p with ${M(T`2^p\le x<2^{p+1}`)}, then the gap is ${M('2^{p-m}')}.`}}},
+  {id:'rel',name:'Relative error',sub:'divide by the true value',gen(){const t=frac(1,9),e=q(R([1,-1]),R([10,20,100])),n=t.sub(e);return {p:`True value ${M(t.tex())}, numerical value ${M(n.tex())}. Find the relative error ${M(T`\frac{\text{true}-\text{numerical}}{\text{true}}`)}.`,ans:[e.div(t)],h:'True error E = true − numerical. Divide E by the true value, not the numerical one.'}}}],
+ guides:[{id:'g1',name:'A number on the floating-point grid',
+  story:'Every stored number sits on a grid. The spacing of that grid near your number is the best accuracy you can ever get, which is why a clock counting tenths of a second drifts.',
+  gen(){const x=R(XS),pr=R(['single','double']);return {x,pr,...PREC[pr],p:p2(x)}},
+  prompt:P=>`How is ${M('x='+xtex(P.x))} stored in ${P.pr} precision (${M('m='+P.m)} mantissa bits, ${P.nexp} exponent bits)?`,
+  steps:P=>[
+   {t:'Base-2 exponent',sheet:T`2^{p}\le x<2^{p+1}`,hint:`Powers of 2 near x: ${M(T`2^{${P.p}}=${q(2).pow(Math.max(0,P.p)).div(q(2).pow(Math.max(0,-P.p))).tex()}`)} is the largest one that does not exceed x.`,p:M(T`2^{p}\le ${xtex(P.x)}<2^{p+1}`),fill:[{label:M('p='),ans:q(P.p)}]},
+   {t:'Stored exponent',sheet:T`\text{bias}=2^{n-1}-1,\qquad\text{stored}=p+\text{bias}`,hint:`${P.nexp} exponent bits: bias ${M(T`=2^{${P.nexp-1}}-1=${P.bias}`)}.`,fill:[{label:'stored exponent',ans:q(P.p+P.bias)}]},
+   {t:'Gap to the next number',sheet:T`\text{interval}=2^{\,p-m}`,hint:`${M('m='+P.m)} for ${P.pr} precision, and p is the base-2 exponent of x (not of 1).`,p:M(T`\text{gap}=2^{\square}`),fill:[{label:'exponent',ans:q(P.p-P.m)}]},
+   {t:'Largest round-off',sheet:T`\text{rounding error}\le\tfrac12\,\text{interval}`,hint:'Rounding goes to the nearest grid point, so it is never more than half a gap away.',
+    mc:[{html:M(T`\tfrac12\cdot2^{${P.p-P.m}}=2^{${P.p-P.m-1}}`),ok:true,why:'Right: rounding is off by at most half a gap.'},{html:M(`2^{${P.p-P.m}}`),why:'A full gap is the bound for chopping, not rounding.'},{html:M(`2^{-${P.m}}`),why:'That is the gap near 1, not near this x.'},{html:M(`2^{${P.p}}`),why:'That is the size of x itself.'}]}],
+  final:P=>[{label:'stored exponent',ans:q(P.p+P.bias)},{label:'gap exponent',ans:q(P.p-P.m)}],
+  lines(P,bug){const pp=bug==='ceil'?P.p+1:P.p,b=bug==='bias'?P.bias+1:P.bias,mm=bug==='mbits'?(P.m===23?52:23):P.m,g=pp-mm,hf=bug==='half'?g:g-1;
+   return [{tex:T`2^{${pp}}\le ${xtex(P.x)}<2^{${pp+1}}\;\Rightarrow\;p=${pp}`,bad:bug==='ceil'},{tex:T`\text{stored exponent}=p+${b}=${pp+b}`,bad:bug==='bias'},
+    {tex:T`\text{gap}=2^{\,p-${mm}}=2^{${g}}`,bad:bug==='mbits'},{tex:T`\text{max round-off}=${bug==='half'?'':T`\tfrac12\cdot`}2^{${g}}=2^{${hf}}`,bad:bug==='half'}]},
+  bugs:{ceil:'p is the largest power with 2ᵖ ≤ x. Check it: this 2ᵖ is already bigger than x.',bias:'The bias is 2ⁿ⁻¹ − 1 (127 single, 1023 double), not 2ⁿ⁻¹.',mbits:'This used the other precision’s mantissa bits (23 single, 52 double).',half:'Rounding to nearest is off by at most half a gap.'}}]};
+
+/* ================= Module 2: linear systems ================= */
+function gaussRun(S0,o={}){const sw=(S,i,j)=>{const T2=S.map(r=>r.slice());[T2[i],T2[j]]=[T2[j],T2[i]];return T2};
+  let idx=0;if(o.p1!=='none'){for(let i=1;i<3;i++)if(absQ(S0[i][0]).v>absQ(S0[idx][0]).v)idx=i}
+  const S1=sw(S0,0,idx);if(S1[0][0].isZero())return null;
+  let m=[null,S1[1][0].div(S1[0][0]),S1[2][0].div(S1[0][0])];if(o.inv){if(S1[1][0].isZero()||S1[2][0].isZero())return null;m=[null,S1[0][0].div(S1[1][0]),S1[0][0].div(S1[2][0])]}
+  const S2=[S1[0],S1[1].map((v,j)=>v.sub(m[1].mul(S1[0][j]))),S1[2].map((v,j)=>v.sub(m[2].mul(S1[0][j])))];
+  const real=absQ(S2[2][1]).v>absQ(S2[1][1]).v,orig=absQ(S1[2][1]).v>absQ(S1[1][1]).v,swap=o.p2==='orig'?orig:real;
+  const S3=swap?sw(S2,1,2):S2;if(S3[1][1].isZero())return null;const m32=S3[2][1].div(S3[1][1]);
+  const S4=[S3[0],S3[1],S3[2].map((v,j)=>v.sub(m32.mul(S3[1][j])))];if(S4[2][2].isZero())return null;
+  const x3=S4[2][3].div(S4[2][2]),t=S3[1][2].mul(x3),x2=(o.bs?S3[1][3].add(t):S3[1][3].sub(t)).div(S3[1][1]);
+  const x1=S1[0][3].sub(S1[0][1].mul(x2)).sub(S1[0][2].mul(x3)).div(S1[0][0]);
+  return {idx,S1,m,S2,swap,real,orig,S3,m32,S4,x:[x1,x2,x3]}}
+const M2={id:'m2',name:'Linear systems',title:'Module 2 · Systems of linear equations',
+ drills:[
+  {id:'vnorm',name:'Vector norms',sub:'∞-norm and 1-norm',gen(){const v=[0,0,0].map(()=>{let a;do{a=ri(-6,6)}while(!a);return q(a)});
+    return {p:`${M(T`\vec x=\left(${v.map(a=>a.tex()).join(',\;')}\right)`)}. Find ${M(T`\|\vec x\|_\infty`)} and ${M(T`\|\vec x\|_1`)}.`,ans:[q(Math.max(...v.map(a=>Math.abs(a.n)))),q(v.reduce((s,a)=>s+Math.abs(a.n),0))],labels:[M(T`\|\vec x\|_\infty=`),M(T`\|\vec x\|_1=`)],h:'Absolute values first. ∞-norm: the largest. 1-norm: the sum.'}}},
+  {id:'mnorm',name:'Matrix norms',sub:'rows vs columns',gen(){const n=R([2,3]),A=[...Array(n)].map(()=>[...Array(n)].map(()=>ri(-5,5)));
+    const rows=A.map(r=>r.reduce((s,a)=>s+Math.abs(a),0)),cols=A[0].map((_,j)=>A.reduce((s,r)=>s+Math.abs(r[j]),0));
+    return {p:`${M(T`A=\begin{bmatrix}`+A.map(r=>r.join('&')).join('\\\\')+T`\end{bmatrix}`)}. Find ${M(T`\|A\|_\infty`)} and ${M(T`\|A\|_1`)}.`,ans:[q(Math.max(...rows)),q(Math.max(...cols))],labels:[M(T`\|A\|_\infty=`),M(T`\|A\|_1=`)],h:'∞-norm: largest row sum of |aᵢⱼ|. 1-norm: largest column sum (the “1” is a vertical stroke, like a column).'}}},
+  {id:'resid',name:'Residual',sub:'r = b − A x',gen(){const A=[[ri(-3,3),ri(-3,3)],[ri(-3,3),ri(-3,3)]],x=[q(ri(-3,3),2),q(ri(-3,3),2)],b=[ri(-4,4),ri(-4,4)];
+    const r=[0,1].map(i=>q(b[i]).sub(x[0].mul(A[i][0])).sub(x[1].mul(A[i][1])));
+    return {p:`${M(T`A=\begin{bmatrix}${A[0].join('&')}\\${A[1].join('&')}\end{bmatrix},\;\vec b=\begin{bmatrix}${b[0]}\\${b[1]}\end{bmatrix},\;\vec x_{NS}=\begin{bmatrix}${x[0].tex()}\\${x[1].tex()}\end{bmatrix}`)}. Find ${M(T`\vec r=\vec b-A\vec x_{NS}`)}.`,ans:r,labels:['top','bottom'],h:'Multiply A by x first (row times column), then subtract that from b.'}}}],
+ guides:[{id:'g2',name:'Gauss elimination with partial pivoting',
+  story:'A truss bridge, a circuit or a heat-transfer grid all end up as A x = b. Partial pivoting keeps the elimination from dividing by a tiny number.',
+  gen(){let fb=null;const want=Math.random()<0.5;for(let t=0;t<20000;t++){const S0=[0,1,2].map(()=>[ri(-4,4),ri(-4,4),ri(-4,4)].map(v=>q(v))),x=[ri(-2,2),ri(-2,2),ri(-2,2)];
+    S0.forEach(r=>r.push(q(r[0].v*x[0]+r[1].v*x[1]+r[2].v*x[2])));const G=gaussRun(S0);if(!G||G.idx===0)continue;
+    const all=[...G.m.slice(1),...G.S2[1],...G.S2[2],G.m32,...G.S4[2],...G.x];if(all.some(v=>v.d>8||Math.abs(v.n)>60))continue;fb={S0,...G};if(want&&!G.swap)continue;return fb}return fb},
+  prompt:P=>`Solve with Gauss elimination and partial pivoting: ${M(aug(P.S0))}`,
+  steps:P=>[
+   {t:'First pivot',sheet:T`\text{pivot row: largest }|a_{i1}|`,hint:'Compare the absolute values in column 1. That row swaps into row 1, even if a₁₁ is not zero.',p:'Which row has the largest '+M('|a_{i1}|')+'?',fill:[{label:'row',ans:q(P.idx+1),ph:'1, 2 or 3'}]},
+   {t:'Multipliers',sheet:T`m_{i1}=\frac{a_{i1}}{a_{11}}`,hint:'Divide each entry below the pivot by the pivot (after the swap).',p:'After the swap: '+M(aug(P.S1)),fill:[{label:M('m_{21}='),ans:P.m[1]},{label:M('m_{31}='),ans:P.m[2]}]},
+   {t:'New row 2',sheet:T`\text{row}_2-m_{21}\,\text{row}_1`,hint:'Subtract m₂₁ times row 1 from row 2, entry by entry. The first entry becomes 0.',fill:[{label:M('a_{22}'),ans:P.S2[1][1]},{label:M('a_{23}'),ans:P.S2[1][2]},{label:M('b_2'),ans:P.S2[1][3]}]},
+   {t:'New row 3',sheet:T`\text{row}_3-m_{31}\,\text{row}_1`,hint:'Same as row 2, with m₃₁.',fill:[{label:M('a_{32}'),ans:P.S2[2][1]},{label:M('a_{33}'),ans:P.S2[2][2]},{label:M('b_3'),ans:P.S2[2][3]}]},
+   {t:'Second pivot',sheet:T`\text{compare }|a_{22}|,\ |a_{32}|\text{ in the current matrix}`,hint:'Search the current (reduced) submatrix, not the original matrix.',p:'Now: '+M(aug(P.S2)),
+    mc:[{html:'Swap rows 2 and 3',ok:P.swap,why:P.swap?`Right: ${M('|'+P.S2[2][1].tex()+'|')} is larger than ${M('|'+P.S2[1][1].tex()+'|')}.`:'Compare the entries in the current matrix: the one in row 2 is already the larger.'},{html:'Keep rows 2 and 3 in place',ok:!P.swap,why:!P.swap?`Right: ${M('|'+P.S2[1][1].tex()+'|')} is already the larger.`:'Compare the entries in the current matrix: the one in row 3 is larger.'}]},
+   {t:'Eliminate below the second pivot',sheet:T`m_{32}=\frac{a_{32}}{a_{22}},\quad\text{row}_3-m_{32}\,\text{row}_2`,hint:'Use the matrix after the second-pivot decision.',p:'Current: '+M(aug(P.S3)),fill:[{label:M('m_{32}='),ans:P.m32},{label:M('a_{33}'),ans:P.S4[2][2]},{label:M('b_3'),ans:P.S4[2][3]}]},
+   {t:'Back substitution',sheet:T`x_3=\frac{b_3}{a_{33}},\quad x_2=\frac{b_2-a_{23}x_3}{a_{22}},\;\dots`,hint:'Start from the bottom row and work up, using the final matrix.',p:'Final: '+M(aug(P.S4)),fill:[{label:M('x_3'),ans:P.x[2]},{label:M('x_2'),ans:P.x[1]},{label:M('x_1'),ans:P.x[0]}]}],
+  final:P=>[{label:M('x_1'),ans:P.x[0]},{label:M('x_2'),ans:P.x[1]},{label:M('x_3'),ans:P.x[2]}],
+  lines(P,bug){const G=gaussRun(P.S0,{p1:bug==='p1'?'none':'',inv:bug==='inv',p2:bug==='p2'?'orig':'',bs:bug==='bs'});if(!G)return null;
+   return [{tex:G.idx?T`\text{Pivot 1: row }${G.idx+1}\text{ (swap 1}\leftrightarrow${G.idx+1})`:T`\text{Pivot 1: }a_{11}\ne0\text{, no swap}`,bad:bug==='p1'},
+    {tex:T`m_{21}=${G.m[1].tex()},\qquad m_{31}=${G.m[2].tex()}`,bad:bug==='inv'},{tex:aug(G.S2)},
+    {tex:T`\text{Pivot 2: }${G.swap?T`\text{swap rows 2}\leftrightarrow3`:T`\text{keep rows 2, 3}`}`,bad:bug==='p2'},
+    {tex:T`m_{32}=${G.m32.tex()},\qquad\text{row 3: }\left(0,\;0,\;${G.S4[2][2].tex()}\;\middle|\;${G.S4[2][3].tex()}\right)`},
+    {tex:T`x_3=${G.x[2].tex()},\quad x_2=${G.x[1].tex()},\quad x_1=${G.x[0].tex()}`,bad:bug==='bs'}]},
+  bugs:{p1:'Partial pivoting always brings the largest |aᵢ₁| to the top, even when a₁₁ is not zero.',inv:'The multiplier is the entry below the pivot divided by the pivot: mᵢ₁ = aᵢ₁ / a₁₁. These are upside down.',p2:'The second pivot is chosen from the current (reduced) matrix, not the original one.',bs:'Back substitution subtracts the known terms: x₂ = (b₂ − a₂₃x₃) / a₂₂. The sign flipped.'}}]};
+
+/* ================= Module 3: root finding ================= */
+const M3={id:'m3',name:'Root finding',title:'Module 3 · Non-linear equations',
+ drills:[
+  {id:'newton',name:'Newton step',sub:'x − f/f′',gen(){let f,df,ft,x0;do{const k=R([0,1,2]),c=ri(1,8),a=ri(1,3);x0=ri(1,3);
+    if(k===0){f=x=>x*x-c;df=x=>2*x;ft=`x^2-${c}`}else if(k===1){f=x=>x*x*x-c;df=x=>3*x*x;ft=`x^3-${c}`}else{f=x=>x*x+a*x-c;df=x=>2*x+a;ft=`x^2+${a===1?'':a}x-${c}`}}while(!f(x0)||!df(x0));
+    return {p:`${M('f(x)='+ft)}, ${M('x^{(0)}='+x0)}. Find ${M('x^{(1)}')}.`,ans:[q(x0).sub(q(f(x0),df(x0)))],h:`${M(T`x^{(1)}=x^{(0)}-\frac{f(x^{(0)})}{f'(x^{(0)})}`)}: here ${M(T`f=${f(x0)},\;f'=${df(x0)}`)}.`}}},
+  {id:'secant',name:'Secant step',sub:'two starting values',gen(){let c,a,b;do{c=ri(2,9);a=ri(0,3);b=ri(1,4)}while(a===b||a*a===b*b);const f=x=>x*x-c,num=q(f(b)*(b-a)),den=f(b)-f(a);
+    return {p:`${M('f(x)=x^2-'+c)}, ${M('x^{(-1)}='+a)}, ${M('x^{(0)}='+b)}. Find ${M('x^{(1)}')}.`,ans:[q(b).sub(num.div(den))],h:`${M(T`x^{(1)}=x^{(0)}-\frac{f(x^{(0)})\,(x^{(0)}-x^{(-1)})}{f(x^{(0)})-f(x^{(-1)})}`)} with ${M(T`f(${a})=${f(a)},\;f(${b})=${f(b)}`)}.`}}},
+  {id:'bisn',name:'Bisection count',sub:'guaranteed tolerance',gen(){const ba=R([1,2,4,8]),k=R([2,3,4]),n=Math.ceil(Math.log2(ba/(2*Math.pow(10,-k)))-1e-12);
+    return {p:`Bracket width ${M('b-a='+ba)}, tolerance ${M(T`\epsilon=10^{-${k}}`)}. How many bisection iterations guarantee it? Use ${M(T`\log_2 10\approx3.32`)}.`,ans:[q(n)],h:`${M(T`n=\left\lceil\log_2\frac{b-a}{2\epsilon}\right\rceil`)}. Here ${M(T`\log_2\frac{${ba}}{2\cdot10^{-${k}}}=\log_2${ba}-1+${k}(3.32)`)}, then round up.`}}}],
+ guides:[{id:'g3',name:'Newton’s method for a system',
+  story:'GPS receivers and robot arms solve small non-linear systems like this every fraction of a second, one Newton step at a time.',
+  gen(){for(let t=0;t<3000;t++){const x0=R([1,2,-1]),y0=R([1,2,0,-1]),p=R([1,2,3]),qq=R([1,2]),c1=ri(1,6),c2=ri(-2,3);const f=[q(x0*x0+p*y0-c1),q(qq*x0-y0+c2)];if(f[0].isZero()&&f[1].isZero())continue;
+    const J=[[q(2*x0),q(p)],[q(qq),q(-1)]],det=J[0][0].mul(J[1][1]).sub(J[0][1].mul(J[1][0]));if(det.isZero())continue;const e=[f[0].neg(),f[1].neg()];
+    const d=[e[0].mul(J[1][1]).sub(J[0][1].mul(e[1])).div(det),J[0][0].mul(e[1]).sub(J[1][0].mul(e[0])).div(det)];if(d.some(v=>v.d>8))continue;
+    return {x0,y0,p,qq,c1,c2,f,J,d,nw:[q(x0).add(d[0]),q(y0).add(d[1])]}}},
+  prompt:P=>`${M(T`f_1=x^2${signed(P.p,'y')}-${P.c1},\qquad f_2=${P.qq===1?'':P.qq}x-y${P.c2<0?'-':'+'}${Math.abs(P.c2)}`)}. One Newton step from ${M(T`(x,y)=(${P.x0},\,${P.y0})`)}.`,
+  steps:P=>[
+   {t:'Evaluate f',sheet:T`\vec f=\left(f_1,\,f_2\right)\text{ at the current point}`,hint:'Plug the current point into each equation.',fill:[{label:M('f_1='),ans:P.f[0]},{label:M('f_2='),ans:P.f[1]}]},
+   {t:'Jacobian',sheet:T`a_{ij}=\frac{\partial f_i}{\partial x_j}\quad(\text{row = equation, column = variable})`,hint:`Row 1: ${M(T`\partial f_1/\partial x=2x,\ \partial f_1/\partial y=${P.p}`)}. Row 2: ${M(T`\partial f_2/\partial x=${P.qq},\ \partial f_2/\partial y=-1`)}. Evaluate at the point.`,
+    fill:[{label:M('a_{11}'),ans:P.J[0][0]},{label:M('a_{12}'),ans:P.J[0][1]},{label:M('a_{21}'),ans:P.J[1][0]},{label:M('a_{22}'),ans:P.J[1][1]}]},
+   {t:'The linear system',sheet:T`A\,\Delta\vec x=-\vec f`,hint:'Note the minus sign on f.',mc:[{html:M(T`A\,\Delta\vec x=-\vec f`),ok:true},{html:M(T`A\,\Delta\vec x=\vec f`),why:'Newton moves against f: the right side is −f.'},{html:M(T`\Delta\vec x=-\vec f`),why:'The Jacobian is what makes this Newton’s method.'},{html:M(T`A^{T}\Delta\vec x=-\vec f`),why:'No transpose: row = equation, column = variable.'}]},
+   {t:'Solve for the correction',sheet:T`\begin{bmatrix}a&b\\c&d\end{bmatrix}^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}`,hint:`Right side ${M(T`-\vec f=\left(${P.f[0].neg().tex()},\;${P.f[1].neg().tex()}\right)`)}. Eliminate or use the 2×2 inverse.`,fill:[{label:M(T`\Delta x`),ans:P.d[0]},{label:M(T`\Delta y`),ans:P.d[1]}]},
+   {t:'Update',sheet:T`\vec x^{(k+1)}=\vec x^{(k)}+\Delta\vec x`,hint:'Add the correction to the current point.',fill:[{label:M('x='),ans:P.nw[0]},{label:M('y='),ans:P.nw[1]}]}],
+  final:P=>[{label:M('x^{(1)}='),ans:P.nw[0]},{label:M('y^{(1)}='),ans:P.nw[1]}],
+  lines(P,bug){let f=P.f.slice();if(bug==='fval')f[0]=q(P.x0*P.x0-P.p*P.y0-P.c1);let J=P.J.map(r=>r.slice());if(bug==='jt')J=[[J[0][0],J[1][0]],[J[0][1],J[1][1]]];
+   const det=J[0][0].mul(J[1][1]).sub(J[0][1].mul(J[1][0]));if(det.isZero())return null;const e=bug==='sign'?f:[f[0].neg(),f[1].neg()];
+   const d=[e[0].mul(J[1][1]).sub(J[0][1].mul(e[1])).div(det),J[0][0].mul(e[1]).sub(J[1][0].mul(e[0])).div(det)];const nw=bug==='upd'?[q(P.x0).sub(d[0]),q(P.y0).sub(d[1])]:[q(P.x0).add(d[0]),q(P.y0).add(d[1])];
+   return [{tex:T`\vec f=\left(${f[0].tex()},\;${f[1].tex()}\right)`,bad:bug==='fval'},{tex:T`A=\begin{bmatrix}${J[0][0].tex()}&${J[0][1].tex()}\\${J[1][0].tex()}&${J[1][1].tex()}\end{bmatrix}`,bad:bug==='jt'},
+    {tex:T`A\,\Delta\vec x=${bug==='sign'?'':'-'}\vec f\;\Rightarrow\;\Delta\vec x=\left(${d[0].tex()},\;${d[1].tex()}\right)`,bad:bug==='sign'},
+    {tex:T`\vec x^{(1)}=\left(${P.x0},\,${P.y0}\right)${bug==='upd'?'-':'+'}\Delta\vec x=\left(${nw[0].tex()},\;${nw[1].tex()}\right)`,bad:bug==='upd'}]},
+  bugs:{fval:'f₁ was evaluated with the wrong sign on the y term.',jt:'The Jacobian is transposed: row = equation, column = variable.',sign:'The system is A Δx = −f. The minus sign was dropped.',upd:'The update adds the correction: x + Δx.'}}]};
+
+/* ================= Module 4: curve fitting ================= */
+const M4={id:'m4',name:'Curve fitting',title:'Module 4 · Curve fitting and interpolation',
+ drills:[
+  {id:'sums',name:'Regression sums',sub:'Sₓₓ and Sₓᵧ',gen(){const xs=shuffle([0,1,2,3,4]).slice(0,3).sort((a,b)=>a-b),ys=xs.map(()=>ri(0,9));
+    return {p:'Data '+M(xs.map((x,i)=>`(${x},${ys[i]})`).join(',\\;'))+'. Find '+M('S_{xx}')+' and '+M('S_{xy}')+'.',ans:[q(xs.reduce((s,x)=>s+x*x,0)),q(xs.reduce((s,x,i)=>s+x*ys[i],0))],labels:[M('S_{xx}='),M('S_{xy}=')],h:'Sₓₓ = sum of x², Sₓᵧ = sum of x·y, one term per data point.'}}},
+  {id:'lag',name:'Lagrange',sub:'interpolate a value',gen(){const xs=R([[0,1,2],[-1,0,1],[1,2,3]]),ys=xs.map(()=>ri(-3,6)),xs_=R([q(1,2),q(3,2),q(-1,2),q(5,2)]);
+    let v=q(0);xs.forEach((xi,i)=>{let L=q(1);xs.forEach((xj,j)=>{if(j!==i)L=L.mul(xs_.sub(xj)).div(q(xi-xj))});v=v.add(L.mul(ys[i]))});
+    return {p:'The quadratic through '+M(xs.map((x,i)=>`(${x},${ys[i]})`).join(',\\;'))+'. Find its value at '+M('x='+xs_.tex())+'.',ans:[v],h:`${M(T`p(x)=\sum y_i L_i(x)`)}, where ${M('L_i')} is 1 at its own point and 0 at the others: ${M(T`L_i(x)=\prod_{j\ne i}\frac{x-x_j}{x_i-x_j}`)}.`}}},
+  {id:'spl',name:'Spline count',sub:'unknowns',gen(){const n=ri(4,8),k=R([['linear',2],['quadratic',3],['cubic',4]]);
+    return {p:`${n} data points, ${k[0]} spline. How many unknown coefficients?`,ans:[q(k[1]*(n-1))],h:`${n} points give ${n-1} pieces; each ${k[0]} piece has ${k[1]} coefficients.`}}},
+  {id:'trans',name:'Transform',sub:'non-linear fits',mc:true,gen(){const k=R([0,1,2]);const L=[['y=b\\,e^{mx}','\\ln y\\text{ on }x'],['y=b\\,x^{m}','\\ln y\\text{ on }\\ln x'],['y=b\\cdot10^{mx}','\\log_{10}y\\text{ on }x']];
+    return {p:`To fit ${M(L[k][0])} with linear regression, regress:`,opts:[...L.map((l,i)=>({html:M(l[1]),ok:i===k,why:i===k?'Right. Then convert back: b from a₀, m = a₁.':'That transform matches a different model.'})),{html:M(T`y\text{ on }\ln x`),why:'That fits y = a + b ln x, a different model.'}]}}}],
+ guides:[{id:'g4',name:'Linear regression',
+  story:'Wind-tunnel drag readings, engine test stands and strain gauges all give noisy data. A least-squares line pulls the trend out of the noise.',
+  gen(){for(let t=0;t<500;t++){const xs=shuffle([0,1,2,3,4,5]).slice(0,4).sort((a,b)=>a-b),ys=xs.map(()=>ri(0,9)),n=4,Sx=xs.reduce((a,b)=>a+b,0),Sy=ys.reduce((a,b)=>a+b,0),Sxx=xs.reduce((s,x)=>s+x*x,0),Sxy=xs.reduce((s,x,i)=>s+x*ys[i],0),den=n*Sxx-Sx*Sx;
+    if(!den)continue;const a1=q(n*Sxy-Sx*Sy,den),a0=q(Sy).sub(a1.mul(Sx)).div(n);if(a1.isZero()||a1.d>12)continue;const xs6=R([6,7]);return {xs,ys,n,Sx,Sy,Sxx,Sxy,den,a1,a0,xp:xs6,yp:a0.add(a1.mul(xs6))}}},
+  prompt:P=>`Fit ${M('y=a_0+a_1x')} to ${M(P.xs.map((x,i)=>`(${x},${P.ys[i]})`).join(',\\;'))}, then predict ${M('y')} at ${M('x='+P.xp)}.`,
+  steps:P=>[
+   {t:'Sums',sheet:T`S_x=\sum x_i,\quad S_y=\sum y_i`,hint:'Add the x values, then the y values.',fill:[{label:M('S_x='),ans:q(P.Sx)},{label:M('S_y='),ans:q(P.Sy)}]},
+   {t:'Products',sheet:T`S_{xx}=\sum x_i^2,\quad S_{xy}=\sum x_iy_i`,hint:'Square each x and add; multiply each x by its y and add.',fill:[{label:M('S_{xx}='),ans:q(P.Sxx)},{label:M('S_{xy}='),ans:q(P.Sxy)}]},
+   {t:'Denominator',sheet:T`nS_{xx}-S_x^2`,hint:`${M('n='+P.n)} is the number of data points.`,fill:[{label:M(T`nS_{xx}-S_x^2=`),ans:q(P.den)}]},
+   {t:'Slope',sheet:T`a_1=\frac{nS_{xy}-S_xS_y}{nS_{xx}-S_x^2}`,hint:'Numerator: n·Sₓᵧ − Sₓ·Sᵧ.',fill:[{label:M('a_1='),ans:P.a1}]},
+   {t:'Intercept',sheet:T`a_0=\frac{S_{xx}S_y-S_{xy}S_x}{nS_{xx}-S_x^2}=\frac{S_y-a_1S_x}{n}`,hint:'Either form works; the second is quicker once you have a₁.',fill:[{label:M('a_0='),ans:P.a0}]},
+   {t:'Predict',sheet:T`y=a_0+a_1x`,hint:'Plug the new x into the fitted line.',fill:[{label:M(`y(${P.xp})=`),ans:P.yp}]}],
+  final:P=>[{label:M('a_1='),ans:P.a1},{label:M('a_0='),ans:P.a0}],
+  lines(P,bug){const den=bug==='den'?P.Sxx-P.Sx*P.Sx:P.den;if(!den)return null;const a1=bug==='num'?q(P.Sx*P.Sy-P.n*P.Sxy,den):q(P.n*P.Sxy-P.Sx*P.Sy,den);const a0=bug==='a0'?q(P.Sy).add(a1.mul(P.Sx)).div(P.n):q(P.Sy).sub(a1.mul(P.Sx)).div(P.n);
+   const yp=bug==='pred'?a0.mul(P.xp).add(a1):a0.add(a1.mul(P.xp));
+   return [{tex:T`n=${P.n},\;S_x=${P.Sx},\;S_y=${P.Sy},\;S_{xx}=${P.Sxx},\;S_{xy}=${P.Sxy}`},{tex:T`${bug==='den'?'S_{xx}':'nS_{xx}'}-S_x^2=${den}`,bad:bug==='den'},
+    {tex:T`a_1=\frac{${bug==='num'?'S_xS_y-nS_{xy}':'nS_{xy}-S_xS_y'}}{${den}}=${a1.tex()}`,bad:bug==='num'},{tex:T`a_0=\frac{S_y${bug==='a0'?'+':'-'}a_1S_x}{n}=${a0.tex()}`,bad:bug==='a0'},
+    {tex:T`y(${P.xp})=${bug==='pred'?`a_0(${P.xp})+a_1`:`a_0+a_1(${P.xp})`}=${yp.tex()}`,bad:bug==='pred'}]},
+  bugs:{den:'The denominator is n·Sₓₓ − Sₓ²: the factor n is missing.',num:'The numerator is n·Sₓᵧ − Sₓ·Sᵧ. The order flipped, which flips the sign of the slope.',a0:'a₀ = (Sᵧ − a₁Sₓ)/n: subtract, do not add.',pred:'The line is y = a₀ + a₁x: the slope multiplies x.'}}]};
+
+/* ================= Module 5: finite differences ================= */
+const M5={id:'m5',name:'Derivatives',title:'Module 5 · Finite differences',
+ drills:[
+  {id:'pos',name:'Pick the formula',sub:'by position',mc:true,gen(){const k=R([0,1,2]),n=ri(5,9),where=[`the first point, x₁`,`an interior point, x₃`,`the last point, x${String.fromCharCode(8320+n)}`][k];
+    return {p:`A table has ${n} equally spaced points. For ${M("f'")} at ${where}, use:`,opts:[{html:'Forward difference',ok:k===0,why:k===0?'Right: nothing exists to the left of the first point.':'Forward is for the first point.'},{html:'Central difference',ok:k===1,why:k===1?'Right: interior points have neighbours on both sides, and central is more accurate.':'Central needs a point on each side.'},{html:'Backward difference',ok:k===2,why:k===2?'Right: nothing exists to the right of the last point.':'Backward is for the last point.'}]}}},
+  {id:'cen1',name:'Central f′',sub:'two-point central',gen(){const h=R([q(1,2),q(1),q(2),q(1,4)]),a=ri(-5,9),c=ri(-5,9);
+    return {p:`${M(T`f(x_{i-1})=${a},\;f(x_{i+1})=${c},\;h=${h.tex()}`)}. Find ${M("f'(x_i)")}.`,ans:[q(c-a).div(h.mul(2))],h:`${M(T`f'(x_i)\approx\frac{f(x_{i+1})-f(x_{i-1})}{2h}`)}: note the 2h.`}}},
+  {id:'cen2',name:'Central f″',sub:'second derivative',gen(){const h=R([q(1,2),q(1),q(2)]),a=ri(-5,9),b=ri(-5,9),c=ri(-5,9);
+    return {p:`${M(T`f(x_{i-1})=${a},\;f(x_i)=${b},\;f(x_{i+1})=${c},\;h=${h.tex()}`)}. Find ${M("f''(x_i)")}.`,ans:[q(a-2*b+c).div(h.mul(h))],h:`${M(T`f''(x_i)\approx\frac{f(x_{i-1})-2f(x_i)+f(x_{i+1})}{h^2}`)}: divide by h², not 2h.`}}}],
+ guides:[{id:'g5',name:'Derivatives from a table',
+  story:'Speed from an altitude log, strain rate from a displacement record: real data comes as a table, so derivatives come from finite differences.',
+  gen(){for(let t=0;t<500;t++){const h=R([q(1,2),q(1),q(2)]),f=[...Array(5)].map(()=>ri(-4,9)),D=h.mul(2);
+    const fw=q(-3*f[0]+4*f[1]-f[2]).div(D),ce=q(f[3]-f[1]).div(D),bw=q(f[2]-4*f[3]+3*f[4]).div(D),se=q(f[1]-2*f[2]+f[3]).div(h.mul(h));if([fw,ce,bw,se].some(v=>v.isZero()))continue;return {h,f,fw,ce,bw,se}}},
+  prompt:P=>'Table with '+M('h='+P.h.tex())+': '+M(T`\begin{array}{c|ccccc}x&x_1&x_2&x_3&x_4&x_5\\\hline f&${P.f.join('&')}\end{array}`),
+  steps:P=>[
+   {t:'Which formula at x₁?',sheet:T`\begin{array}{l}\text{first point: forward}\\\text{interior: central}\\\text{last point: backward}\end{array}`,hint:'Look at which neighbours exist.',mc:[{html:'Three-point forward',ok:true,why:'Right: x₁ has neighbours only to the right.'},{html:'Two-point central',why:'Central needs a point to the left of x₁, which does not exist.'},{html:'Three-point backward',why:'Backward needs points to the left.'}]},
+   {t:'Forward at x₁',sheet:T`f'(x_i)\approx\frac{-3f(x_i)+4f(x_{i+1})-f(x_{i+2})}{2h}`,hint:'Coefficients −3, 4, −1 on x₁, x₂, x₃, over 2h.',fill:[{label:M("f'(x_1)\\approx"),ans:P.fw}]},
+   {t:'Central at x₃',sheet:T`f'(x_i)\approx\frac{f(x_{i+1})-f(x_{i-1})}{2h}`,hint:'Uses x₄ and x₂, not x₃ itself.',fill:[{label:M("f'(x_3)\\approx"),ans:P.ce}]},
+   {t:'Backward at x₅',sheet:T`f'(x_i)\approx\frac{f(x_{i-2})-4f(x_{i-1})+3f(x_i)}{2h}`,hint:'Coefficients 1, −4, 3 on x₃, x₄, x₅, over 2h.',fill:[{label:M("f'(x_5)\\approx"),ans:P.bw}]},
+   {t:'Second derivative at x₃',sheet:T`f''(x_i)\approx\frac{f(x_{i-1})-2f(x_i)+f(x_{i+1})}{h^2}`,hint:'Divide by h², not 2h.',fill:[{label:M("f''(x_3)\\approx"),ans:P.se}]}],
+  final:P=>[{label:M("f'(x_1)\\approx"),ans:P.fw},{label:M("f''(x_3)\\approx"),ans:P.se}],
+  lines(P,bug){const f=P.f,h=P.h,D=h.mul(2);const fw=bug==='fwd'?q(3*f[0]-4*f[1]+f[2]).div(D):P.fw,ce=bug==='cen'?q(f[3]-f[1]).div(h):P.ce,bw=bug==='bwd'?q(-f[2]+4*f[3]-3*f[4]).div(D):P.bw,se=bug==='sec'?q(f[1]-2*f[2]+f[3]).div(h.mul(h).mul(2)):P.se;
+   return [{tex:T`f'(x_1)\approx\frac{${bug==='fwd'?`3(${f[0]})-4(${f[1]})+(${f[2]})`:`-3(${f[0]})+4(${f[1]})-(${f[2]})`}}{2(${h.tex()})}=${fw.tex()}`,bad:bug==='fwd'},
+    {tex:T`f'(x_3)\approx\frac{(${f[3]})-(${f[1]})}{${bug==='cen'?h.tex():`2(${h.tex()})`}}=${ce.tex()}`,bad:bug==='cen'},
+    {tex:T`f'(x_5)\approx\frac{${bug==='bwd'?`-(${f[2]})+4(${f[3]})-3(${f[4]})`:`(${f[2]})-4(${f[3]})+3(${f[4]})`}}{2(${h.tex()})}=${bw.tex()}`,bad:bug==='bwd'},
+    {tex:T`f''(x_3)\approx\frac{(${f[1]})-2(${f[2]})+(${f[3]})}{${bug==='sec'?'2':''}(${h.tex()})^2}=${se.tex()}`,bad:bug==='sec'}]},
+  bugs:{fwd:'Three-point forward is (−3f₁ + 4f₂ − f₃)/2h. Every sign flipped here.',cen:'Two-point central divides by 2h: the points are two steps apart.',bwd:'Three-point backward is (f₃ − 4f₄ + 3f₅)/2h. These signs are flipped.',sec:'The central second derivative divides by h², with no 2.'}}]};
+
+/* ================= Module 6: integration ================= */
+const simp13=(f,h)=>{let s=f[0]+f[f.length-1];for(let i=1;i<f.length-1;i++)s+=(i%2?4:2)*f[i];return h.div(3).mul(s)};
+const sum13=f=>{let s=f[0]+f[f.length-1];for(let i=1;i<f.length-1;i++)s+=(i%2?4:2)*f[i];return s};
+const simp13w=(f,h)=>{let s=f[0]+f[f.length-1];for(let i=1;i<f.length-1;i++)s+=(i%2?2:4)*f[i];return h.div(3).mul(s)};
+const trap=(f,h,ends=1)=>{let s=ends*(f[0]+f[f.length-1]);for(let i=1;i<f.length-1;i++)s+=2*f[i];return h.div(2).mul(s)};
+const s38=(f,h)=>{let s=f[0]+f[f.length-1];for(let i=1;i<f.length-1;i++)s+=(i%3===0?2:3)*f[i];return h.mul(3).div(8).mul(s)};
+const M6={id:'m6',name:'Integration',title:'Module 6 · Numerical integration',
+ drills:[
+  {id:'count',name:'Which rule?',sub:'count the intervals',mc:true,gen(){const pts=ri(4,10),N=pts-1,ok13=N%2===0,ok38=N%3===0;
+    const right=ok13&&ok38?0:ok13?1:ok38?2:3;const O=['Both Simpson 1/3 and Simpson 3/8','Simpson 1/3 only','Simpson 3/8 only','Neither alone: combine 1/3 on N − 3 intervals with 3/8 on 3'];
+    return {p:`${pts} equally spaced points. Which Simpson rule can cover all of them in one pass?`,opts:O.map((o,i)=>({html:o,ok:i===right,why:i===right?`Right: ${pts} points means N = ${N} intervals.`:`Count intervals, not points: N = ${pts} − 1 = ${N}. Simpson 1/3 needs N even; 3/8 needs N a multiple of 3.`}))}}},
+  {id:'trapz',name:'Trapezoid',sub:'weights 1, 2, …, 2, 1',gen(){const h=R([q(1,2),q(1),q(2)]),f=[ri(0,9),ri(0,9),ri(0,9)];
+    return {p:`${M(T`f=${f.join(',\\;')}`)} at three equally spaced points, ${M('h='+h.tex())}. Trapezoid rule:`,ans:[trap(f,h)],h:`${M(T`\frac{h}{2}\left[f_1+2f_2+f_3\right]`)}.`}}},
+  {id:'simp',name:'Simpson 1/3',sub:'weights 1, 4, 2, …, 4, 1',gen(){const h=R([q(1,2),q(1),q(3)]),f=[ri(0,9),ri(0,9),ri(0,9),ri(0,9),ri(0,9)];
+    return {p:`${M(T`f=${f.join(',\\;')}`)} at five equally spaced points, ${M('h='+h.tex())}. Simpson 1/3 rule:`,ans:[simp13(f,h)],h:`${M(T`\frac{h}{3}\left[f_1+4f_2+2f_3+4f_4+f_5\right]`)}.`}}}],
+ guides:[{id:'g6',name:'Trapezoid and Simpson',
+  story:'Apollo 13’s crew had to know how much energy their batteries had left: the area under a power curve sampled at a few times.',
+  gen(){const N=R([4,6]),b=R([q(2),q(3),q(4),q(6),q(1)]),h=b.div(N),f=[...Array(N+1)].map(()=>ri(0,9));return {N,b,h,f,tr:trap(f,h),s1:simp13(f,h),s3:N===6?s38(f,h):null}},
+  prompt:P=>`${M(T`\int_0^{${P.b.tex()}}f(x)\,dx`)} from equally spaced samples ${M(T`f=${P.f.join(',\\;')}`)}.`,
+  steps:P=>[
+   {t:'Intervals and spacing',sheet:T`N\text{ intervals},\;N+1\text{ points},\;h=\frac{b-a}{N}`,hint:`${P.f.length} points means ${P.f.length} − 1 intervals.`,fill:[{label:M('N='),ans:q(P.N)},{label:M('h='),ans:P.h}]},
+   {t:'Which Simpson rules fit?',sheet:T`\tfrac13:\ N\text{ even}\qquad\tfrac38:\ N\text{ a multiple of 3}`,hint:'Check N, not the number of points.',
+    mc:[{html:'Simpson 1/3 only',ok:P.N===4,why:P.N===4?'Right: N = 4 is even but not a multiple of 3.':'N = 6 is also a multiple of 3.'},{html:'Both Simpson 1/3 and Simpson 3/8',ok:P.N===6,why:P.N===6?'Right: N = 6 is even and a multiple of 3.':'N = 4 is not a multiple of 3.'},{html:'Simpson 3/8 only',why:`N = ${P.N} is even, so 1/3 works.`}]},
+   {t:'Trapezoid',sheet:T`\frac{h}{2}\left[f_1+2f_2+\dots+2f_N+f_{N+1}\right]`,hint:'Interior points get weight 2, the two ends weight 1.',fill:[{label:M(T`I_{\text{trap}}=`),ans:P.tr}]},
+   {t:'Simpson 1/3',sheet:T`\frac{h}{3}\left[f_1+4f_2+2f_3+\dots+4f_N+f_{N+1}\right]`,hint:'Weights 1, 4, 2, 4, …, 4, 1: points right after an end get 4.',fill:[{label:M(T`I_{1/3}=`),ans:P.s1}]},
+   ...(P.N===6?[{t:'Simpson 3/8',sheet:T`\frac{3h}{8}\left[f_1+3f_2+3f_3+2f_4+3f_5+3f_6+f_7\right]`,hint:'Weights 1, 3, 3, 2, 3, 3, 1, times 3h/8.',fill:[{label:M(T`I_{3/8}=`),ans:P.s3}]}]:[])],
+  final:P=>[{label:M(T`I_{\text{trap}}=`),ans:P.tr},{label:M(T`I_{1/3}=`),ans:P.s1}],
+  lines(P,bug){const N=bug==='npts'?P.N+1:P.N,h=P.b.div(N),tr=trap(P.f,h,bug==='trap'?2:1),s1=bug==='w'?simp13w(P.f,h):bug==='hs'?h.div(2).mul(sum13(P.f)):simp13(P.f,h);
+   const wt=bug==='w'?P.f.map((_,i)=>i===0||i===P.f.length-1?1:i%2?2:4):P.f.map((_,i)=>i===0||i===P.f.length-1?1:i%2?4:2);
+   return [{tex:T`N=${N},\qquad h=\frac{${P.b.tex()}}{${N}}=${h.tex()}`,bad:bug==='npts'},
+    {tex:T`I_{\text{trap}}=\tfrac{${h.tex()}}{2}\left[${bug==='trap'?'2':''}(${P.f[0]})+2(${P.f.slice(1,-1).join('+')})+${bug==='trap'?'2':''}(${P.f[P.f.length-1]})\right]=${tr.tex()}`,bad:bug==='trap'},
+    {tex:T`I_{1/3}=\tfrac{${h.tex()}}{${bug==='hs'?2:3}}\left[${P.f.map((v,i)=>wt[i]===1?`${v}`:`${wt[i]}(${v})`).join('+')}\right]=${s1.tex()}`,bad:bug==='w'||bug==='hs'}]},
+  bugs:{npts:'N counts intervals, not points: N + 1 points means N intervals.',trap:'In the trapezoid rule only the interior points get weight 2; the two ends get 1.',w:'Simpson 1/3 weights go 1, 4, 2, 4, …: the point right after an end gets 4.',hs:'Simpson 1/3 multiplies by h/3, not h/2.'}}]};
+
+/* ================= Module 8: PDEs ================= */
+const M8={id:'m8',name:'PDEs',title:'Module 8 · Partial differential equations',
+ drills:[
+  {id:'upw',name:'Upwind step',sub:'advection, one step',gen(){const r=R([q(1,2),q(2,5),q(3,5),q(1,4),q(3,4)]),a=q(ri(0,9),R([1,4,10])),b=q(ri(0,9),R([1,4,10]));
+    return {p:`${M(T`u_t+Uu_x=0`)}, backward difference in ${M('x')}, Euler in ${M('t')}, ${M(T`r=\frac{U\Delta t}{\Delta x}=${r.tex()}`)}. With ${M(T`u_{i-1}^n=${a.tex()},\;u_i^n=${b.tex()}`)}, find ${M('u_i^{n+1}')}.`,ans:[b.sub(r.mul(b.sub(a)))],h:`${M(T`u_i^{n+1}=u_i^n-r\left(u_i^n-u_{i-1}^n\right)`)}: the upstream neighbour is on the left when U > 0.`}}},
+  {id:'ftcs',name:'Heat step',sub:'explicit, central in x',gen(){const r=R([q(1,4),q(1,3),q(1,2),q(2,5)]),a=ri(0,9),b=ri(0,9),c=ri(0,9);
+    return {p:`${M(T`u_t=\alpha u_{xx}`)}, explicit Euler with central ${M('u_{xx}')}, ${M(T`r=\frac{\alpha\Delta t}{\Delta x^2}=${r.tex()}`)}. With ${M(T`u_{i-1}^n=${a},\;u_i^n=${b},\;u_{i+1}^n=${c}`)}, find ${M('u_i^{n+1}')}.`,ans:[q(b).add(r.mul(a-2*b+c))],h:`${M(T`u_i^{n+1}=u_i^n+r\left(u_{i-1}^n-2u_i^n+u_{i+1}^n\right)`)}.`}}},
+  {id:'stab',name:'Stable?',sub:'r ≤ 1/2',mc:true,gen(){const dx=R([q(1,2),q(1,4),q(1,10)]),al=R([q(1),q(2),q(1,2)]),r=R([q(1,4),q(2,5),q(1,2),q(3,5),q(3,4)]),dt=r.mul(dx.mul(dx)).div(al),st_=r.v<=0.5;
+    return {p:`Explicit heat equation with ${M(T`\alpha=${al.tex()},\;\Delta x=${dx.tex()},\;\Delta t=${dt.tex()}`)}. Is it stable?`,opts:[{html:`Stable: ${M(T`r=${r.tex()}\le\tfrac12`)}`,ok:st_,why:st_?'Right.':`r = αΔt/Δx² = ${r.str()}, which is more than 1/2.`},{html:`Unstable: ${M(T`r=${r.tex()}>\tfrac12`)}`,ok:!st_,why:!st_?'Right: halve Δt or switch to an implicit method.':`r = ${r.str()} is at most 1/2.`},{html:`Stable, since ${M(T`\frac{\alpha\Delta t}{\Delta x}`)} is small`,why:'r uses Δx², not Δx.'}]}}}],
+ guides:[{id:'g8',name:'The heat equation, one explicit step',
+  story:'The shuttle’s tiles, a turbine blade, a battery cell: heat soaking through a solid is the heat equation, and the explicit method marches it one time step at a time.',
+  gen(){const r=Math.random()<0.2?q(3,5):R([q(1,4),q(1,3),q(1,2),q(2,5)]),dx=R([q(1,2),q(1,4)]),al=R([q(1),q(2),q(1,2)]),dt=r.mul(dx.mul(dx)).div(al),u=[ri(0,9),ri(0,9),ri(0,9),ri(0,9),ri(0,9)];
+    const nw=[1,2,3].map(i=>q(u[i]).add(r.mul(u[i-1]-2*u[i]+u[i+1])));return {r,dx,al,dt,u,nw}},
+  prompt:P=>`${M(T`u_t=\alpha u_{xx}`)} with ${M(T`\alpha=${P.al.tex()},\;\Delta x=${P.dx.tex()},\;\Delta t=${P.dt.tex()}`)}. Ends held at ${M(T`u_1=${P.u[0]},\;u_5=${P.u[4]}`)}; now ${M(T`u^n=(${P.u.join(',\\;')})`)}. Take one explicit step.`,
+  steps:P=>[
+   {t:'The number r',sheet:T`r=\frac{\alpha\,\Delta t}{\Delta x^2}`,hint:'Square Δx.',fill:[{label:M('r='),ans:P.r}]},
+   {t:'Stability',sheet:T`\text{explicit: stable if }r\le\tfrac12`,hint:'Compare r with 1/2.',mc:[{html:'Stable',ok:P.r.v<=0.5,why:P.r.v<=0.5?'Right: r ≤ 1/2.':'r is more than 1/2.'},{html:'Unstable: errors will grow',ok:P.r.v>0.5,why:P.r.v>0.5?'Right. One step still runs, but keep marching and it blows up.':'r is at most 1/2.'}]},
+   {t:'Interior nodes',sheet:T`u_i^{n+1}=u_i^n+r\left(u_{i-1}^n-2u_i^n+u_{i+1}^n\right)`,hint:'Use only old (time n) values on the right side, for every node.',fill:[{label:M('u_2^{n+1}'),ans:P.nw[0]},{label:M('u_3^{n+1}'),ans:P.nw[1]},{label:M('u_4^{n+1}'),ans:P.nw[2]}]},
+   {t:'The ends',sheet:T`\text{boundary conditions}`,hint:'Fixed-value boundaries do not use the stencil.',mc:[{html:`Keep ${M(T`u_1=${P.u[0]},\;u_5=${P.u[4]}`)}`,ok:true,why:'Right: the boundary conditions set them.'},{html:'Update them with the same stencil',why:'The stencil needs a neighbour on both sides; the ends are fixed by the boundary conditions.'}]}],
+  final:P=>[{label:M('u_2^{n+1}'),ans:P.nw[0]},{label:M('u_3^{n+1}'),ans:P.nw[1]},{label:M('u_4^{n+1}'),ans:P.nw[2]}],
+  lines(P,bug){const r=bug==='r'?P.al.mul(P.dt).div(P.dx):P.r,u=P.u.map(v=>q(v)),nw=[];let prev=u.slice();
+   for(let i=1;i<=3;i++){const L=bug==='seq'&&i>1?nw[i-2]:u[i-1];nw.push(bug==='sten'?u[i].add(r.mul(L.add(u[i].mul(2)).add(u[i+1]))):u[i].add(r.mul(L.sub(u[i].mul(2)).add(u[i+1]))))}
+   return [{tex:T`r=\frac{\alpha\Delta t}{${bug==='r'?'\\Delta x':'\\Delta x^2'}}=${r.tex()}`,bad:bug==='r'},{tex:T`u_i^{n+1}=u_i^n+r\left(u_{i-1}^n${bug==='sten'?'+':'-'}2u_i^n+u_{i+1}^n\right)`,bad:bug==='sten'},
+    {tex:T`${bug==='seq'?T`u_3^{n+1}\text{ uses the new }u_2^{n+1}:\;`:''}u^{n+1}_{2,3,4}=${nw.map(v=>v.tex()).join(',\\;')}`,bad:bug==='seq'},{tex:T`u_1^{n+1}=${P.u[0]},\quad u_5^{n+1}=${P.u[4]}`}]},
+  bugs:{r:'r = αΔt/Δx²: Δx must be squared.',sten:'The central second difference is u₍ᵢ₋₁₎ − 2uᵢ + u₍ᵢ₊₁₎: the middle term is subtracted.',seq:'Explicit means every node uses old (time n) values. Mixing in new values is a different method.'}}]};
+
+/* ================= Module 7 wrapped as a module ================= */
+const M7={id:'m7',name:'ODEs',title:'Module 7 · Ordinary differential equations',drills:DRILLS,guides:[
+ {id:'g7a',name:'Implicit Euler + Newton',story:'Stiff problems, like a heat shield cooling after re-entry, force small steps on explicit methods. Implicit Euler takes big, stable steps, but every step is a small root-finding problem.',
+  gen:genA,prompt:P=>`${M('\\dfrac{dy}{dx}='+fA(P))}, ${M('y(0)=1')}, ${M('h='+P.h.tex())}. Take one step of implicit Euler to ${M('y_2\\approx y\\!\\left('+P.h.tex()+'\\right)')}, solving ${M('g(y_2)=0')} with one Newton iteration from ${M('y_2^{(1)}=1')}.`,
+  steps:stepsA,final:P=>[{label:M('y_2^{(2)}='),ans:P.y2}],lines:linesA,bugs:WHY_A},
+ {id:'g7b',name:'System + midpoint',story:'A landing-gear strut is a damped spring loaded by the aircraft’s weight. Before any ODE method can step it, the second-order equation must become two first-order ones.',
+  gen:genB,prompt:P=>`${eqB(P)}. With ${M("z_1=x,\\;z_2=x'")}, take one step of the midpoint method with ${M('\\Delta t='+P.dt.tex())}.`,
+  steps:stepsB,final:P=>[{label:M('x(\\tfrac12)\\approx'),ans:P.z2[0]},{label:M("x'(\\tfrac12)\\approx"),ans:P.z2[1]}],lines:linesB,bugs:WHY_B}]};
+const MODS=[M1,M2,M3,M4,M5,M6,M7,M8];
+
+/* ================= state ================= */
+let mi=Math.min(MODS.length-1,Math.max(0,st.get('tb:mod',6))),sub='drill',di=0,gi=0,curL=null;const streak={},l3={};
+const MOD=()=>MODS[mi],GUIDE=()=>MOD().guides[gi];
+const starsOf=m=>{const d=st.get('done:'+(window.KIT_PAGE||'tb'),[]);return ['d','l','b'].filter(k=>d.includes(m.id+k)).length};
+
+/* missions: three per module, all in the page so the shared kit counts them */
+$('missions').innerHTML=MODS.map(m=>`<div class="mission" id="${m.id}d" data-mod="${m.id}"><i>✓</i><div><b>${m.name}: drills</b><small>Pass every drill (three in a row each).</small></div></div>
+ <div class="mission" id="${m.id}l" data-mod="${m.id}"><i>✓</i><div><b>${m.name}: land it</b><small>Land Level 3 twice in a row${m.guides.length>1?' on each guided solve':''}.</small></div></div>
+ <div class="mission" id="${m.id}b" data-mod="${m.id}"><i>✓</i><div><b>${m.name}: bug hunter</b><small>Catch three bugs on the first tap.</small></div></div>`).join('');
+
+function renderMods(){$('mods').innerHTML=MODS.map((m,i)=>`<button data-m="${i}" aria-pressed="${i===mi}"><span>M${m.id.slice(1)} · ${m.name}</span><small>${'★'.repeat(starsOf(m))}${'☆'.repeat(3-starsOf(m))}</small></button>`).join('');
+  $('mods').querySelectorAll('button').forEach(b=>b.onclick=()=>{mi=+b.dataset.m;st.set('tb:mod',mi);di=0;gi=0;curL=null;render()});
+  document.querySelectorAll('#missions .mission').forEach(el=>el.hidden=el.dataset.mod!==MOD().id);$('modTitle').textContent=MOD().title}
+document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});
+function render(){renderMods();document.querySelectorAll('[data-sub]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sub===sub));
+  ['drill','guide','bug','stats'].forEach(id=>$('p_'+id).hidden=id!==sub);if(sub==='drill'){drillBtns();drillQ()}if(sub==='guide')renderGuide();if(sub==='bug')newBug();if(sub==='stats')renderStats()}
+
+/* ================= drills ================= */
+function drillBtns(){const m=MOD(),pass=st.get('tb:pass:'+m.id,[]);$('drillBtns').innerHTML=m.drills.map((d,i)=>`<button data-d="${i}" aria-pressed="${i===di}" class="${pass.includes(d.id)?'passed':''}">${pass.includes(d.id)?'✓ ':''}${d.name}<small>${d.sub}</small></button>`).join('');
+  $('drillBtns').querySelectorAll('button').forEach(b=>b.onclick=()=>{di=+b.dataset.d;drillBtns();drillQ()})}
+function drillQ(){const m=MOD(),D=m.drills[di],Qn=D.gen();window.__D=Qn;const key=m.id+D.id,card=$('drillCard'),s=streak[key]||0;
+  card.innerHTML=`<h2>${D.name}<small>three in a row to pass</small></h2><div class="pips">${[0,1,2].map(i=>`<i class="${i<s?'on':''}"></i>`).join('')}</div><div class="prompt">${Qn.p}</div>`;typeset(card);
+  const right=(first)=>{rec('d:'+m.id+':'+D.id,D.name,first,{t:'drill',i:di},`${m.id}/miss/drill/${D.id}`);streak[key]=first?(streak[key]||0)+1:0;card.querySelectorAll('.pips i').forEach((p,i)=>p.classList.toggle('on',i<streak[key]));
+    if(streak[key]>=3){const pass=st.get('tb:pass:'+m.id,[]);if(!pass.includes(D.id)){pass.push(D.id);st.set('tb:pass:'+m.id,pass);Kit.toast('Drill passed: '+D.name);gc(m.id+'/drill/'+D.id)}streak[key]=0;drillBtns();if(m.drills.every(d=>st.get('tb:pass:'+m.id,[]).includes(d.id)))done(m.id+'d');renderMods()}
+    const nx=document.createElement('button');nx.className='go';nx.textContent='Next question ▸';nx.onclick=drillQ;card.appendChild(nx);nx.focus({preventScroll:true})};
+  if(D.mc)choice(card,Qn.opts,right);
+  else{blanks(card,Qn.ans.map((a,i)=>({ans:a,label:Qn.labels?Qn.labels[i]:''})),right,{onWrong(){streak[key]=0;card.querySelectorAll('.pips i').forEach(i=>i.classList.remove('on'))},why:()=>'Not yet. Check the hint below.'});
+    if(Qn.h){const h=document.createElement('div');h.className='hint';h.innerHTML='<span class="lbl">Hint</span>'+Qn.h;card.appendChild(h);typeset(h)}}}
+
+/* ================= guided solves ================= */
+const lvl=()=>st.get('tb:lvl:'+GUIDE().id,1);
+function renderLevels(){const m=MOD();$('gpick').innerHTML=m.guides.length>1?m.guides.map((g,i)=>`<button data-g="${i}" aria-pressed="${i===gi}">${g.name}</button>`).join(''):'';$('gpick').hidden=m.guides.length<2;
+  $('gpick').querySelectorAll('button').forEach(b=>b.onclick=()=>{gi=+b.dataset.g;curL=null;renderGuide()});
+  const top=lvl();if(curL==null||curL>top)curL=top;
+  $('levels').innerHTML=[[1,'Level 1 · every step, sheet shown'],[2,'Level 2 · hints on request'],[3,'Level 3 · just the answer']].map(([k,t])=>`<button data-l="${k}" aria-pressed="${k===curL}" ${k>top?'disabled':''}>${k>top?'🔒 ':''}${t}</button>`).join('');
+  $('levels').querySelectorAll('button').forEach(b=>b.onclick=()=>{curL=+b.dataset.l;renderGuide()})}
+function renderGuide(){renderLevels();const m=MOD(),g=GUIDE(),card=$('guideCard'),P=g.gen(),L=curL,key=g.id;window.__P=P;card.innerHTML='';
+  const head=document.createElement('div');head.innerHTML=`<h2>${g.name}<small>Level ${L}</small></h2><p class="story">${g.story}</p><div class="prompt">${g.prompt(P)}</div>`;card.appendChild(head);typeset(head);
+  if(L===3){const box=document.createElement('div');box.className='step';card.appendChild(box);l3[key]=l3[key]||0;
+    const pip=document.createElement('div');pip.className='pips';const paint=()=>pip.innerHTML=[0,1].map(i=>`<i class="${i<l3[key]?'on':''}"></i>`).join('');paint();box.appendChild(pip);
+    blanks(box,g.final(P),(first)=>{rec('g3:'+g.id,g.name+' · full problem',first,{t:'guide',g:gi,l:3},`${m.id}/miss/${slug(g.name)}/full-problem`);l3[key]=first?l3[key]+1:0;paint();if(l3[key]>=2){const land=st.get('tb:land:'+m.id,[]);if(!land.includes(g.id)){land.push(g.id);st.set('tb:land:'+m.id,land)}gc(m.id+'/land/'+g.id);Kit.toast('Landed twice in a row');l3[key]=0;
+        if(m.guides.every(x=>st.get('tb:land:'+m.id,[]).includes(x.id)))done(m.id+'l');renderMods()}showWorked(card,g,P);nextBtn(card)},
+      {reveal:false,onWrong(){l3[key]=0;paint()},why:(v,t)=>t>=2?'Not yet. Tap "Show the steps" to see where it goes wrong.':'Not yet. Check your work and try again.'});
+    const show=document.createElement('button');show.textContent='Show the steps';show.onclick=()=>{rec('g3:'+g.id,g.name+' · full problem',false,{t:'guide',g:gi,l:3},`${m.id}/miss/${slug(g.name)}/full-problem`);l3[key]=0;paint();show.remove();showWorked(card,g,P);nextBtn(card)};card.appendChild(show);return}
+  const S=g.steps(P),list=document.createElement('div');list.className='steps';card.appendChild(list);let i=0;
+  function next(){if(i>=S.length){const fb=document.createElement('div');fb.className='fb ok';fb.textContent=`Level ${L} complete.`;card.appendChild(fb);
+      if(L<3&&lvl()<=L){st.set('tb:lvl:'+key,L+1);Kit.toast('Level '+(L+1)+' unlocked');renderLevels()}gc(m.id+'/guide/'+key+'/'+L);
+      const row=document.createElement('div');row.className='row';const again=document.createElement('button');again.textContent='New problem, same level';again.onclick=renderGuide;row.appendChild(again);
+      if(L<3){const up=document.createElement('button');up.className='go';up.textContent=`Go to Level ${L+1} ▸`;up.onclick=()=>{curL=L+1;renderGuide()};row.appendChild(up)}card.appendChild(row);return}
+    const s=S[i],box=document.createElement('div');box.className='step';box.innerHTML=`<span class="n">Step ${i+1} of ${S.length} · ${s.t}</span>`+(s.p?`<div class="prompt">${s.p}</div>`:'')+(L===1?`<div class="hint"><span class="lbl">On the equation sheet</span>${M(s.sheet)}</div>`:'');
+    list.appendChild(box);typeset(box);const si=i,ok=(first)=>{rec('g:'+g.id+':'+si,g.name+' · '+s.t,first,{t:'guide',g:gi},`${m.id}/miss/${slug(g.name)}/${slug(s.t)}`);box.classList.add('done');i++;next()};
+    if(s.mc)choice(box,s.mc,ok);else blanks(box,s.fill,ok);
+    const hb=document.createElement('div');if(L===1){hb.className='hint';hb.innerHTML='<span class="lbl">Hint</span>'+s.hint;box.appendChild(hb);typeset(hb)}
+    else{const b=document.createElement('button');b.textContent='Hint';b.onclick=()=>{b.remove();hb.className='hint';hb.innerHTML='<span class="lbl">Hint</span>'+M(s.sheet)+'<br>'+s.hint;box.appendChild(hb);typeset(hb)};box.appendChild(b)}
+    if(i>0)box.scrollIntoView({block:'nearest',behavior:'smooth'});const inp=box.querySelector('input');if(inp&&i>0)inp.focus({preventScroll:true})}
+  next()}
+function nextBtn(card){if(card.querySelector('.again'))return;const b=document.createElement('button');b.className='go again';b.textContent='Next problem ▸';b.onclick=renderGuide;card.appendChild(b)}
+function showWorked(card,g,P){if(card.querySelector('.worked'))return;const L=g.lines(P,null)||[];const w=document.createElement('div');w.className='hint worked';w.innerHTML='<span class="lbl">Worked solution</span>'+L.map(l=>`<div>${M(l.tex)}</div>`).join('');card.appendChild(w);typeset(w)}
+
+/* ================= find the bug ================= */
+function newBug(){const m=MOD(),card=$('bugCard');let g,P,bug,L;
+  for(let t=0;t<80;t++){g=R(m.guides);P=g.gen();bug=R(Object.keys(g.bugs));L=g.lines(P,bug);const ok=g.lines(P,null);if(!L||!ok)continue;const bi=L.findIndex(l=>l.bad);
+    if(bi>=0&&L[bi].tex!==ok[bi].tex&&!L.some(l=>/NaN|Infinity|undefined/.test(l.tex)))break}
+  let cnt=st.get('tb:bugs:'+m.id,0);
+  card.innerHTML=`<h2>${g.name}<small>caught: ${cnt}</small></h2><div class="prompt">${g.prompt(P)}</div><div class="lines"></div><div class="fb" aria-live="polite"></div>`;
+  const box=card.querySelector('.lines'),fb=card.querySelector('.fb');let over=false,miss=0;
+  L.forEach((l,i)=>{const b=document.createElement('button');b.innerHTML=`<span class="muted" style="margin-right:8px">${i+1}</span>`+M(l.tex);if(location.hash==='#test'&&l.bad)b.dataset.ok='1';b.onclick=()=>{if(over)return;
+    if(l.bad){over=true;b.classList.add('ok');good();rec('b:'+m.id,'Find the bug',miss===0,{t:'bug'},`${m.id}/miss/bug/${bug}`);if(miss===0){cnt++;st.set('tb:bugs:'+m.id,cnt);if(cnt>=3)done(m.id+'b');renderMods()}card.querySelector('h2 small').textContent='caught: '+cnt;
+      fb.className='fb ok';fb.innerHTML=(miss?'Found it. ':'Caught it! ')+g.bugs[bug]+(miss?' (Catch it on the first tap to count it.)':'');
+      const nx=document.createElement('button');nx.className='go';nx.textContent='Next bug ▸';nx.onclick=newBug;card.appendChild(nx);gc(m.id+'/bug/'+bug)}
+    else{miss++;b.classList.add('bad');b.disabled=true;bad();fb.className='fb bad';fb.textContent=i===0?'This line is right. Look further down.':'This line follows correctly from the lines above it. The mistake is elsewhere.'}};box.appendChild(b)});
+  typeset(card)}
+
+/* ================= my progress (stored only in this browser) ================= */
+const slug=s=>String(s).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+function rec(key,label,first,nav,miss){const S=st.get('tb:stats',{}),e=S[key]||{l:label,m:mi,n:nav,a:0,c:0};e.a++;if(first)e.c++;e.l=label;e.n=nav;e.m=mi;e.t=Date.now();S[key]=e;st.set('tb:stats',S);
+  const days=st.get('tb:days',[]),today=new Date().toISOString().slice(0,10);if(!days.includes(today)){days.push(today);st.set('tb:days',days.slice(-60))}
+  if(!first&&miss)gc(miss)}
+function streakDays(){const d=new Set(st.get('tb:days',[]));let n=0;const t=new Date();for(;;){const k=new Date(t.getTime()-n*864e5).toISOString().slice(0,10);if(d.has(k))n++;else break}return n}
+function renderStats(){const S=st.get('tb:stats',{}),E=Object.values(S),card=$('statsCard');
+  const per=MODS.map((m,i)=>{const e=E.filter(x=>x.m===i),a=e.reduce((s,x)=>s+x.a,0),c=e.reduce((s,x)=>s+x.c,0);return {m,i,a,c,st:starsOf(m)}});
+  const tot=per.reduce((s,p)=>s+p.a,0),totc=per.reduce((s,p)=>s+p.c,0);
+  const weak=E.filter(x=>x.a>=3&&x.c/x.a<0.8).sort((x,y)=>x.c/x.a-y.c/y.a).slice(0,3);
+  card.innerHTML=`<h2>My progress<small>saved in this browser only</small></h2>
+   <div class="grid"><div class="stat"><span>Answered</span><b>${tot}</b><small>steps and questions</small></div><div class="stat"><span>First try</span><b>${tot?Math.round(100*totc/tot)+'%':'–'}</b><small>right without a retry</small></div>
+   <div class="stat"><span>Study streak</span><b>${streakDays()} day${streakDays()===1?'':'s'}</b><small>in a row</small></div><div class="stat"><span>Stars</span><b>★ ${per.reduce((s,p)=>s+p.st,0)} / 24</b><small>missions done</small></div></div>
+   <div class="tablewrap"><table class="st"><thead><tr><th>Module</th><th>Done</th><th>1st try</th></tr></thead><tbody>${per.map(p=>`<tr><td>M${p.m.id.slice(1)} ${p.m.name}</td><td>${p.a}</td><td>${p.a?Math.round(100*p.c/p.a)+'%':'–'}</td></tr>`).join('')}</tbody></table></div>
+   <h2>Practice next</h2><div class="weak">${weak.length?weak.map((w,i)=>`<button data-w="${i}"><b>${w.l}</b><small>M${MODS[w.m].id.slice(1)} · ${Math.round(100*w.c/w.a)}% first try over ${w.a}</small></button>`).join(''):'<p class="muted">Answer a few more questions and your three weakest skills will show up here.</p>'}</div>
+   <div class="row"><button id="copySum">Copy my summary</button><span class="muted" id="copied" aria-live="polite"></span></div>
+   <p class="memo">Your scores stay in this browser. No names are collected: the course only receives anonymous counts, such as how often a step is missed on the first try. If your instructor asks, use “Copy my summary” and paste it where they say.</p>`;
+  card.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const w=weak[+b.dataset.w];mi=w.m;st.set('tb:mod',mi);if(w.n.t==='drill'){sub='drill';di=w.n.i||0}else if(w.n.t==='guide'){sub='guide';gi=w.n.g||0;curL=w.n.l||null}else sub='bug';render()});
+  $('copySum').onclick=()=>{const txt=`MAE 384 Training Bay summary (${new Date().toLocaleDateString()})\nAnswered ${tot}, first try ${tot?Math.round(100*totc/tot):0}%, stars ${per.reduce((s,p)=>s+p.st,0)}/24, streak ${streakDays()} days\n`+per.map(p=>`M${p.m.id.slice(1)} ${p.m.name}: ${p.st}/3 stars, ${p.a} answered, ${p.a?Math.round(100*p.c/p.a):0}% first try`).join('\n');
+    const done_=()=>{$('copied').textContent='Copied.'};try{navigator.clipboard.writeText(txt).then(done_,()=>fallback())}catch(e){fallback()}
+    function fallback(){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done_()}catch(e){$('copied').textContent='Select and copy the text below.'}ta.remove()}}}
+render();
+</script>
+
+</body></html>

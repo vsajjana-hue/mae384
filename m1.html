@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<title>The Missing Third of a Second</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=JetBrains+Mono:wght@500;700&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+/* layout: one column; a radar scene, a caption card that tells the story scene by scene, transport, then the live controls in the last scene */
+:root{--bg:#0b1424;--panel:#152238;--panel2:#22324f;--ink:#eef3ff;--muted:#9fb0cf;--heat:#ff8a3d;--sea:#2fd3d3;--sun:#ffd640;--stop:#ff5d6c;--go:#58d68d;--scope:#08131f;--trace:#39f2a6;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;--math:"STIX Two Text","Cambria Math",serif;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2f8;--panel:#ffffff;--panel2:#dde5f2;--ink:#132036;--muted:#56657f;--heat:#d9601a;--sea:#0d8f8f;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2f8;--panel:#ffffff;--panel2:#dde5f2;--ink:#132036;--muted:#56657f;--heat:#d9601a;--sea:#0d8f8f;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:860px;margin:0 auto;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--heat)}
+p{margin:0}.muted{color:var(--muted)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.3);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--scope);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:140px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.1rem;font-weight:700;line-height:1.4}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:3px}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--math);font-size:1.05rem;white-space:normal}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play{background:var(--heat);color:#1a0d00;min-width:110px;font-family:var(--display);font-weight:600;font-size:1.05rem}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--heat)}
+.lab{display:flex;flex-direction:column;gap:10px}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--heat);height:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--panel);border-radius:14px;padding:10px 12px;min-width:0}
+.stat span{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat small{display:block;color:var(--muted);font-size:.8rem}
+.mission{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border-radius:14px;padding:10px 12px}
+.mission i{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;color:transparent}
+.mission.done i{background:var(--go);border-color:var(--go);color:#062312}
+.mission small{color:var(--muted);display:block}
+.memo{font-size:.9rem;color:var(--muted);border-top:1px solid var(--panel2);padding-top:10px}
+</style>
+
+</head><body>
+<div class="app">
+  <div class="head">
+    <div><p class="muted">MAE 384 · Module 1 · precision and round-off</p><h1>The Missing <span>Third of a Second</span></h1></div>
+    <div class="row"><button id="mus" aria-pressed="true">♪ Music</button><button id="snd" aria-pressed="true">🔊 Sounds</button></div>
+  </div>
+
+  <div class="stage"><canvas id="cv" aria-label="Radar display tracking an incoming missile"></canvas></div>
+
+  <div class="cap">
+    <span class="n" id="capN"></span>
+    <div class="t" id="capT"></div>
+    <div class="sheet"><span id="shL"></span><code id="shF"></code></div>
+  </div>
+
+  <div class="transport">
+    <button id="back">◀ Back</button>
+    <button class="play" id="play">▶ Play</button>
+    <button id="next">Next ▶</button>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <div class="lab" id="lab" hidden>
+    <div class="grid">
+      <div class="ctl"><label for="hrs">Hours since the last restart <output id="hrsO">100</output></label><input id="hrs" type="range" min="0" max="100" step="0.5" value="100"></div>
+      <div class="ctl"><label for="bits">Bits kept after the binary point <output id="bitsO">23</output></label><input id="bits" type="range" min="12" max="52" step="1" value="23"></div>
+    </div>
+    <div class="row"><button id="reboot">⟳ Restart the computer</button><button id="launch">Missile inbound</button></div>
+    <div class="grid">
+      <div class="stat"><span>0.1 as stored</span><b id="stored">–</b><small id="perTick">&nbsp;</small></div>
+      <div class="stat"><span>Clock error</span><b id="clk">–</b><small id="ticks">&nbsp;</small></div>
+      <div class="stat"><span>Window misplaced by</span><b id="shift">–</b><small>at 1,676 m/s</small></div>
+      <div class="stat"><span>Radar</span><b id="status">–</b><small id="statusN">&nbsp;</small></div>
+    </div>
+    <div class="mission" id="m1"><i>✓</i><div><b>Find the breaking point.</b><small>With 23 bits, how many hours can the computer run before it loses the target?</small></div></div>
+    <div class="mission" id="m2"><i>✓</i><div><b>The field fix.</b><small>Operators were told to restart the system regularly. Restart it and show the track holds.</small></div></div>
+    <div class="mission" id="m3"><i>✓</i><div><b>The real fix.</b><small>Find the fewest bits that keep 100 hours of running safe.</small></div></div>
+    <p class="memo">Based on the U.S. General Accounting Office report GAO/IMTEC-92-26 (1992). The radar model here is simplified: the tracking window size is chosen for illustration.</p>
+  </div>
+</div>
+
+<script>window.KIT_PAGE='m1';window.KIT_HUB='index.html';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+<script>
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NARROW=window.innerWidth<600;
+const cv=$('cv'),c=cv.getContext('2d'),W=NARROW?640:1000,H=NARROW?520:560;cv.width=W;cv.height=H;cv.style.aspectRatio=W+'/'+H;
+const VEL=1676,GATE=120;  // missile speed (m/s); half-width of the tracking window in this model (m)
+const chop=n=>Math.floor(0.1*2**n)/2**n,err=n=>0.1-chop(n);
+const BIN='0.0001100110011001100110011001100110011001100110011001101';
+const S={st:0,t0:0,p:1,playing:false,timer:0,snd:true,mus:false,user:false,hrs:100,bits:23,flight:0,flyT:0,best:{}};
+function txt(t,x,y,col,size=22,weight=700,align='left',font){c.fillStyle=col;c.font=`${weight} ${size}px ${font||'Nunito, sans-serif'}`;c.textAlign=align;c.fillText(t,x,y);c.textAlign='left'}
+/* ---------- radar scope: range on the horizontal axis ---------- */
+const R0=40000,RX=r=>W*0.1+(W*0.86)*(r/R0),SY=H*0.52;
+function scope(opt){const now=performance.now();c.fillStyle=css('--scope');c.fillRect(0,0,W,H);
+  c.strokeStyle='rgba(57,242,166,.12)';c.lineWidth=1;for(let r=0;r<=R0;r+=5000){c.beginPath();c.moveTo(RX(r),40);c.lineTo(RX(r),H-60);c.stroke();txt((r/1000)+' km',RX(r),H-36,'rgba(57,242,166,.55)',17,700,'center','JetBrains Mono, monospace')}
+  c.beginPath();c.moveTo(RX(0),SY);c.lineTo(RX(R0),SY);c.stroke();
+  // radar
+  c.fillStyle='#39f2a6';c.beginPath();c.arc(RX(0),SY,12,0,7);c.fill();txt('RADAR',RX(0),SY+40,'#39f2a6',17,800,'center','JetBrains Mono, monospace');
+  // sweep pulse
+  const ph=(now/1400)%1;c.strokeStyle=`rgba(57,242,166,${0.5*(1-ph)})`;c.lineWidth=3;c.beginPath();c.arc(RX(0),SY,ph*(W*0.9),-0.25,0.25);c.stroke();
+  if(opt.target!=null){const x=RX(opt.target);c.fillStyle='#ff5d6c';c.shadowColor='#ff5d6c';c.shadowBlur=18;c.beginPath();c.moveTo(x-16,SY);c.lineTo(x+8,SY-9);c.lineTo(x+8,SY+9);c.fill();c.shadowBlur=0;
+    c.strokeStyle='rgba(255,93,108,.35)';c.lineWidth=3;c.setLineDash([6,8]);c.beginPath();c.moveTo(x+12,SY);c.lineTo(Math.min(W,x+180),SY);c.stroke();c.setLineDash([]);if(opt.labelT)txt('missile',x,SY-26,'#ff8a96',19,800,'center')}
+  if(opt.gate!=null){const x=RX(opt.gate),w=Math.max(10,RX(GATE)-RX(0)),ok=opt.target!=null&&Math.abs(opt.gate-opt.target)<=GATE;
+    c.strokeStyle=ok?'#39f2a6':'#ffd640';c.lineWidth=4;c.strokeRect(x-w,SY-46,2*w,92);txt(ok?'TRACKING':'LOOKING HERE',x,SY-58,ok?'#39f2a6':'#ffd640',18,800,'center','JetBrains Mono, monospace')}
+  if(opt.msg)txt(opt.msg,W/2,34,opt.msgCol||'#cfe0ff',NARROW?20:22,800,'center')}
+function binaryPanel(n,p){const x0=W*0.06,y0=H*0.14,fs=NARROW?22:26;txt('0.1 in binary never ends:',x0,y0,'#cfe0ff',NARROW?20:22,800);
+  const show=Math.min(BIN.length,Math.floor(p*BIN.length*1.2));let x=x0;c.font=`700 ${fs}px JetBrains Mono, monospace`;const cw=c.measureText('0').width;
+  for(let i=0;i<show;i++){const ch=BIN[i],frac=i-2,kept=frac<n||i<2;if(x>W-30){break}c.fillStyle=i<2?'#cfe0ff':kept?'#39f2a6':'rgba(255,93,108,.8)';c.fillText(ch,x,y0+46);x+=cw}
+  if(p>0.75){txt(`kept: ${n} bits`,x0,y0+96,'#39f2a6',22,800);txt('chopped off →',x0+cw*(n+2)-10,y0+130,'#ff8a96',20,800);
+    txt(`stored 0.1 = ${chop(n).toFixed(12)}`,x0,y0+180,'#cfe0ff',22,700,'left','JetBrains Mono, monospace');txt(`error per tick = ${err(n).toExponential(2)} s`,x0,y0+218,'#ffd640',22,800,'left','JetBrains Mono, monospace')}}
+/* ---------- audio ---------- */
+let ac=null,musBus,sfx,NOISE;const midi=m=>440*Math.pow(2,(m-69)/12);
+function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();musBus=ac.createGain();musBus.gain.value=S.mus?0.45:0;musBus.connect(ac.destination);sfx=ac.createGain();sfx.connect(ac.destination);
+  NOISE=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;setInterval(music,25)}if(ac.state!=='running')ac.resume()}catch(e){}}
+function tone(fq,d=0.2,v=0.25,type='triangle',at=0,bus){if(!ac||(!bus&&!S.snd))return;const t=ac.currentTime+0.02+at,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus||sfx);o.start(t);o.stop(t+d+0.03)}
+const M={step:0,next:0},PROG=[[38,45,50,53],[34,41,46,50],[36,43,48,52],[33,40,45,49]];
+function music(){if(!ac||!S.mus)return;const sp=60/76/4;if(M.next<ac.currentTime)M.next=ac.currentTime+0.05;
+  while(M.next<ac.currentTime+0.15){const k=M.step,st=k%16,ch=PROG[Math.floor(k/16)%4],t=M.next-ac.currentTime-0.02;
+    if(st===0)ch.forEach(n=>tone(midi(n+12),sp*16,0.04,'triangle',t,musBus));if(st===0||st===8)tone(midi(ch[0]-12),sp*7,0.16,'sine',t,musBus);
+    if(st%4===0)tone(midi(ch[(k/4)%4]+24),sp*2.5,0.035,'sine',t,musBus);if(st%2===1)tone(1800,0.015,0.03,'square',t,musBus);M.next+=sp;M.step++}}
+/* ---------- story ---------- */
+const SC=[
+ {dur:5000,cap:'February 25, 1991. A Patriot air-defence battery in Dhahran, Saudi Arabia, has been switched on without a restart for about 100 hours. Its radar watches for incoming missiles.',sh:['The question','How can a computer that was working perfectly on day one fail on day five?'],
+  draw(p){const r=R0*(1-0.55*p);scope({target:r,msg:'searching…',labelT:true});if(Math.floor(p*6)!==this.l){this.l=Math.floor(p*6);tone(1320,0.08,0.18,'sine')}}},
+ {dur:5200,cap:'Radar sees a blip. To confirm it, the computer predicts where the missile will be at the next sweep and looks only inside a small window there. Prediction = position + speed × time.',sh:['Range-gate tracking','predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s'],
+  draw(p){const r=24000-VEL*6*p;scope({target:r,gate:r,msg:'window placed on the predicted position'});if(Math.floor(p*5)!==this.l){this.l=Math.floor(p*5);tone(880,0.1,0.18,'sine')}}},
+ {dur:6500,cap:'The clock counts tenths of a second. But 0.1 has no exact binary form: like 1/3 in decimal, its digits repeat forever. The computer kept 23 bits after the point and chopped off the rest.',sh:['Module 1 · Floating-point and interval','Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.'],
+  draw(p){c.fillStyle=css('--scope');c.fillRect(0,0,W,H);binaryPanel(23,p);const k=Math.floor(p*30);if(k!==this.l&&k<26){this.l=k;tone(500+k*25,0.04,0.12,'square')}}},
+ {dur:6500,cap:'Each tick is off by only 0.000000095 s. But the clock ticks 10 times a second. After 100 hours that is 3.6 million ticks, and the tiny errors add up to 0.34 s.',sh:['Error accumulation','Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s'],
+  draw(p){c.fillStyle=css('--scope');c.fillRect(0,0,W,H);const h=100*Math.pow(p,1.5),ticks=h*36000,e=ticks*err(23);
+   txt('hours running',W/2,H*0.2,'#9fb0cf',22,800,'center');txt(h.toFixed(1),W/2,H*0.2+70,'#cfe0ff',64,800,'center','JetBrains Mono, monospace');
+   txt(Math.round(ticks).toLocaleString()+' ticks',W/2,H*0.2+120,'#9fb0cf',24,700,'center','JetBrains Mono, monospace');
+   txt('clock error',W/2,H*0.62,'#9fb0cf',22,800,'center');txt(e.toFixed(4)+' s',W/2,H*0.62+70,e>0.3?'#ff5d6c':'#ffd640',64,800,'center','JetBrains Mono, monospace');
+   const k=Math.floor(h);if(k!==this.l){this.l=k;if(k%5===0)tone(300+k*6,0.06,0.15,'square')}}},
+ {dur:7000,cap:'In 0.34 s a missile flying at 1,676 m/s covers about 575 m. The window was placed in the wrong spot, the radar found nothing there, and the system dropped the track. The missile struck a barracks; 28 soldiers were killed. Corrected software reached the site the next day.',sh:['The lesson','A round-off error far too small to see in one step grows without limit when it accumulates over millions of steps.'],
+  draw(p){const r=20000-VEL*6*p,sh=err(23)*3.6e6*VEL;scope({target:r,gate:r+sh,msg:p>0.5?'TRACK LOST':'window misplaced by 575 m',msgCol:p>0.5?'#ff5d6c':'#ffd640'});if(p>0.5&&!this.a){this.a=1;tone(220,0.6,0.25,'sawtooth');tone(165,0.8,0.25,'sawtooth',0.3)}}},
+ {dur:0,lab:true,cap:'Your turn. Change how long the computer has been running and how many bits store 0.1, then send a missile in and see whether the radar keeps the track.',sh:['Module 1 · Interval','spacing 2^(p−m): every extra bit halves the round-off error per tick'],
+  draw(){labDraw()}}
+];
+/* ---------- lab ---------- */
+function labNums(){const e=err(S.bits),ticks=S.hrs*36000,ce=e*ticks,sh=ce*VEL;return {e,ticks,ce,sh,ok:sh<=GATE}}
+function labDraw(){const n=labNums(),now=performance.now();let r=null;if(S.flight){const t=(now-S.flyT)/1000;r=30000-VEL*1.8*t;if(r<1500){S.flight=0;r=null;finishFlight(n)}}
+  scope({target:r,gate:r!=null?r+n.sh:null,msg:r==null?'press “Missile inbound”':(n.ok?'tracking':'TRACK LOST'),msgCol:r==null?'#9fb0cf':(n.ok?'#39f2a6':'#ff5d6c'),labelT:true});
+  if(S.flight&&Math.floor(now/600)!==S.lp){S.lp=Math.floor(now/600);tone(n.ok?1320:440,0.08,0.2,n.ok?'sine':'square')}if(S.flight)requestAnimationFrame(labDraw)}
+function labStats(){const n=labNums();$('hrsO').textContent=S.hrs;$('bitsO').textContent=S.bits;$('stored').textContent=chop(S.bits).toPrecision(S.bits>40?16:10);$('perTick').textContent='error per tick '+n.e.toExponential(2)+' s';
+  $('clk').textContent=n.ce<1e-6?n.ce.toExponential(1)+' s':n.ce.toFixed(n.ce<0.01?5:3)+' s';$('ticks').textContent=Math.round(n.ticks).toLocaleString()+' ticks';$('shift').textContent=n.sh<1?n.sh.toFixed(2)+' m':Math.round(n.sh).toLocaleString()+' m';
+  $('status').textContent=n.ok?'tracking':'track lost';$('status').style.color=n.ok?css('--go'):css('--stop');$('statusN').textContent=`window: ±${GATE} m in this model`}
+function finishFlight(n){if(n.ok){[0,4,7,12].forEach((s,i)=>tone(523*Math.pow(2,s/12),0.4,0.2,'triangle',i*0.08))}else{tone(196,0.6,0.28,'sawtooth');tone(147,0.8,0.28,'sawtooth',0.3)}
+  if(S.bits===23&&!n.ok&&S.hrs<=25)$('m1').classList.add('done');if(S.bits===23&&S.hrs<=1&&n.ok&&S.rebooted)$('m2').classList.add('done');if(S.hrs>=100&&n.ok&&S.bits<=29)$('m3').classList.add('done');labDraw()}
+$('hrs').oninput=()=>{S.hrs=+$('hrs').value;labStats();if(!S.flight)labDraw()};$('bits').oninput=()=>{S.bits=+$('bits').value;labStats();tone(300+S.bits*12,0.05,0.12);if(!S.flight)labDraw()};
+$('reboot').onclick=()=>{wake();S.rebooted=true;const h0=S.hrs,t0=performance.now();const sp=()=>{const u=Math.min(1,(performance.now()-t0)/700);S.hrs=Math.round(h0*(1-u)*2)/2;$('hrs').value=S.hrs;labStats();if(u<1)requestAnimationFrame(sp)};sp();tone(880,0.12,0.2,'square');tone(660,0.12,0.2,'square',0.14);tone(1320,0.25,0.2,'sine',0.32)};
+$('launch').onclick=()=>{wake();if(S.flight)return;S.flight=1;S.flyT=performance.now();tone(140,0.5,0.3,'sawtooth');labDraw()};
+/* ---------- transport ---------- */
+function caption(){const s=SC[S.st];$('capN').textContent=`Scene ${S.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sh[0];$('shF').textContent=s.sh[1];
+  $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=S.st?'on':''}"></i>`).join('');$('back').disabled=S.st===0;$('next').disabled=S.st===SC.length-1;$('lab').hidden=!s.lab;if(s.lab)labStats()}
+function render(){const s=SC[S.st];if(s.lab)return labDraw();S.p=s.dur?Math.min(1,(performance.now()-S.t0)/s.dur):1;s.draw(S.p);if(S.p<1||S.st===0||S.st===1)requestAnimationFrame(render)}
+function go(st,animate=true){S.st=st;SC[st].l=-1;SC[st].a=0;S.t0=animate?performance.now():-1e9;caption();requestAnimationFrame(render)}
+function stop(){S.playing=false;clearTimeout(S.timer);$('play').textContent='▶ Play'}
+function play(){wake();S.playing=true;$('play').textContent='❚❚ Pause';go(S.st>=SC.length-1?0:S.st+1);const tick=()=>{if(!S.playing)return;if(S.st>=SC.length-1)return stop();go(S.st+1);S.timer=setTimeout(tick,SC[S.st].dur+3200)};clearTimeout(S.timer);S.timer=setTimeout(tick,SC[S.st].dur+3200)}
+$('next').onclick=()=>{wake();stop();go(S.st+1)};$('back').onclick=()=>{stop();go(S.st-1,false)};$('play').onclick=()=>{S.playing?stop():play()};
+$('mus').onclick=()=>{S.mus=!S.mus;$('mus').setAttribute('aria-pressed',S.mus);wake();if(musBus)musBus.gain.value=S.mus?0.45:0};
+$('snd').onclick=()=>{S.snd=!S.snd;$('snd').setAttribute('aria-pressed',S.snd)};
+['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,()=>{S.user=true;wake()},true));
+document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(render));
+</script>
+
+</body></html>

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<title>Where Did Ceres Go?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* layout: one column; a top-down view of the Sun, Earth and Ceres, story captions, then the Kepler-equation lab with an iteration table */
+:root{--bg:#0e1730;--panel:#1b2647;--panel2:#26335c;--ink:#f2f5ff;--muted:#a6b1d4;--heat:#ff8a3d;--sea:#2fd3d3;--plum:#b48cff;--sun:#ffd640;--stop:#ff5d6c;--go:#58d68d;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:880px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--heat)}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+p{margin:0}.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.28);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.08rem;font-weight:700;line-height:1.4}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;overflow-x:auto}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--body);font-size:1rem;white-space:nowrap}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play,.big{background:var(--heat);color:#1a0d00;font-family:var(--display);font-weight:600;font-size:1.08rem}
+.big{padding:12px 20px;min-height:50px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--heat)}
+.lab{display:flex;flex-direction:column;gap:10px}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctl>span{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--heat);height:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--panel);border-radius:14px;padding:10px 12px;min-width:0}
+.stat span{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat small{display:block;color:var(--muted);font-size:.8rem}
+.mission{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border-radius:14px;padding:10px 12px}
+.mission i{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;color:transparent}
+.mission.done i{background:var(--go);border-color:var(--go);color:#062312}
+.mission small{color:var(--muted);display:block}
+.memo{font-size:.88rem;color:var(--muted);border-top:1px solid var(--panel2);padding-top:10px}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:14px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--panel2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.sheet code{white-space:normal}
+.iter{font-variant-numeric:tabular-nums}
+.iter td,.iter th{padding:5px 8px}
+</style>
+
+</head><body>
+<div class="app">
+  <div><p class="muted">MAE 384 · Module 3 · root finding</p><h1>Where Did <span>Ceres Go?</span></h1></div>
+
+  <div class="stage"><canvas id="cv" aria-label="Top-down view of the Sun, Earth's orbit and the orbit of Ceres, with the line of sight from Earth"></canvas></div>
+
+  <div class="cap"><span class="n" id="capN"></span><div class="t" id="capT"></div><div class="sheet"><span id="shL"></span><code id="shF"></code></div></div>
+  <div class="transport"><button id="back">◀ Back</button><button class="play" id="play">▶ Play</button><button id="next">Next ▶</button><div class="dots" id="dots"></div></div>
+
+  <div class="lab" id="lab" hidden>
+    <h2>Point the telescope: solve Kepler’s equation</h2>
+    <div class="grid">
+      <div class="ctl"><span>Object</span><div class="row"><button data-o="ceres" aria-pressed="true">Ceres (e = 0.08)</button><button data-o="halley" aria-pressed="false">Halley’s comet (e = 0.967)</button></div></div>
+      <div class="ctl"><span>Method</span><div class="row"><button data-m="newton" aria-pressed="true">Newton</button><button data-m="fixed" aria-pressed="false">Fixed point</button><button data-m="bisect" aria-pressed="false">Bisection</button></div><small class="muted" id="mNote">&nbsp;</small></div>
+    </div>
+    <div class="ctl"><label for="day" id="dayL">Date <output id="dayO"></output></label><input id="day" type="range" min="0" max="420" step="1" value="340"></div>
+    <div class="row"><button id="step">Step once</button><button class="big" id="solve">▶ Solve to 10⁻⁸</button><button id="reset">Reset</button><span class="muted" id="hint"></span></div>
+    <div class="grid">
+      <div class="stat"><span>Iterations</span><b id="its">0</b><small id="itsN">&nbsp;</small></div>
+      <div class="stat"><span>E (radians)</span><b id="eE">–</b><small>eccentric anomaly</small></div>
+      <div class="stat"><span>|f(E)|</span><b id="fE">–</b><small>how far from a root</small></div>
+    </div>
+    <div class="tablewrap"><table class="iter"><thead><tr><th>k</th><th>E⁽ᵏ⁾</th><th>f(E⁽ᵏ⁾)</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <div class="mission" id="m1"><i>✓</i><div><b>Find Ceres.</b><small>Solve for early December 1801 with Newton’s method, where von Zach looked.</small></div></div>
+    <div class="mission" id="m2"><i>✓</i><div><b>The race.</b><small>Solve Ceres with all three methods. Which needs the fewest iterations?</small></div></div>
+    <div class="mission" id="m3"><i>✓</i><div><b>Comet trouble.</b><small>Solve Halley’s comet near its closest approach with fixed point and with Newton. Count the iterations.</small></div></div>
+    <p class="memo">History from MacTutor (St Andrews), “The missing planet”: Piazzi first saw Ceres on 1 January 1801 and followed it for about six weeks, a geocentric arc of only about three degrees, before it was lost near the Sun. Gauss, then 24, computed its orbit from three observations, and von Zach found Ceres again on 7 December 1801, very close to Gauss’s position. Gauss went on to develop least squares from this work. The orbit drawn here is simplified to a flat ellipse (Ceres: a ≈ 2.77 AU, e ≈ 0.08, period about 4.6 years), so dates and angles are approximate.</p>
+  </div>
+</div>
+
+<script>window.KIT_PAGE='m3';window.KIT_HUB='index.html';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id),css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NARROW=window.innerWidth<600,cv=$('cv'),c=cv.getContext('2d'),W=NARROW?640:1000,H=NARROW?640:560;cv.width=W;cv.height=H;cv.style.aspectRatio=W+'/'+H;
+const D2R=Math.PI/180,AC=2.766,EC=0.08,PC=1681,WP=150*D2R,LE0=100*D2R,EH=0.967;
+function kep(M,e){let E=M;for(let i=0;i<60;i++){const d=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));E-=d;if(Math.abs(d)<1e-13)break}return E}
+const nu0=(5*D2R-WP),E0=2*Math.atan(Math.sqrt((1-EC)/(1+EC))*Math.tan(nu0/2)),M0=E0-EC*Math.sin(E0);
+const Mof=d=>((M0+2*Math.PI*d/PC)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+function cpos(E){const x=AC*(Math.cos(E)-EC),y=AC*Math.sqrt(1-EC*EC)*Math.sin(E);return [x*Math.cos(WP)-y*Math.sin(WP),x*Math.sin(WP)+y*Math.cos(WP)]}
+const epos=d=>{const L=LE0+2*Math.PI*d/365.25;return [Math.cos(L),Math.sin(L)]};
+function elong(d,E){const e=epos(d),p=cpos(E===undefined?kep(Mof(d),EC):E),a=[-e[0],-e[1]],b=[p[0]-e[0],p[1]-e[1]];return Math.acos((a[0]*b[0]+a[1]*b[1])/Math.hypot(...a)/Math.hypot(...b))/D2R}
+const date=d=>{const t=new Date(Date.UTC(1801,0,1)+d*864e5);return t.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})};
+/* ---------- drawing ---------- */
+const S=Math.min(W,H)/2/3.25,OX=W/2,OY=H/2+(NARROW?10:0),P=([x,y])=>[OX+x*S,OY-y*S];
+function txt(t,x,y,col,size=20,weight=700,align='left'){size=Math.round(size*(NARROW?1.38:1));c.fillStyle=col;c.font=`${weight} ${size}px Nunito, sans-serif`;c.textAlign=align;c.fillText(t,x,y);c.textAlign='left'}
+function dot(p,r,col){c.fillStyle=col;c.beginPath();c.arc(p[0],p[1],r,0,7);c.fill()}
+function scene(d,o={}){c.clearRect(0,0,W,H);const st=[];for(let i=0;i<120;i++){c.fillStyle=css('--panel2');c.fillRect((i*137)%W,(i*71)%H,2,2)}
+  c.strokeStyle=css('--panel2');c.lineWidth=2;c.beginPath();c.arc(OX,OY,S,0,7);c.stroke();
+  c.beginPath();for(let k=0;k<=200;k++){const p=P(cpos(2*Math.PI*k/200));k?c.lineTo(...p):c.moveTo(...p)}c.stroke();
+  const g=c.createRadialGradient(OX,OY,4,OX,OY,40);g.addColorStop(0,'#fff3b0');g.addColorStop(1,'rgba(255,214,64,0)');c.fillStyle=g;c.beginPath();c.arc(OX,OY,40,0,7);c.fill();dot([OX,OY],12,'#ffd640');
+  const e=P(epos(d)),E=o.E===undefined?kep(Mof(d),EC):o.E,cp=P(cpos(E)),lost=elong(d,E)<40;
+  if(o.glare!==false){const a=Math.atan2(OY-e[1],OX-e[0]);c.fillStyle='rgba(255,214,64,0.10)';c.beginPath();c.moveTo(...e);c.arc(e[0],e[1],S*4,a-40*D2R,a+40*D2R);c.closePath();c.fill()}
+  if(o.arc){c.strokeStyle=css('--heat');c.lineWidth=6;c.beginPath();for(let k=0;k<=41;k++){const pp=P(cpos(kep(Mof(k),EC)));k?c.lineTo(...pp):c.moveTo(...pp)}c.stroke()}
+  if(o.sight!==false){c.strokeStyle=lost?css('--muted'):css('--sea');c.setLineDash([6,8]);c.lineWidth=2;c.beginPath();c.moveTo(...e);c.lineTo(...cp);c.stroke();c.setLineDash([])}
+  dot(e,9,css('--sea'));txt('Earth',e[0]+12,e[1]-10,css('--sea'),18,800);
+  if(o.ghost)dot(P(cpos(o.ghost)),10,css('--plum'));
+  dot(cp,lost&&o.fade?5:8,lost&&o.fade?css('--muted'):css('--heat'));txt('Ceres',cp[0]>W-110?cp[0]-12:cp[0]+12,cp[1]+(cp[0]>W-110?-12:6),lost&&o.fade?css('--muted'):css('--heat'),18,800,cp[0]>W-110?'right':'left');
+  txt(date(Math.round(d)),24,40,css('--ink'),NARROW?24:22,800);txt(lost?'lost in the Sun’s glare':'visible at night',24,68,lost?css('--sun'):css('--go'),NARROW?19:18,800);return {lost}}
+/* ---------- story ---------- */
+const SC=[
+ {dur:5000,cap:'January 1, 1801, Palermo. Giuseppe Piazzi notices a faint “star” that moves a little each night. He follows it for about six weeks, but it only travels about three degrees across the sky.',sheet:['The question','Where will Ceres be when it comes back out from behind the Sun?',1],
+  draw(p){scene(41*p,{arc:p>0.95});const k=Math.floor(p*10);if(k!==this.k){this.k=k;Kit.tone(660+k*20,0.06,0.08,'sine')}}},
+ {dur:5000,cap:'By February Ceres had drawn too close to the Sun to see, and no one could say where it would reappear. Six weeks of data, covering a tiny arc, had to predict a position months later and far away on the orbit.',sheet:['The challenge','About 41 days of data must predict a position about 300 days later.',1],
+  draw(p){scene(41+250*p,{arc:true,fade:true});const k=Math.floor(p*12);if(k!==this.k){this.k=k;Kit.tone(300-k*8,0.08,0.06,'sine')}}},
+ {dur:5000,cap:'Carl Friedrich Gauss, 24, found the orbit from three of Piazzi’s observations. To place Ceres on that orbit on any date, you need its eccentric anomaly E from Kepler’s equation, and E cannot be isolated with algebra.',sheet:['Kepler’s equation','M=E-e\\sin E,\\qquad M=\\frac{2\\pi\\,(t-t_p)}{P}'],
+  draw(p){scene(300,{arc:true,sight:false});const cp=P(cpos(kep(Mof(300),EC)));c.strokeStyle=css('--plum');c.lineWidth=2;c.beginPath();c.moveTo(OX,OY);c.lineTo(...cp);c.stroke();txt('E ?',(OX+cp[0])/2+10,(OY+cp[1])/2,css('--plum'),22,800)}},
+ {dur:5500,cap:'So it is a root-finding problem: find E with f(E) = 0. Newton’s method needs f and its derivative, both easy here, and from a guess of E = M it converges in a handful of steps.',sheet:['📄 On your sheet · Module 3 · Newton','E^{(k+1)}=E^{(k)}-\\frac{f(E^{(k)})}{f\'(E^{(k)})},\\qquad f(E)=E-e\\sin E-M,\\quad f\'(E)=1-e\\cos E'],
+  draw(p){const M=Mof(340);let E=M;const its=[E];for(let i=0;i<4;i++){E=E-(E-EC*Math.sin(E)-M)/(1-EC*Math.cos(E));its.push(E)}const k=Math.min(4,Math.floor(p*5));scene(340,{E:its[k],sight:p>0.8});
+   txt(`iteration ${k}: E = ${its[k].toFixed(8)}`,24,H-24,css('--plum'),NARROW?19:19,800);if(k!==this.k){this.k=k;Kit.tone(520+k*70,0.1,0.12)}}},
+ {dur:4500,cap:'December 7, 1801. Franz von Zach points his telescope where Gauss said to look, and finds Ceres again, very close to the prediction. Gauss later developed the least-squares method from this same work.',sheet:['Found','Ceres was right where the orbit said it would be.',1],
+  draw(p){scene(340,{arc:true});if(p>0.5&&this.k!==1){this.k=1;[0,4,7,12].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.4,0.15,'triangle',i*0.09))}}},
+ {dur:0,lab:true,cap:'Your turn. Pick a date, pick a method, and step it yourself. The dot moves with each iterate, so you can watch a bad guess point the telescope at the wrong part of the sky.',sheet:['📄 On your sheet · Module 3 · Newton','E^{(k+1)}=E^{(k)}-\\frac{E^{(k)}-e\\sin E^{(k)}-M}{1-e\\cos E^{(k)}}'],enter(){reset()},draw(){labDraw()}}
+];
+/* ---------- lab ---------- */
+const L={o:'ceres',m:'newton',d:340,E:null,lo:0,hi:0,k:0,rows:[],done:false,solved:{}};
+const ecc=()=>L.o==='ceres'?EC:EH,Mnow=()=>L.o==='ceres'?Mof(L.d):Math.max(0.02,L.d/420*Math.PI);
+const f=E=>E-ecc()*Math.sin(E)-Mnow();
+function reset(){const M=Mnow();L.k=0;L.done=false;L.rows=[];if(L.m==='bisect'){L.lo=0;L.hi=2*Math.PI;L.E=(L.lo+L.hi)/2}else L.E=M;row();ui()}
+function row(){L.rows.push([L.k,L.E,f(L.E)])}
+function step(){if(L.done)return;const e=ecc(),M=Mnow(),E=L.E;
+  if(L.m==='newton')L.E=E-f(E)/(1-e*Math.cos(E));else if(L.m==='fixed')L.E=M+e*Math.sin(E);else{if(f(L.lo)*f(E)<=0)L.hi=E;else L.lo=E;L.E=(L.lo+L.hi)/2}
+  L.k++;row();if(Math.abs(f(L.E))<1e-8){L.done=true;win()}Kit.tone(Math.min(1400,400+L.k*30),0.05,0.08,'sine')}
+function win(){const key=L.o+':'+L.m;L.solved[key]=L.k;Kit.tone(784,0.15,0.18);Kit.tone(1047,0.2,0.18,'triangle',0.1);
+  if(L.o==='ceres'&&L.m==='newton'&&L.d>=325&&L.d<=350)$('m1').classList.add('done');
+  if(['newton','fixed','bisect'].every(m=>L.solved['ceres:'+m]))$('m2').classList.add('done');
+  if(L.solved['halley:newton']&&L.solved['halley:fixed']&&Mnow()<0.6)$('m3').classList.add('done');
+  const S_=L.solved;$('hint').textContent=L.o==='ceres'?`Solved in ${L.k} iterations.`+(S_['ceres:newton']&&S_['ceres:fixed']&&S_['ceres:bisect']?` Newton ${S_['ceres:newton']}, fixed point ${S_['ceres:fixed']}, bisection ${S_['ceres:bisect']}.`:''):`Solved in ${L.k} iterations.`+(S_['halley:newton']&&S_['halley:fixed']?` Newton ${S_['halley:newton']} vs fixed point ${S_['halley:fixed']}: near perihelion e·cos E ≈ 1, so each fixed-point step barely moves.`:'')}
+function ui(){document.querySelectorAll('[data-o]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===L.o));document.querySelectorAll('[data-m]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===L.m));
+  $('dayL').firstChild.textContent=L.o==='ceres'?'Date ':'Mean anomaly M ';$('dayO').textContent=L.o==='ceres'?date(L.d):Mnow().toFixed(3)+' rad'+(Mnow()<0.6?' (near closest approach)':'');
+  $('mNote').textContent=L.m==='newton'?'E ← E − f(E)/f′(E), starting at E = M':L.m==='fixed'?'E ← M + e sin E, starting at E = M':'halve [0, 2π] by the sign of f';
+  $('its').textContent=L.k;$('itsN').textContent=L.done?'converged':'|f| not yet below 10⁻⁸';$('eE').textContent=L.E.toFixed(8);$('fE').textContent=Math.abs(f(L.E)).toExponential(1);
+  $('tb').innerHTML=L.rows.slice(-8).map(r=>`<tr><td>${r[0]}</td><td>${r[1].toFixed(10)}</td><td>${r[2].toExponential(2)}</td></tr>`).join('');labDraw()}
+function labDraw(){if(L.E===null)return;if(L.o==='ceres'){const r=scene(L.d,{E:L.E,ghost:L.done?null:kep(Mof(L.d),EC)});txt(L.done?'telescope on target':'current iterate',24,H-24,L.done?css('--go'):css('--plum'),NARROW?19:19,800)}
+  else{c.clearRect(0,0,W,H);const e=EH,sc=Math.min(W*0.62/1.97,H/2.4);const Q=(E)=>[W*0.72+sc*(Math.cos(E)-e)*0.95,H/2-sc*Math.sqrt(1-e*e)*Math.sin(E)*0.95];
+   c.strokeStyle=css('--panel2');c.lineWidth=2;c.beginPath();for(let k=0;k<=400;k++){const p=Q(2*Math.PI*k/400);k?c.lineTo(...p):c.moveTo(...p)}c.stroke();dot(Q(Math.acos(e)>0?0:0).map((v,i)=>i?H/2:W*0.72),10,'#ffd640');
+   const tru=kep(Mnow(),e);if(!L.done)dot(Q(tru),9,css('--plum'));dot(Q(L.E),8,css('--heat'));txt('Halley’s comet, e = 0.967',24,40,css('--ink'),NARROW?22:22,800);txt(L.done?'on target':'current iterate (orange) vs answer (purple)',24,68,L.done?css('--go'):css('--muted'),NARROW?18:18,800)}}
+document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{L.o=b.dataset.o;$('day').value=L.o==='ceres'?340:20;L.d=+$('day').value;$('hint').textContent='';reset()});
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{L.m=b.dataset.m;$('hint').textContent='';reset()});
+$('day').oninput=()=>{L.d=+$('day').value;reset()};
+$('step').onclick=()=>{Kit.wake();step();ui()};$('reset').onclick=()=>{reset()};
+$('solve').onclick=()=>{Kit.wake();let n=0;(function go(){for(let i=0;i<(L.m==='newton'?1:3)&&!L.done&&L.k<500;i++)step();ui();if(!L.done&&L.k<500&&n++<400)setTimeout(go,L.m==='newton'?220:60);else if(!L.done)$('hint').textContent='Stopped after 500 iterations.'})()};
+Kit.story(SC);
+</script>
+
+</body></html>

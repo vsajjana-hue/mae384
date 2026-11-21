@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<title>One Step, Four Ways</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+/* layout: one column; method tabs, the animated plot, a caption card that narrates each move, then transport controls */
+:root{--bg:#0e1730;--panel:#1b2647;--panel2:#26335c;--ink:#f2f5ff;--muted:#a6b1d4;--k1:#ff8a3d;--k2:#2fd3d3;--k3:#b48cff;--k4:#58d68d;--sun:#ffd640;--stop:#ff5d6c;--grid:#33416e;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--math:"STIX Two Text","Cambria Math",serif;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--k1:#d9601a;--k2:#0d8f8f;--k3:#7a4fd0;--k4:#1c8a4d;--sun:#b08400;--stop:#c9283a;--grid:#c5cfe8;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--k1:#d9601a;--k2:#0d8f8f;--k3:#7a4fd0;--k4:#1c8a4d;--sun:#b08400;--stop:#c9283a;--grid:#c5cfe8;color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:860px;margin:0 auto;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,6vw,2.4rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--k1)}
+p{margin:0}.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.28);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--k1);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto;aspect-ratio:1000/640}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:150px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.12rem;font-weight:700;line-height:1.35}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:3px}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--math);font-size:1.05rem;color:var(--ink);line-height:1.35;white-space:normal}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play{background:var(--k1);color:#1a0d00;min-width:110px;font-family:var(--display);font-weight:600;font-size:1.05rem}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--k1)}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--k1);height:30px}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:14px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--panel2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+td b{font-family:var(--display);font-weight:600}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px}
+[hidden]{display:none!important}
+</style>
+
+</head><body>
+<div class="app">
+  <div>
+    <p class="muted">MAE 384 · Module 7 · one-step ODE methods</p>
+    <h1>One Step, <span>Four Ways</span></h1>
+    <p class="muted">Every method answers the same question: which slope do I trust for this step? Press Play and watch each one decide.</p>
+  </div>
+
+  <div class="row" role="group" aria-label="Method">
+    <button data-m="euler" aria-pressed="true">Euler</button>
+    <button data-m="mid" aria-pressed="false">Midpoint</button>
+    <button data-m="mod" aria-pressed="false">Modified Euler</button>
+    <button data-m="rk4" aria-pressed="false">RK-4</button>
+    <button data-m="race" aria-pressed="false">Race all four</button>
+  </div>
+
+  <div class="stage"><canvas id="cv" width="1000" height="640" aria-label="Animated plot of one step of the selected method"></canvas></div>
+
+  <div class="cap" id="cap">
+    <span class="n" id="capN"></span>
+    <div class="t" id="capT"></div>
+    <div class="sheet"><span id="shL">📄 On your sheet</span><code id="shF"></code></div>
+  </div>
+
+  <div class="transport" id="transport">
+    <button id="back">◀ Back</button>
+    <button class="play" id="play">▶ Play</button>
+    <button id="next">Next ▶</button>
+    <button id="snd" aria-pressed="true">🔊 Sound</button>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <div class="ctl" id="hCtl"><label for="h">Step size h <output id="hOut">1</output></label>
+    <input id="h" type="range" min="0.4" max="1.2" step="0.1" value="1"><small class="muted">Drag it. A smaller step lands closer for every method, but not equally.</small></div>
+
+  <div id="race" hidden>
+    <div class="ctl"><label for="n">Number of steps to reach x = 3 <output id="nOut">6</output></label>
+      <input id="n" type="range" min="1" max="5" step="1" value="2"><small class="muted">Each notch doubles the steps (halves h). Watch how fast each error shrinks.</small></div>
+    <div class="tablewrap"><table><thead><tr><th>Method</th><th>y(3)</th><th>Error</th><th>After halving h</th><th>Slopes used</th></tr></thead><tbody id="tb"></tbody></table></div>
+  </div>
+  <div class="mission" id="o1"><i>✓</i><div><b>One look.</b><small>Step Euler through to its landing point.</small></div></div>
+  <div class="mission" id="o2"><i>✓</i><div><b>Four ways.</b><small>Finish the walkthrough of all four methods.</small></div></div>
+  <div class="mission" id="o3"><i>✓</i><div><b>The order race.</b><small>In the race, halve h until the last notch and watch how much faster RK-4’s error shrinks.</small></div></div>
+</div>
+
+<script>window.KIT_PAGE='m7b';window.KIT_HUB='index.html';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+<script>
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+/* the ODE: a cell culture in a bioreactor, y' = 2y(1 - y/3), y(0) = 0.3 */
+const f=(x,y)=>2*y*(1-y/3),exact=x=>3/(1+9*Math.exp(-2*x)),X0=0,Y0=0.3,XR=3;
+const NARROW=window.innerWidth<600,KS=NARROW?0.76:1;const cv=$('cv'),c=cv.getContext('2d'),W=NARROW?640:1000,H=NARROW?540:640;cv.width=W;cv.height=H;cv.style.aspectRatio=W+'/'+H;
+const S={m:'euler',st:0,p:1,playing:false,h:1,t0:0,snd:true,timer:0};
+const V1={x0:-0.16,x1:1.52,y0:-0.08,y1:2.05};let V=V1;
+const PX=x=>70+(W-100)*(x-V.x0)/(V.x1-V.x0),PY=y=>H-60-(H-90)*(y-V.y0)/(V.y1-V.y0);
+const f2=v=>(Math.round(v*100)/100).toFixed(2);
+/* ---------- numbers for one step ---------- */
+function nums(){const h=S.h,k1=f(X0,Y0),P0=[X0,Y0];const E=[h,Y0+h*k1];
+  const Mh=[h/2,Y0+h/2*k1],km=f(Mh[0],Mh[1]),MID=[h,Y0+h*km];
+  const ke=f(E[0],E[1]),kav=(k1+ke)/2,MOD=[h,Y0+h*kav];
+  const a=k1,A=[h/2,Y0+h/2*a],b=f(A[0],A[1]),B=[h/2,Y0+h/2*b],cc=f(B[0],B[1]),C=[h,Y0+h*cc],d=f(C[0],C[1]),kr=(a+2*b+2*cc+d)/6,RK=[h,Y0+h*kr];
+  return {h,k1,P0,E,Mh,km,MID,ke,kav,MOD,A,b,B,cc,C,d,kr,RK,T:exact(h)}}
+/* ---------- drawing helpers ---------- */
+function seg(a,b,col,w=5,dash=null,fr=1){if(fr<=0)return;c.save();c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';if(dash)c.setLineDash(dash);c.beginPath();c.moveTo(PX(a[0]),PY(a[1]));
+  c.lineTo(PX(a[0]+(b[0]-a[0])*fr),PY(a[1]+(b[1]-a[1])*fr));c.stroke();c.restore()}
+function arrow(pt,slope,col,label,fr=1,alpha=1,w=6,len=150){if(fr<=0)return;len*=KS;const sx=(W-100)/(V.x1-V.x0),sy=(H-90)/(V.y1-V.y0);let dx=sx,dy=-slope*sy;const n=Math.hypot(dx,dy);dx=dx/n*len*fr;dy=dy/n*len*fr;
+  const x=PX(pt[0]),y=PY(pt[1]);c.save();c.globalAlpha=alpha;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(x+dx,y+dy);c.stroke();
+  const ang=Math.atan2(dy,dx);c.beginPath();c.moveTo(x+dx+14*Math.cos(ang),y+dy+14*Math.sin(ang));c.lineTo(x+dx+13*Math.cos(ang+2.5),y+dy+13*Math.sin(ang+2.5));c.lineTo(x+dx+13*Math.cos(ang-2.5),y+dy+13*Math.sin(ang-2.5));c.fill();
+  if(label&&fr>0.6){c.font='600 30px Fredoka, sans-serif';c.fillText(label,x+dx+16,y+dy-10)}c.restore()}
+function dot(pt,col,r=11,ring=false){c.save();c.beginPath();c.arc(PX(pt[0]),PY(pt[1]),r,0,7);if(ring){c.strokeStyle=col;c.lineWidth=4;c.setLineDash([5,5]);c.stroke()}else{c.fillStyle=col;c.fill()}c.restore()}
+function text(t,x,y,col,size=26,weight=700){c.fillStyle=col;c.font=`${weight} ${size}px Nunito, sans-serif`;c.fillText(t,x,y)}
+function gap(pt,T,col,fr){if(fr<=0)return;const x=PX(pt[0])+26,ya=PY(pt[1]),yb=PY(T);c.save();c.globalAlpha=fr;c.strokeStyle=css('--stop');c.lineWidth=4;c.beginPath();c.moveTo(x-8,ya);c.lineTo(x,ya);c.lineTo(x,yb);c.lineTo(x-8,yb);c.stroke();
+  text('error '+f2(Math.abs(pt[1]-T)),Math.min(x+10,W-190),(ya+yb)/2+9,css('--stop'),28,800);c.restore()}
+function bars(ks,ws,avg,fr,avgLabel){if(fr<=0)return;c.save();c.globalAlpha=fr;const x0=PX(0)+(NARROW?26:46),yb=250,sc=92,bw=46*KS,gp=30*KS,cols=['--k1','--k2','--k3','--k4'];
+  c.fillStyle=css('--panel2');c.beginPath();c.roundRect(x0-14,30,ks.length*(bw+gp)+(NARROW?128:150),258,14);c.fill();
+  ks.forEach((k,i)=>{const x=x0+i*(bw+gp),hgt=Math.max(4,Math.abs(k)*sc);c.fillStyle=css(ks.length===2&&i===1?'--k2':cols[i]);c.beginPath();c.roundRect(x,yb-hgt,bw,hgt,6);c.fill();
+    text('k'+'₁₂₃₄'[i],x+8,yb+30,css('--ink'),24,800);text(f2(k),x-2,yb-hgt-10,css('--ink'),22,700);text('×'+ws[i],x+6,58,css('--muted'),22,800)});
+  const ya=yb-avg*sc,xe=x0+ks.length*(bw+gp)-gp+10;c.strokeStyle=css('--ink');c.lineWidth=4;c.setLineDash([8,7]);c.beginPath();c.moveTo(x0-8,ya);c.lineTo(xe,ya);c.stroke();c.setLineDash([]);
+  text(avgLabel,xe+8,ya-4,css('--ink'),22,800);text(f2(avg),xe+8,ya+22,css('--ink'),26,800);c.restore()}
+const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+const ease=t=>t<.5?2*t*t:1-2*(1-t)*(1-t);
+function base(xmax){c.clearRect(0,0,W,H);
+  // slope field
+  c.save();c.strokeStyle=css('--grid');c.lineWidth=2.5;c.lineCap='round';const sx=(W-100)/(V.x1-V.x0),sy=(H-90)/(V.y1-V.y0);
+  for(let x=0;x<=V.x1-0.05;x+=(V.x1-V.x0)/14)for(let y=0.15;y<V.y1;y+=(V.y1-V.y0)/11){let dx=sx,dy=-f(x,y)*sy;const n=Math.hypot(dx,dy);dx=dx/n*13;dy=dy/n*13;c.beginPath();c.moveTo(PX(x)-dx,PY(y)-dy);c.lineTo(PX(x)+dx,PY(y)+dy);c.stroke()}
+  c.restore();
+  // axes
+  c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(PX(0),PY(V.y0));c.lineTo(PX(0),30);c.moveTo(PX(V.x0),PY(0));c.lineTo(W-20,PY(0));c.stroke();
+  text('x',W-40,PY(0)-12,css('--muted'),26);text('y',PX(0)+12,44,css('--muted'),26);
+  // true solution
+  c.save();c.strokeStyle=css('--sun');c.lineWidth=4;c.setLineDash([10,9]);c.beginPath();for(let i=0;i<=200;i++){const x=xmax*i/200;i?c.lineTo(PX(x),PY(exact(x))):c.moveTo(PX(x),PY(exact(x)))}c.stroke();c.restore();
+  text('true solution',PX(xmax)-200,PY(exact(xmax))-22,css('--sun'),24)}
+/* ---------- the four scripts ---------- */
+const INK=()=>css('--ink');
+const M={
+ euler:{name:'Euler',col:'--k1',sheetL:'Module 7 · Euler explicit',sheet:'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)',
+  caps:n=>[`Stand at the start, (0, 0.3). Measure the slope right here: k₁ = f(x₁, y₁) = ${f2(n.k1)}.`,
+   `Trust that one slope for the whole step, h = ${n.h}, and walk in a straight line.`,
+   `You land at y₂ = ${f2(n.E[1])}. The true curve bent upward while you walked straight. One slope per step: first order.`],
+  draw(n,v){arrow(n.P0,n.k1,css('--k1'),'k₁',v(0),v(1)>0?0.45:1);seg(n.P0,n.E,css('--k1'),6,null,v(1));if(v(2)>0){dot(n.E,css('--k1'));gap(n.E,n.T,0,v(2))}}},
+ mid:{name:'Midpoint',col:'--k2',sheetL:'Module 7 · RK table, Midpoint',sheet:'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂',
+  caps:n=>[`Measure the slope at the start: k₁ = ${f2(n.k1)}.`,
+   `Do not commit yet. Take a trial half step with k₁ to peek at the middle of the interval.`,
+   `Measure the slope at that midpoint: k₂ = f(x₁ + h/2, y₁ + (h/2)k₁) = ${f2(n.km)}. It is steeper, because the curve is bending up.`,
+   `Go back to the start, carrying k₂ with you. The trial step was only a scout.`,
+   `Take the real, full step using k₂ alone.`,
+   `You land at y₂ = ${f2(n.MID[1])}. Two slopes per step: second order.`],
+  draw(n,v){arrow(n.P0,n.k1,css('--k1'),'k₁',v(0),v(1)>0?0.4:1);seg(n.P0,n.Mh,css('--k1'),4,[9,9],v(1));if(v(1)>=1)dot(n.Mh,css('--k1'),10,true);
+   if(v(3)<=0)arrow(n.Mh,n.km,css('--k2'),'k₂',v(2));else{arrow(n.Mh,n.km,css('--k2'),'',1,0.25);arrow(lerp(n.Mh,n.P0,ease(v(3))),n.km,css('--k2'),'k₂',1,v(4)>0?0.45:1)}
+   seg(n.P0,n.MID,css('--k2'),6,null,v(4));if(v(5)>0){dot(n.MID,css('--k2'));gap(n.MID,n.T,0,v(5))}}},
+ mod:{name:'Modified Euler',col:'--k3',sheetL:'Module 7 · RK table, Modified Euler',sheet:'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)',
+  caps:n=>[`Measure the slope at the start: k₁ = ${f2(n.k1)}.`,
+   `Take a trial full step with k₁. This is just Euler, used as a prediction.`,
+   `Measure the slope where the prediction landed: k₂ = f(x₁ + h, y₁ + h k₁) = ${f2(n.ke)}.`,
+   `Bring k₂ back to the start and average the two slopes: ½(k₁ + k₂) = ${f2(n.kav)}.`,
+   `Take the real step with the average slope.`,
+   `You land at y₂ = ${f2(n.MOD[1])}. Start slope and end slope, averaged: second order.`],
+  draw(n,v){arrow(n.P0,n.k1,css('--k1'),v(3)>0.5?'':'k₁',v(0),v(4)>0?0.35:1);seg(n.P0,n.E,css('--k1'),4,[9,9],v(1));if(v(1)>=1)dot(n.E,css('--k1'),10,true);
+   if(v(3)<=0)arrow(n.E,n.ke,css('--k2'),'k₂',v(2));else{arrow(n.E,n.ke,css('--k2'),'',1,0.25);arrow(lerp(n.E,n.P0,ease(v(3))),n.ke,css('--k2'),v(3)<0.5?'k₂':'',1,v(4)>0?0.35:1)}
+   if(v(3)>0.6)arrow(n.P0,n.kav,css('--k3'),'',(v(3)-0.6)/0.4,v(4)>0?0.5:1,7,185);bars([n.k1,n.ke],[1,1],n.kav,v(3)>0.5?Math.min(1,(v(3)-0.5)/0.4):0,'average ÷2');
+   seg(n.P0,n.MOD,css('--k3'),6,null,v(4));if(v(5)>0){dot(n.MOD,css('--k3'));gap(n.MOD,n.T,0,v(5))}}},
+ rk4:{name:'RK-4',col:'--k4',sheetL:'Module 7 · RK-4',sheet:'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)',
+  caps:n=>[`Measure the slope at the start: k₁ = ${f2(n.k1)}.`,
+   `Trial half step with k₁, then measure there: k₂ = ${f2(n.b)}.`,
+   `Go back. Trial half step again, this time with k₂, and measure: k₃ = ${f2(n.cc)}. Two looks at the middle.`,
+   `Go back. Trial full step with k₃, and measure at the end: k₄ = ${f2(n.d)}.`,
+   `Bring all four slopes home. The two middle ones count double: (k₁ + 2k₂ + 2k₃ + k₄)/6 = ${f2(n.kr)}.`,
+   `Take the real step with that weighted average.`,
+   `You land at y₂ = ${f2(n.RK[1])}, almost on the curve. Four slopes per step: fourth order.`],
+  draw(n,v){const g=ease(v(4)),dim=v(5)>0?0.3:1;
+   const lab=t=>g>0.4?'':t;arrow(n.P0,n.k1,css('--k1'),lab('k₁'),v(0),v(5)>0?0.3:(v(1)>0&&g<=0?0.5:1));
+   seg(n.P0,n.A,css('--k1'),3.5,[8,9],v(1));if(v(1)>0.6)arrow(lerp(n.A,n.P0,g),n.b,css('--k2'),lab('k₂'),(v(1)-0.6)/0.4,dim);
+   seg(n.P0,n.B,css('--k2'),3.5,[8,9],v(2));if(v(2)>0.6)arrow(lerp(n.B,n.P0,g),n.cc,css('--k3'),lab('k₃'),(v(2)-0.6)/0.4,dim);
+   seg(n.P0,n.C,css('--k3'),3.5,[8,9],v(3));if(v(3)>0.6)arrow(lerp(n.C,n.P0,g),n.d,css('--k4'),lab('k₄'),(v(3)-0.6)/0.4,dim);
+   if(v(4)>0.7)arrow(n.P0,n.kr,INK(),'',(v(4)-0.7)/0.3,v(5)>0?0.5:1,7,200);bars([n.k1,n.b,n.cc,n.d],[1,2,2,1],n.kr,v(4)>0.4?Math.min(1,(v(4)-0.4)/0.4):0,'weighted ÷6');
+   seg(n.P0,n.RK,css('--k4'),6,null,v(5));if(v(6)>0){dot(n.RK,css('--k4'));gap(n.RK,n.T,0,v(6))}}}
+};
+/* ---------- race: all four methods to x = 4 ---------- */
+const STEP={euler:(x,y,h)=>y+h*f(x,y),mid:(x,y,h)=>y+h*f(x+h/2,y+h/2*f(x,y)),mod:(x,y,h)=>{const k1=f(x,y),k2=f(x+h,y+h*k1);return y+h/2*(k1+k2)},
+  rk4:(x,y,h)=>{const a=f(x,y),b=f(x+h/2,y+h/2*a),d=f(x+h/2,y+h/2*b),e=f(x+h,y+h*d);return y+h/6*(a+2*b+2*d+e)}};
+function path(m,N){const h=XR/N,pts=[[0,Y0]];let y=Y0;for(let i=0;i<N;i++){y=STEP[m](i*h,y,h);pts.push([(i+1)*h,y])}return pts}
+function drawRace(p){V={x0:-0.3,x1:3.25,y0:-0.12,y1:3.45};base(XR);const N=3*2**(+$('n').value-1);
+  for(const m of ['euler','mid','mod','rk4']){const pts=path(m,N),col=css(M[m].col);c.save();c.strokeStyle=col;c.lineWidth=m==='rk4'?4:5;c.lineJoin='round';c.beginPath();const L=p*N;
+    pts.forEach((q,i)=>{if(i>Math.ceil(L))return;let pt=q;if(i>L){pt=lerp(pts[i-1],q,L-(i-1))}i?c.lineTo(PX(pt[0]),PY(pt[1])):c.moveTo(PX(pt[0]),PY(pt[1]))});c.stroke();c.restore();
+    pts.forEach((q,i)=>{if(i<=L)dot(q,col,N>12?4:7)})}
+  dot([0,Y0],INK(),9)}
+function raceTable(){const N=3*2**(+$('n').value-1),T=exact(XR);$('nOut').textContent=N+' (h = '+(XR/N)+')';
+  $('tb').innerHTML=['euler','mid','mod','rk4'].map(m=>{const y=path(m,N).pop()[1],e=Math.abs(y-T),e2=Math.abs(path(m,2*N).pop()[1]-T),r=e/e2;
+    return `<tr><td><span class="sw" style="background:var(${M[m].col})"></span><b>${M[m].name}</b></td><td>${y.toFixed(4)}</td><td>${e<1e-3?e.toExponential(1):e.toFixed(4)}</td><td><b>÷ ${r<100?r.toFixed(1):Math.round(r)}</b></td><td>${{euler:1,mid:2,mod:2,rk4:4}[m]} per step</td></tr>`}).join('')}
+/* ---------- sound ---------- */
+let ac=null;function wake(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state!=='running')ac.resume()}catch(e){}}
+function tone(fq,d=0.2,v=0.28,type='triangle'){if(!S.snd||!S.user)return;try{wake();const t=ac.currentTime+0.02,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+0.02)}catch(e){}}
+function stageSound(){const m=M[S.m];if(!m)return;const last=S.st===m.caps(nums()).length-1;if(last){const n=nums(),end={euler:n.E,mid:n.MID,mod:n.MOD,rk4:n.RK}[S.m],err=Math.abs(end[1]-n.T);
+    // landing: the closer to the true curve, the purer and higher the chime
+    [0,7,12].forEach((s,i)=>tone(880*Math.pow(2,s/12)/(1+err*2.2),0.7,0.2,err>0.15?'sawtooth':'sine'))}else{tone(523*Math.pow(2,S.st*2/12),0.22);tone(1046*Math.pow(2,S.st*2/12),0.12,0.12,'sine')}}
+/* ---------- state + loop ---------- */
+const DUR=1300;
+function render(){const now=performance.now();if(S.m==='race'){S.p=Math.min(1,(now-S.t0)/2200);drawRace(S.p);if(S.p<1)requestAnimationFrame(render);return}
+  S.p=Math.min(1,(now-S.t0)/DUR);V=V1;base(1.42);const n=nums(),v=s=>S.st>s?1:S.st===s?ease(S.p):0;M[S.m].draw(n,v);dot(n.P0,INK(),10);
+  text('(0, 0.3)',PX(0)+14,PY(Y0)+40,css('--muted'),22);
+  // tick for x1 + h
+  c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(PX(n.h),PY(0)-8);c.lineTo(PX(n.h),PY(0)+8);c.stroke();text('x₁ + h',PX(n.h)-34,PY(0)+36,css('--muted'),22);
+  if(S.p<1)requestAnimationFrame(render)}
+function caption(){const m=M[S.m];if(!m)return;const caps=m.caps(nums());$('capN').textContent=`${m.name} · move ${S.st+1} of ${caps.length}`;$('capT').textContent=caps[S.st];$('shL').textContent='📄 On your sheet · '+m.sheetL;$('shF').textContent=m.sheet;
+  $('dots').innerHTML=caps.map((_,i)=>`<i class="${i<=S.st?'on':''}"></i>`).join('');$('back').disabled=S.st===0;$('next').disabled=S.st===caps.length-1}
+function go(st,animate=true){S.st=st;S.t0=animate?performance.now():performance.now()-DUR;caption();if(animate)stageSound();requestAnimationFrame(render);const m=M[S.m];if(m&&animate&&S.st===m.caps(nums()).length-1){S.fin=S.fin||{};S.fin[S.m]=1;if(S.m==='euler')document.getElementById('o1').classList.add('done');if(['euler','mid','mod','rk4'].every(k=>S.fin[k]))document.getElementById('o2').classList.add('done')}}
+function stop(){S.playing=false;clearTimeout(S.timer);$('play').textContent='▶ Play'}
+function play(){const len=M[S.m].caps(nums()).length;S.playing=true;$('play').textContent='❚❚ Pause';go(S.st>=len-1?0:S.st+1);clearTimeout(S.timer);
+  const tick=()=>{if(!S.playing)return;if(S.st>=len-1)return stop();go(S.st+1);S.timer=setTimeout(tick,DUR+2100)};S.timer=setTimeout(tick,DUR+2100)}
+function setMethod(m){stop();S.m=m;document.querySelectorAll('[data-m]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));const race=m==='race';
+  $('race').hidden=!race;$('transport').hidden=race;$('hCtl').hidden=race;
+  if(race){$('capN').textContent='Race · same start, same finish line';$('capT').textContent='All four methods solve the same problem to x = 3. Double the number of steps and compare how much each error shrinks: about ÷2 for Euler, ÷4 for the two second-order methods, ÷16 for RK-4.';
+    $('shL').textContent='📄 On your sheet · Symbol key';$('shF').textContent='O(hᵖ): halving h cuts the error by about 2ᵖ';raceTable();S.t0=performance.now();requestAnimationFrame(render)}else go(0)}
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>setMethod(b.dataset.m));
+$('next').onclick=()=>{stop();go(S.st+1)};$('back').onclick=()=>{stop();go(S.st-1,false)};
+$('play').onclick=()=>{S.playing?stop():play()};
+$('snd').onclick=()=>{S.snd=!S.snd;$('snd').setAttribute('aria-pressed',S.snd);$('snd').textContent=S.snd?'🔊 Sound':'🔇 Sound'};
+$('h').oninput=()=>{S.h=+$('h').value;$('hOut').textContent=S.h;caption();S.t0=performance.now()-DUR;requestAnimationFrame(render)};
+$('n').oninput=()=>{if(+$('n').value>=5)document.getElementById('o3').classList.add('done');raceTable();S.t0=performance.now();requestAnimationFrame(render)};
+['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,()=>{S.user=true;if(S.snd)wake()},true));
+S.snd=true;setMethod('euler');S.st=2;S.t0=performance.now()-DUR;caption();requestAnimationFrame(render);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(render));
+</script>
+
+</body></html>
