@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init("phc_CsYaGRvd32HJqVmgmDVDHaNpgx4BwAnoYnGGFmnDTz5m",{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,session_recording:{maskAllInputs:true}});posthog.register({site:"mission-control",page:(location.pathname.split("/").pop()||"index.html").replace(".html","")||"index"});window.mcTrack=function(e,p){try{window.posthog&&posthog.capture(e,p||{})}catch(_){}};</script>
 <title>The Eagle Has Landed</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
@@ -99,7 +98,7 @@ th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut
   </div>
 </div>
 
-<script>window.KIT_PAGE='m7';window.KIT_HUB='index.html';</script>
+<script>window.KIT_PAGE='m7';window.KIT_HUB='./';</script>
 <style>
 /* ---- shared kit: top bar, XP, stars, confetti ---- */
 .kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
@@ -214,7 +213,7 @@ const Kit=(()=>{
   function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
     if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
     const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
-    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+    try{window.mcTrack&&mcTrack('mission_complete',{module_page:page,mission:id,missions_done:done.length,missions_total:total})}catch(e){}}
   function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
     new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
   function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';

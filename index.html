@@ -1,7 +1,6 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init("phc_CsYaGRvd32HJqVmgmDVDHaNpgx4BwAnoYnGGFmnDTz5m",{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,session_recording:{maskAllInputs:true}});posthog.register({site:"mission-control",page:(location.pathname.split("/").pop()||"index.html").replace(".html","")||"index"});window.mcTrack=function(e,p){try{window.posthog&&posthog.capture(e,p||{})}catch(_){}};</script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>MAE 384 Mission Control</title>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
 /* layout: rank banner, then one card per module; each card is a real engineering story with stars to earn */
@@ -77,7 +76,6 @@ th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut
 .card.feature h3{font-size:1.5rem}
 </style>
 
-</head><body>
 <div class="app">
   <div><p class="muted">MAE 384 · Numerical Methods</p><h1>Mission <span>Control</span></h1><p class="muted">Real engineering stories, one for every module. Each one turns on a method from this course. Earn every star.</p></div>
   <div class="banner"><div><div class="muted" style="font-size:.75rem;font-weight:800;letter-spacing:.12em">YOUR RANK</div><div class="rk" id="rk">Cadet</div></div><div class="meter"><i id="mt" style="width:0%"></i></div><div><b id="xp">0 XP</b><div class="muted" id="nx" style="font-size:.85rem"></div></div><div><b id="st">★ 0</b><div class="muted" style="font-size:.85rem">stars earned</div></div></div>
@@ -199,7 +197,7 @@ const Kit=(()=>{
   function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
     if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
     const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
-    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+    try{window.mcTrack&&mcTrack('mission_complete',{module_page:page,mission:id,missions_done:done.length,missions_total:total})}catch(e){}}
   function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
     new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
   function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
@@ -230,7 +228,7 @@ const Kit=(()=>{
 </script>
 
 <script>
-const LINKS={"m1": "m1.html", "m2": "m2.html", "m2x": "m2x.html", "m3": "m3.html", "m3x": "m3x.html", "m4": "m4.html", "m5": "m5.html", "m6": "m6.html", "m7": "m7.html", "m7x": "m7x.html", "m7b": "m7b.html", "m8": "m8.html", "wt": "wt.html", "tb": "tb.html", "rush": "../"};
+const LINKS={"m1": "m1.html", "m2": "m2.html", "m2x": "m2x.html", "m3": "m3.html", "m3x": "m3x.html", "m4": "m4.html", "m5": "m5.html", "m6": "m6.html", "m7": "m7.html", "m7x": "m7x.html", "m7b": "m7b.html", "m8": "m8.html", "wt": "wt.html", "tb": "tb.html", "rush": "rush.html"};
 const MODS=[
  ['tb','All modules · Practice','🧰','Training Bay','Start here. Drills, guided step-by-step solves and bug hunts for every module, with new problems every time and your own progress tracker.',24],
  ['m1','Module 1 · Precision','📡','The Missing Third of a Second','1991: a clock that could not store 0.1 exactly made a missile-defence radar look in the wrong place.',3],
@@ -255,4 +253,4 @@ document.getElementById('rk').textContent=r.name;document.getElementById('xp').t
 document.getElementById('mt').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';document.getElementById('nx').textContent=r.hi?(r.hi-xp)+' XP to the next rank':'top rank';
 </script>
 
-</body></html>
+<p style="text-align:center;font-size:12px;opacity:.65;margin:24px 16px 32px">This site collects anonymous usage data (page visits, clicks and practice results) to help improve it. Your progress stays saved in your browser.</p></body></html>

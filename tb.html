@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script data-goatcounter="https://vjmae384rush.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init("phc_CsYaGRvd32HJqVmgmDVDHaNpgx4BwAnoYnGGFmnDTz5m",{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,session_recording:{maskAllInputs:true}});posthog.register({site:"mission-control",page:(location.pathname.split("/").pop()||"index.html").replace(".html","")||"index"});window.mcTrack=function(e,p){try{window.posthog&&posthog.capture(e,p||{})}catch(_){}};</script>
 <title>Training Bay</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
@@ -147,7 +146,7 @@ table.st th{letter-spacing:.04em}
   <p class="memo">Module 9 (Fourier transforms) will be added once its materials are ready.</p>
 </div>
 
-<script>window.KIT_PAGE='tb';window.KIT_HUB='index.html';</script>
+<script>window.KIT_PAGE='tb';window.KIT_HUB='./';</script>
 <style>
 /* ---- shared kit: top bar, XP, stars, confetti ---- */
 .kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
@@ -262,7 +261,7 @@ const Kit=(()=>{
   function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
     if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
     const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
-    try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mission/'+page+'/'+id,title:'mission',event:true})}catch(e){}}
+    try{window.mcTrack&&mcTrack('mission_complete',{module_page:page,mission:id,missions_done:done.length,missions_total:total})}catch(e){}}
   function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
     new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
   function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
@@ -329,7 +328,7 @@ function typeset(el){if(window.MathJax&&MathJax.typesetPromise){try{MathJax.type
 const $=id=>document.getElementById(id);
 const st=Kit.store;
 function done(id){const el=$(id);if(el&&!el.classList.contains('done'))el.classList.add('done')}
-function gc(path){try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'training/'+path,title:'training',event:true})}catch(e){}}
+function gc(path){const p=path.split('/');if(p[1]==='drill')mcTrack('tb_drill_passed',{module:p[0],drill:p[2]});else if(p[1]==='land')mcTrack('tb_guide_landed',{module:p[0],guide:p[2]})}
 function good(){Kit.tone(784,0.12,0.2);Kit.tone(1047,0.18,0.2,'triangle',0.08)}
 function bad(){Kit.tone(196,0.22,0.22,'sawtooth')}
 
@@ -703,7 +702,7 @@ function renderMods(){$('mods').innerHTML=MODS.map((m,i)=>`<button data-m="${i}"
   document.querySelectorAll('#missions .mission').forEach(el=>el.hidden=el.dataset.mod!==MOD().id);$('modTitle').textContent=MOD().title}
 document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});
 function render(){renderMods();document.querySelectorAll('[data-sub]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sub===sub));
-  ['drill','guide','bug','stats'].forEach(id=>$('p_'+id).hidden=id!==sub);if(sub==='drill'){drillBtns();drillQ()}if(sub==='guide')renderGuide();if(sub==='bug')newBug();if(sub==='stats')renderStats()}
+  ['drill','guide','bug','stats'].forEach(id=>$('p_'+id).hidden=id!==sub);mcTrack('tb_view',{module:MOD().id,tab:sub});if(sub==='drill'){drillBtns();drillQ()}if(sub==='guide')renderGuide();if(sub==='bug')newBug();if(sub==='stats')renderStats()}
 
 /* ================= drills ================= */
 function drillBtns(){const m=MOD(),pass=st.get('tb:pass:'+m.id,[]);$('drillBtns').innerHTML=m.drills.map((d,i)=>`<button data-d="${i}" aria-pressed="${i===di}" class="${pass.includes(d.id)?'passed':''}">${pass.includes(d.id)?'✓ ':''}${d.name}<small>${d.sub}</small></button>`).join('');
@@ -765,7 +764,7 @@ function newBug(){const m=MOD(),card=$('bugCard');let g,P,bug,L;
 const slug=s=>String(s).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 function rec(key,label,first,nav,miss){const S=st.get('tb:stats',{}),e=S[key]||{l:label,m:mi,n:nav,a:0,c:0};e.a++;if(first)e.c++;e.l=label;e.n=nav;e.m=mi;e.t=Date.now();S[key]=e;st.set('tb:stats',S);
   const days=st.get('tb:days',[]),today=new Date().toISOString().slice(0,10);if(!days.includes(today)){days.push(today);st.set('tb:days',days.slice(-60))}
-  if(!first&&miss)gc(miss)}
+  mcTrack('tb_attempt',{module:MODS[mi]&&MODS[mi].id,item:key,label:label,kind:nav&&nav.t,level:nav&&nav.l||null,correct:!!first,miss_tag:first?null:(miss||null)})}
 function streakDays(){const d=new Set(st.get('tb:days',[]));let n=0;const t=new Date();for(;;){const k=new Date(t.getTime()-n*864e5).toISOString().slice(0,10);if(d.has(k))n++;else break}return n}
 function renderStats(){const S=st.get('tb:stats',{}),E=Object.values(S),card=$('statsCard');
   const per=MODS.map((m,i)=>{const e=E.filter(x=>x.m===i),a=e.reduce((s,x)=>s+x.a,0),c=e.reduce((s,x)=>s+x.c,0);return {m,i,a,c,st:starsOf(m)}});
