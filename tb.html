@@ -479,17 +479,16 @@ const M1={id:'m1',name:'Precision',title:'Module 1 · Precision and accuracy',
   bugs:{ceil:'p is the largest power with 2ᵖ ≤ x. Check it: this 2ᵖ is already bigger than x.',bias:'The bias is 2ⁿ⁻¹ − 1 (127 single, 1023 double), not 2ⁿ⁻¹.',mbits:'This used the other precision’s mantissa bits (23 single, 52 double).',half:'Rounding to nearest is off by at most half a gap.'}}]};
 
 /* ================= Module 2: linear systems ================= */
-function gaussRun(S0,o={}){const sw=(S,i,j)=>{const T2=S.map(r=>r.slice());[T2[i],T2[j]]=[T2[j],T2[i]];return T2};
+function gaussRun(S0,o={}){const sw=(S,i,j)=>{const T2=S.map(r=>r.slice());[T2[i],T2[j]]=[T2[j],T2[i]];return T2},comb=(r,m,p)=>r.map((v,j)=>v.sub(m.mul(p[j])));
   let idx=0;if(o.p1!=='none'){for(let i=1;i<3;i++)if(absQ(S0[i][0]).v>absQ(S0[idx][0]).v)idx=i}
   const S1=sw(S0,0,idx);if(S1[0][0].isZero())return null;
-  let m=[null,S1[1][0].div(S1[0][0]),S1[2][0].div(S1[0][0])];if(o.inv){if(S1[1][0].isZero()||S1[2][0].isZero())return null;m=[null,S1[0][0].div(S1[1][0]),S1[0][0].div(S1[2][0])]}
-  const S2=[S1[0],S1[1].map((v,j)=>v.sub(m[1].mul(S1[0][j]))),S1[2].map((v,j)=>v.sub(m[2].mul(S1[0][j])))];
+  const r1=S1[0].map(v=>v.div(S1[0][0])),S2=[r1,comb(S1[1],S1[1][0],r1),comb(S1[2],S1[2][0],r1)];
   const real=absQ(S2[2][1]).v>absQ(S2[1][1]).v,orig=absQ(S1[2][1]).v>absQ(S1[1][1]).v,swap=o.p2==='orig'?orig:real;
-  const S3=swap?sw(S2,1,2):S2;if(S3[1][1].isZero())return null;const m32=S3[2][1].div(S3[1][1]);
-  const S4=[S3[0],S3[1],S3[2].map((v,j)=>v.sub(m32.mul(S3[1][j])))];if(S4[2][2].isZero())return null;
-  const x3=S4[2][3].div(S4[2][2]),t=S3[1][2].mul(x3),x2=(o.bs?S3[1][3].add(t):S3[1][3].sub(t)).div(S3[1][1]);
-  const x1=S1[0][3].sub(S1[0][1].mul(x2)).sub(S1[0][2].mul(x3)).div(S1[0][0]);
-  return {idx,S1,m,S2,swap,real,orig,S3,m32,S4,x:[x1,x2,x3]}}
+  const S3=swap?sw(S2,1,2):S2;if(S3[1][1].isZero())return null;
+  const r2=S3[1].map(v=>v.div(S3[1][1])),S4=[o.up?S3[0]:comb(S3[0],S3[0][1],r2),r2,comb(S3[2],S3[2][1],r2)];if(S4[2][2].isZero())return null;
+  const r3=S4[2].map(v=>v.div(S4[2][2])),row2=o.sg?S4[1].map((v,j)=>v.add(S4[1][2].mul(r3[j]))):comb(S4[1],S4[1][2],r3);
+  const S5=[comb(S4[0],S4[0][2],r3),row2,r3];
+  return {idx,S1,S2,swap,real,orig,S3,S4,S5,x:[S5[0][3],S5[1][3],S5[2][3]]}}
 const M2={id:'m2',name:'Linear systems',title:'Module 2 · Systems of linear equations',
  drills:[
   {id:'vnorm',name:'Vector norms',sub:'∞-norm and 1-norm',gen(){const v=[0,0,0].map(()=>{let a;do{a=ri(-6,6)}while(!a);return q(a)});
@@ -500,29 +499,30 @@ const M2={id:'m2',name:'Linear systems',title:'Module 2 · Systems of linear equ
   {id:'resid',name:'Residual',sub:'r = b − A x',gen(){const A=[[ri(-3,3),ri(-3,3)],[ri(-3,3),ri(-3,3)]],x=[q(ri(-3,3),2),q(ri(-3,3),2)],b=[ri(-4,4),ri(-4,4)];
     const r=[0,1].map(i=>q(b[i]).sub(x[0].mul(A[i][0])).sub(x[1].mul(A[i][1])));
     return {p:`${M(T`A=\begin{bmatrix}${A[0].join('&')}\\${A[1].join('&')}\end{bmatrix},\;\vec b=\begin{bmatrix}${b[0]}\\${b[1]}\end{bmatrix},\;\vec x_{NS}=\begin{bmatrix}${x[0].tex()}\\${x[1].tex()}\end{bmatrix}`)}. Find ${M(T`\vec r=\vec b-A\vec x_{NS}`)}.`,ans:r,labels:['top','bottom'],h:'Multiply A by x first (row times column), then subtract that from b.'}}}],
- guides:[{id:'g2',name:'Gauss elimination with partial pivoting',
-  story:'A truss bridge, a circuit or a heat-transfer grid all end up as A x = b. Partial pivoting keeps the elimination from dividing by a tiny number.',
-  gen(){let fb=null;const want=Math.random()<0.5;for(let t=0;t<20000;t++){const S0=[0,1,2].map(()=>[ri(-4,4),ri(-4,4),ri(-4,4)].map(v=>q(v))),x=[ri(-2,2),ri(-2,2),ri(-2,2)];
+ guides:[{id:'g2',name:'Gauss–Jordan with partial pivoting',
+  story:'A truss bridge, a circuit or a heat-transfer grid all end up as A x = b. Partial pivoting keeps Gauss–Jordan from dividing by a tiny number.',
+  gen(){let fb=null;const want=Math.random()<0.5;for(let t=0;t<40000;t++){const S0=[0,1,2].map(()=>[ri(-4,4),ri(-4,4),ri(-4,4)].map(v=>q(v))),x=[ri(-2,2),ri(-2,2),ri(-2,2)];
     S0.forEach(r=>r.push(q(r[0].v*x[0]+r[1].v*x[1]+r[2].v*x[2])));const G=gaussRun(S0);if(!G||G.idx===0)continue;
-    const all=[...G.m.slice(1),...G.S2[1],...G.S2[2],G.m32,...G.S4[2],...G.x];if(all.some(v=>v.d>8||Math.abs(v.n)>60))continue;fb={S0,...G};if(want&&!G.swap)continue;return fb}return fb},
-  prompt:P=>`Solve with Gauss elimination and partial pivoting: ${M(aug(P.S0))}`,
+    const all=[...G.S2[0],...G.S2[1],...G.S2[2],...G.S4[0],...G.S4[1],...G.S4[2],...G.x];if(all.some(v=>v.d>8||Math.abs(v.n)>60))continue;fb={S0,...G};if(want&&!G.swap)continue;return fb}return fb},
+  prompt:P=>`Solve with Gauss–Jordan and partial pivoting: ${M(aug(P.S0))}`,
   steps:P=>[
    {t:'First pivot',sheet:T`\text{pivot row: largest }|a_{i1}|`,hint:'Compare the absolute values in column 1. That row swaps into row 1, even if a₁₁ is not zero.',p:'Which row has the largest '+M('|a_{i1}|')+'?',fill:[{label:'row',ans:q(P.idx+1),ph:'1, 2 or 3'}]},
-   {t:'Multipliers',sheet:T`m_{i1}=\frac{a_{i1}}{a_{11}}`,hint:'Divide each entry below the pivot by the pivot (after the swap).',p:'After the swap: '+M(aug(P.S1)),fill:[{label:M('m_{21}='),ans:P.m[1]},{label:M('m_{31}='),ans:P.m[2]}]},
-   {t:'New row 2',sheet:T`\text{row}_2-m_{21}\,\text{row}_1`,hint:'Subtract m₂₁ times row 1 from row 2, entry by entry. The first entry becomes 0.',fill:[{label:M('a_{22}'),ans:P.S2[1][1]},{label:M('a_{23}'),ans:P.S2[1][2]},{label:M('b_2'),ans:P.S2[1][3]}]},
-   {t:'New row 3',sheet:T`\text{row}_3-m_{31}\,\text{row}_1`,hint:'Same as row 2, with m₃₁.',fill:[{label:M('a_{32}'),ans:P.S2[2][1]},{label:M('a_{33}'),ans:P.S2[2][2]},{label:M('b_3'),ans:P.S2[2][3]}]},
-   {t:'Second pivot',sheet:T`\text{compare }|a_{22}|,\ |a_{32}|\text{ in the current matrix}`,hint:'Search the current (reduced) submatrix, not the original matrix.',p:'Now: '+M(aug(P.S2)),
+   {t:'Divide the pivot row by the pivot',sheet:T`\text{row}_1\leftarrow\text{row}_1/a_{11}`,hint:'Divide every entry of row 1 by a₁₁ (after the swap). The pivot becomes 1.',p:'After the swap: '+M(aug(P.S1)),fill:[{label:M('a_{12}'),ans:P.S2[0][1]},{label:M('a_{13}'),ans:P.S2[0][2]},{label:M('b_1'),ans:P.S2[0][3]}]},
+   {t:'Clear column 1: new row 2',sheet:T`\text{row}_2-a_{21}\,\text{row}_1`,hint:'Use the new row 1 (pivot = 1). Subtract a₂₁ times row 1 from row 2, entry by entry. The first entry becomes 0.',p:'New row 1: '+M(T`\left(`+P.S2[0].slice(0,3).map(v=>v.tex()).join(T`,\;`)+T`\;\middle|\;${P.S2[0][3].tex()}\right)`),fill:[{label:M('a_{22}'),ans:P.S2[1][1]},{label:M('a_{23}'),ans:P.S2[1][2]},{label:M('b_2'),ans:P.S2[1][3]}]},
+   {t:'Clear column 1: new row 3',sheet:T`\text{row}_3-a_{31}\,\text{row}_1`,hint:'Same as row 2, with a₃₁.',fill:[{label:M('a_{32}'),ans:P.S2[2][1]},{label:M('a_{33}'),ans:P.S2[2][2]},{label:M('b_3'),ans:P.S2[2][3]}]},
+   {t:'Second pivot',sheet:T`\text{compare }|a_{22}|,\ |a_{32}|\text{ in the current matrix}`,hint:'Search the current matrix, rows 2 and 3 only, not the original matrix.',p:'Now: '+M(aug(P.S2)),
     mc:[{html:'Swap rows 2 and 3',ok:P.swap,why:P.swap?`Right: ${M('|'+P.S2[2][1].tex()+'|')} is larger than ${M('|'+P.S2[1][1].tex()+'|')}.`:'Compare the entries in the current matrix: the one in row 2 is already the larger.'},{html:'Keep rows 2 and 3 in place',ok:!P.swap,why:!P.swap?`Right: ${M('|'+P.S2[1][1].tex()+'|')} is already the larger.`:'Compare the entries in the current matrix: the one in row 3 is larger.'}]},
-   {t:'Eliminate below the second pivot',sheet:T`m_{32}=\frac{a_{32}}{a_{22}},\quad\text{row}_3-m_{32}\,\text{row}_2`,hint:'Use the matrix after the second-pivot decision.',p:'Current: '+M(aug(P.S3)),fill:[{label:M('m_{32}='),ans:P.m32},{label:M('a_{33}'),ans:P.S4[2][2]},{label:M('b_3'),ans:P.S4[2][3]}]},
-   {t:'Back substitution',sheet:T`x_3=\frac{b_3}{a_{33}},\quad x_2=\frac{b_2-a_{23}x_3}{a_{22}},\;\dots`,hint:'Start from the bottom row and work up, using the final matrix.',p:'Final: '+M(aug(P.S4)),fill:[{label:M('x_3'),ans:P.x[2]},{label:M('x_2'),ans:P.x[1]},{label:M('x_1'),ans:P.x[0]}]}],
+   {t:'Divide the second pivot row',sheet:T`\text{row}_2\leftarrow\text{row}_2/a_{22}`,hint:'Use the matrix after the second-pivot decision. Divide row 2 by its pivot a₂₂.',p:'Current: '+M(aug(P.S3)),fill:[{label:M('a_{23}'),ans:P.S4[1][2]},{label:M('b_2'),ans:P.S4[1][3]}]},
+   {t:'Clear column 2, above and below',sheet:T`\text{row}_1-a_{12}\,\text{row}_2,\qquad\text{row}_3-a_{32}\,\text{row}_2`,hint:'Gauss–Jordan clears the pivot column in every other row: row 1 (above) and row 3 (below). Use the new row 2.',fill:[{label:M('a_{13}'),ans:P.S4[0][2]},{label:M('b_1'),ans:P.S4[0][3]},{label:M('a_{33}'),ans:P.S4[2][2]},{label:M('b_3'),ans:P.S4[2][3]}]},
+   {t:'Third pivot, then read the solution',sheet:T`\text{row}_3/a_{33},\quad\text{row}_1-a_{13}\,\text{row}_3,\quad\text{row}_2-a_{23}\,\text{row}_3`,hint:'Divide row 3 by a₃₃, then clear column 3 in rows 1 and 2. The left side is now the identity, so the last column is the solution.',p:'Current: '+M(aug(P.S4)),fill:[{label:M('x_1'),ans:P.x[0]},{label:M('x_2'),ans:P.x[1]},{label:M('x_3'),ans:P.x[2]}]}],
   final:P=>[{label:M('x_1'),ans:P.x[0]},{label:M('x_2'),ans:P.x[1]},{label:M('x_3'),ans:P.x[2]}],
-  lines(P,bug){const G=gaussRun(P.S0,{p1:bug==='p1'?'none':'',inv:bug==='inv',p2:bug==='p2'?'orig':'',bs:bug==='bs'});if(!G)return null;
+  lines(P,bug){const G=gaussRun(P.S0,{p1:bug==='p1'?'none':'',p2:bug==='p2'?'orig':'',up:bug==='up',sg:bug==='sg'});if(!G)return null;
    return [{tex:G.idx?T`\text{Pivot 1: row }${G.idx+1}\text{ (swap 1}\leftrightarrow${G.idx+1})`:T`\text{Pivot 1: }a_{11}\ne0\text{, no swap}`,bad:bug==='p1'},
-    {tex:T`m_{21}=${G.m[1].tex()},\qquad m_{31}=${G.m[2].tex()}`,bad:bug==='inv'},{tex:aug(G.S2)},
+    {tex:T`\text{Row 1}\div a_{11}\text{, clear column 1: }`+aug(G.S2)},
     {tex:T`\text{Pivot 2: }${G.swap?T`\text{swap rows 2}\leftrightarrow3`:T`\text{keep rows 2, 3}`}`,bad:bug==='p2'},
-    {tex:T`m_{32}=${G.m32.tex()},\qquad\text{row 3: }\left(0,\;0,\;${G.S4[2][2].tex()}\;\middle|\;${G.S4[2][3].tex()}\right)`},
-    {tex:T`x_3=${G.x[2].tex()},\quad x_2=${G.x[1].tex()},\quad x_1=${G.x[0].tex()}`,bad:bug==='bs'}]},
-  bugs:{p1:'Partial pivoting always brings the largest |aᵢ₁| to the top, even when a₁₁ is not zero.',inv:'The multiplier is the entry below the pivot divided by the pivot: mᵢ₁ = aᵢ₁ / a₁₁. These are upside down.',p2:'The second pivot is chosen from the current (reduced) matrix, not the original one.',bs:'Back substitution subtracts the known terms: x₂ = (b₂ − a₂₃x₃) / a₂₂. The sign flipped.'}}]};
+    {tex:T`\text{Row 2}\div a_{22}\text{, clear column 2: }`+aug(G.S4),bad:bug==='up'},
+    {tex:T`\text{Row 3}\div a_{33}\text{, clear column 3: }x_1=${G.x[0].tex()},\quad x_2=${G.x[1].tex()},\quad x_3=${G.x[2].tex()}`,bad:bug==='sg'}]},
+  bugs:{p1:'Partial pivoting always brings the largest |aᵢ₁| to the top, even when a₁₁ is not zero.',p2:'The second pivot is chosen from the current matrix (rows 2 and 3), not the original one.',up:'Gauss–Jordan clears the pivot column in every other row, above the pivot too. Row 1 still has its column-2 entry.',sg:'To clear column 3 in row 2, subtract: row 2 − a₂₃ · row 3. Here it was added, so x₂ is wrong.'}}]};
 
 /* ================= Module 3: root finding ================= */
 const M3={id:'m3',name:'Root finding',title:'Module 3 · Non-linear equations',

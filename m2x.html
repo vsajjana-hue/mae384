@@ -47,7 +47,7 @@ button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
   <div>
     <p class="muted">MAE 384 · Module 2 · systems of linear equations</p>
     <h1>The Bridge Is a <span>Matrix</span></h1>
-    <p class="muted">A truck drives onto a steel bridge. Which bar carries the most force? Engineers answer that with Gauss elimination.</p>
+    <p class="muted">A truck drives onto a steel bridge. Which bar carries the most force? Engineers answer that with Gauss–Jordan.</p>
   </div>
 
   <div class="stage"><canvas id="br" aria-label="Animated truss bridge with a truck"></canvas></div>
@@ -233,14 +233,15 @@ function assemble(xT){const A=[...Array(NU)].map(()=>new Float64Array(NU)),b=new
   BARS.forEach(([p,q],m)=>{const dx=J[q][0]-J[p][0],dy=J[q][1]-J[p][1],L=Math.hypot(dx,dy);A[2*p][m]+=dx/L;A[2*p+1][m]+=dy/L;A[2*q][m]-=dx/L;A[2*q+1][m]-=dy/L});
   A[0][11]=1;A[1][12]=1;A[7][13]=1;
   const x=Math.max(0,Math.min(12,xT)),k=Math.min(2,Math.floor(x/4)),f=(x-4*k)/4;b[2*k+1]+=Wt*(1-f);b[2*(k+1)+1]+=Wt*f;return {A,b}}
-/* Gauss elimination that records every move so it can be replayed */
+/* Gauss-Jordan that records every move so it can be replayed */
 function gauss(xT,pivoting,record){const {A,b}=assemble(xT),ev=[],snap=()=>({A:A.map(r=>Array.from(r)),b:Array.from(b)});let ops=0,swaps=0;
   if(record)ev.push({t:'start',...snap()});
   for(let k=0;k<NU;k++){let piv=k;if(pivoting){for(let i=k+1;i<NU;i++)if(Math.abs(A[i][k])>Math.abs(A[piv][k])+1e-12)piv=i}
     if(Math.abs(A[piv][k])<1e-9){if(record)ev.push({t:'stuck',k,...snap()});return {ev,stuck:k}}
     if(piv!==k){[A[k],A[piv]]=[A[piv],A[k]];[b[k],b[piv]]=[b[piv],b[k]];swaps++;if(record)ev.push({t:'swap',k,i:piv,...snap()})}
-    for(let i=k+1;i<NU;i++){const m=A[i][k]/A[k][k];if(Math.abs(m)<1e-12)continue;for(let j=k;j<NU;j++)A[i][j]-=m*A[k][j];b[i]-=m*b[k];A[i][k]=0;ops++;if(record)ev.push({t:'elim',k,i,...snap()})}}
-  const x=new Float64Array(NU);for(let k=NU-1;k>=0;k--){let s=b[k];for(let j=k+1;j<NU;j++)s-=A[k][j]*x[j];x[k]=s/A[k][k]}
+    {const d=A[k][k];if(Math.abs(d-1)>1e-12){for(let j=0;j<NU;j++)A[k][j]/=d;b[k]/=d;A[k][k]=1;ops++;if(record)ev.push({t:'elim',k,i:k,...snap()})}}
+    for(let i=0;i<NU;i++){if(i===k)continue;const m=A[i][k];if(Math.abs(m)<1e-12)continue;for(let j=0;j<NU;j++)A[i][j]-=m*A[k][j];b[i]-=m*b[k];A[i][k]=0;ops++;if(record)ev.push({t:'elim',k,i,...snap()})}}
+  const x=Float64Array.from(b);
   return {x,ev,ops,swaps,U:snap()}}
 const XT=5;                                   // truck position used in the story
 const PLAIN=gauss(XT,false,true),PIV=gauss(XT,true,true);
@@ -291,14 +292,14 @@ const SC=[
   draw(p){const i=Math.min(6,Math.floor(p*7));drawBridge(XT,null,null,{weight:true,ring:i,note:`equations so far: ${2*(i+1)} of 14`});if(i!==this.last){this.last=i;tone(392*Math.pow(2,i/7),0.18)}}},
  {dur:2600,mat:true,cap:'Stack the 14 equations and you get A x = b. Each row is one joint. Most entries are zero, because each joint touches only a few bars.',tag:['Module 2','A system of linear equations: A x = b, with x = the 14 unknown forces.'],
   draw(p){drawBridge(XT,null,null,{weight:true});const s=PIV.ev[0],rows=Math.ceil(p*NU),A=s.A.map((r,i)=>i<rows?r:r.map(()=>0)),b=s.b.map((v,i)=>i<rows?v:0);drawMatrix({A,b},{msg:'light cell = nonzero entry'})}},
- {dur:3800,mat:true,cap:'Try plain Gauss elimination: use each diagonal entry as the pivot and clear the column below it. It gets stuck almost at once: the pivot is zero, and you cannot divide by zero.',tag:['Why it fails','A zero on the diagonal. This happens naturally in real problems, not just in textbook traps.'],
+ {dur:3800,mat:true,cap:'Try Gauss–Jordan without pivoting: use each diagonal entry as the pivot, divide its row by it and clear the rest of its column. It gets stuck almost at once: the pivot is zero, and you cannot divide by zero.',tag:['Why it fails','A zero on the diagonal. This happens naturally in real problems, not just in textbook traps.'],
   draw(p){drawBridge(XT,null,null,{weight:true});const n=PLAIN.ev.length,i=Math.min(n-1,Math.floor(p*n*1.15)),e=PLAIN.ev[i];drawMatrix(e,{k:e.k,row:e.t==='elim'?e.i:-1,stuck:e.t==='stuck',msg:e.t==='stuck'?`stuck at column ${e.k+1}: pivot = 0`:'eliminating…'});
    if(i!==this.last){this.last=i;e.t==='stuck'?tone(110,0.6,0.25,'sawtooth'):tone(500+30*i,0.08,0.15)}}},
- {dur:9000,mat:true,cap:`Partial pivoting fixes it: before each column, swap in the row with the largest entry, then eliminate. ${PIV.swaps} row swaps and ${PIV.ops} row operations later, everything below the diagonal is zero.`,tag:['Not on the sheet · know it','Gauss elimination with partial pivoting: swap rows so the pivot is the largest |entry| in its column.'],
-  draw(p){drawBridge(XT,null,null,{weight:true});const n=PIV.ev.length,i=Math.min(n-1,Math.floor(p*n)),e=PIV.ev[i];drawMatrix(e,{k:e.k,row:e.t==='elim'?e.i:(e.t==='swap'?e.k:-1),row2:e.t==='swap'?e.i:-1,swap:e.t==='swap',msg:e.t==='swap'?`swap rows ${e.k+1} and ${e.i+1}`:p>=1?'upper triangular: ready to solve':`clearing column ${(e.k??0)+1}`});
+ {dur:9000,mat:true,cap:`Partial pivoting fixes it: before each column, swap in the row with the largest entry, divide it by the pivot, then clear the rest of the column. ${PIV.swaps} row swaps and ${PIV.ops} row operations later, the left side is the identity matrix.`,tag:['Not on the sheet · know it','Gauss–Jordan with partial pivoting: swap rows so the pivot is the largest |entry| in its column.'],
+  draw(p){drawBridge(XT,null,null,{weight:true});const n=PIV.ev.length,i=Math.min(n-1,Math.floor(p*n)),e=PIV.ev[i];drawMatrix(e,{k:e.k,row:e.t==='elim'?e.i:(e.t==='swap'?e.k:-1),row2:e.t==='swap'?e.i:-1,swap:e.t==='swap',msg:e.t==='swap'?`swap rows ${e.k+1} and ${e.i+1}`:p>=1?'identity on the left: solved':`clearing column ${(e.k??0)+1}`});
    if(i!==this.last){this.last=i;if(e.t==='swap'){tone(660,0.1,0.2);tone(880,0.14,0.2,'triangle',0.09)}else tone(300+45*(e.k??0),0.06,0.13)}}},
- {dur:6500,mat:true,legend:true,cap:'Back substitution: the last row has one unknown, so solve it; then the row above; and so on, upward. Each solved force lights up its bar.',tag:['Reading the answer','Orange bars are pulled (tension). Teal bars are squeezed (compression). Numbers are kN.'],
-  draw(p){const n=Math.min(NU,Math.floor(p*(NU+0.99))),done=new Set(order.slice(0,n)),x={};done.forEach(k=>x[k]=SOL[k]);drawBridge(XT,SOL,m=>done.has(m),{weight:true,labels:true,reactions:done.has(12)&&done.has(13)});drawMatrix(PIV.U,{x,msg:n>=NU?'all 14 forces found':`solving row ${NU-n}`});
+ {dur:6500,mat:true,legend:true,cap:'Nothing is left to solve: with the identity on the left, each row reads “one unknown = one number”. The last column is the answer. Each force lights up its bar.',tag:['Reading the answer','Orange bars are pulled (tension). Teal bars are squeezed (compression). Numbers are kN.'],
+  draw(p){const n=Math.min(NU,Math.floor(p*(NU+0.99))),done=new Set(order.slice(0,n)),x={};done.forEach(k=>x[k]=SOL[k]);drawBridge(XT,SOL,m=>done.has(m),{weight:true,labels:true,reactions:done.has(12)&&done.has(13)});drawMatrix(PIV.U,{x,msg:n>=NU?'all 14 forces found':`reading row ${NU-n}`});
    if(n!==this.last){this.last=n;if(n>0){const k=order[n-1];tone(220+Math.abs(SOL[k])*4,0.2,0.2,SOL[k]>=0?'triangle':'sine')}}}},
  {dur:0,legend:true,stats:true,cap:'Your turn: drag the truck. The whole system is rebuilt and solved again for every position, many times per second. Find the spot that loads a bar the hardest.',tag:['Why engineers care','One solve gives one truck position. Design needs the worst case over all of them.'],
   draw(){const t0=performance.now();let r;for(let k=0;k<20;k++)r=gauss(S.xT,true,false);const ms=(performance.now()-t0)/20;drawBridge(S.xT,r.x,()=>true,{weight:true,labels:true,reactions:true,note:S.drag?'':'drag the truck ↔'});

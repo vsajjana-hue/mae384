@@ -328,7 +328,7 @@ const SC=[
 /* ---------- lab ---------- */
 const L={thk:6,M:20,bc:2,meth:'euler',r:0.4,anim:0,res:null,seen:{}};
 const SHEETS={euler:SC[4].sheet,rk2:['📄 Module 7 → 8 · Modified Euler on the whole vector','\\vec k_1=\\vec f\\!\\left(\\vec T^{\\,n}\\right),\\quad \\vec k_2=\\vec f\\!\\left(\\vec T^{\\,n}+\\Delta t\\,\\vec k_1\\right),\\quad \\vec T^{\\,n+1}=\\vec T^{\\,n}+\\tfrac{\\Delta t}{2}\\left(\\vec k_1+\\vec k_2\\right)'],
- imp:['📄 Module 7 + 2 → 8 · Implicit Euler: a tridiagonal system each step','-r\\,T_{i-1}^{\\,n+1}+(1+2r)\\,T_i^{\\,n+1}-r\\,T_{i+1}^{\\,n+1}=T_i^{\\,n}\\qquad\\text{(Gauss elimination)}']};
+ imp:['📄 Module 7 + 2 → 8 · Implicit Euler: a tridiagonal system each step','-r\\,T_{i-1}^{\\,n+1}+(1+2r)\\,T_i^{\\,n+1}-r\\,T_{i+1}^{\\,n+1}=T_i^{\\,n}\\qquad\\text{(a linear system: Gauss–Jordan)}']};
 function cfg(){return {L:L.thk/100,M:L.M,r:L.r,meth:L.meth,bc:L.bc}}
 function labStats(){const o=cfg(),R=solve({...o,every:15});L.res=R;$('thkO').textContent=L.thk.toFixed(1)+' cm ('+(L.thk/2.54).toFixed(1)+' in)';
   $('mx').textContent=R.blown?'—':Math.round(R.mx)+' °C';$('mxT').textContent=R.blown?'the numbers blew up':'at '+(R.tm/60).toFixed(0)+' min';

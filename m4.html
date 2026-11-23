@@ -239,7 +239,7 @@ const NARROW=window.innerWidth<600,cv=$('cv'),c=cv.getContext('2d'),W=NARROW?640
 const ALL=[[53,11],[57,4],[58,4],[63,2],[66,0],[67,0],[67,0],[67,0],[68,0],[69,0],[70,4],[70,0],[70,4],[70,0],[72,0],[73,0],[75,0],[75,4],[76,0],[76,0],[78,0],[79,0],[81,0]],DMG=ALL.filter(p=>p[1]>0);
 const L={d:'all',f:'line',tf:31,seen:{}};
 function line(d){const n=d.length,Sx=d.reduce((a,p)=>a+p[0],0),Sy=d.reduce((a,p)=>a+p[1],0),Sxx=d.reduce((a,p)=>a+p[0]*p[0],0),Sxy=d.reduce((a,p)=>a+p[0]*p[1],0),den=n*Sxx-Sx*Sx;return {n,Sx,Sy,Sxx,Sxy,a1:(n*Sxy-Sx*Sy)/den,a0:(Sxx*Sy-Sxy*Sx)/den}}
-/* quadratic regression: solve the normal equations XᵀX a = Xᵀy by Gauss elimination with partial pivoting */
+/* quadratic regression: solve the normal equations XᵀX a = Xᵀy with Gauss-Jordan-style elimination and partial pivoting */
 function quad(d){const A=[[0,0,0],[0,0,0],[0,0,0]],b=[0,0,0];d.forEach(p=>{const r=[1,p[0],p[0]*p[0]];for(let i=0;i<3;i++){b[i]+=r[i]*p[1];for(let j=0;j<3;j++)A[i][j]+=r[i]*r[j]}});
   for(let k=0;k<3;k++){let pv=k;for(let i=k+1;i<3;i++)if(Math.abs(A[i][k])>Math.abs(A[pv][k]))pv=i;[A[k],A[pv]]=[A[pv],A[k]];[b[k],b[pv]]=[b[pv],b[k]];for(let i=k+1;i<3;i++){const m=A[i][k]/A[k][k];for(let j=k;j<3;j++)A[i][j]-=m*A[k][j];b[i]-=m*b[k]}}
   const x=[0,0,0];for(let k=2;k>=0;k--){let s=b[k];for(let j=k+1;j<3;j++)s-=A[k][j]*x[j];x[k]=s/A[k][k]}return x}
@@ -273,7 +273,7 @@ const SC=[
   draw(p){const e=Math.min(1,p*1.6);plot({pts:ALL.map(q=>[q[0],q[1]]),fits:[[lineAll,css('--sea'),null,53-22*e,81],[quadAll,css('--plum'),[9,7],53-22*Math.max(0,(p-0.4)/0.6),81]],fc:31,range:true,ymax:p>0.4?44:14,note:p>0.85?'line: 11   quadratic: 37':''})}},
  {dur:3500,cap:'The launch went ahead. A booster O-ring failed to seal, and 73 seconds after liftoff Challenger broke apart. All seven crew members died. The data could not prove what would happen at 31 °F. It did show that nobody knew, and that every sign pointed the wrong way.',sheet:['For engineers','A model is trustworthy only inside the range of its data. Outside it, say so.',1],
   draw(p){plot({pts:ALL.map(q=>[q[0],q[1]]),fits:[[lineAll,css('--sea'),null,31,81],[quadAll,css('--plum'),[9,7],31,81]],fc:31,range:true,ymax:44})}},
- {dur:0,lab:true,live:true,cap:'Your turn. Choose which flights to fit, the model, and the forecast temperature. Watch how the two models agree inside the data and split apart outside it.',sheet:['📄 On your sheet · Module 4 · Polynomial regression','X^{T}X\\,\\vec a=X^{T}\\vec y\\qquad\\text{(order }m<n-1\\text{: regression; solved here by Gauss elimination)}'],
+ {dur:0,lab:true,live:true,cap:'Your turn. Choose which flights to fit, the model, and the forecast temperature. Watch how the two models agree inside the data and split apart outside it.',sheet:['📄 On your sheet · Module 4 · Polynomial regression','X^{T}X\\,\\vec a=X^{T}\\vec y\\qquad\\text{(order }m<n-1\\text{: regression; solved here with Gauss–Jordan)}'],
   draw(){labDraw()}}
 ];
 /* ---------- lab ---------- */
