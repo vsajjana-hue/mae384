@@ -5,12 +5,19 @@ var BASE=(document.currentScript&&document.currentScript.src||'coach/coach.js').
 var EXAM=new Date(2026,11,3);
 var T={1:"Boom. First try. Newton would be jealous.",2:"That converged faster than bisection ever will.",3:"Exact fraction, no calculator. Chef's kiss.",4:"Correct! Your error just hit machine precision.",5:"Yes! That's how it's done.",6:"So close. Check your signs. They bite.",7:"Old point or new point? Implicit means new.",8:"Even Gauss–Jordan needs a pivot. Swap and try again.",9:"Hmm. Look at the equation sheet one more time.",10:"Not yet. Slow down and write every step.",11:"Good try. The first step was right. Keep going.",12:"Three days in a row. Your streak is more stable than explicit Euler.",13:"Streak alive! Unlike my coffee, it never runs out.",14:"That's second-order commitment.",15:"Module mastered! We have liftoff.",17:"Badge earned. Frame it. Or at least screenshot it.",18:"You're back! Five minutes today?",19:"There you are. Today's mission is short, I promise.",20:"Welcome back. I saved your streak a seat.",21:"Mission complete. See you tomorrow.",22:"That's today done. Future you says thanks."};
 var POSES=['idle','cheer','think','point','wave','rocket','thumbs','oops'],TALK=['idle'];
-var st={voice:false,hidden:false,days:[],seen:''};
+var st={hidden:false,days:[],seen:'',mdays:[],m:{d:'',q:0,n:0,done:false}};
 try{var raw=localStorage.getItem('mae384:coach');if(raw){var o=JSON.parse(raw);for(var k in o)st[k]=o[k]}}catch(e){}
 function save(){try{localStorage.setItem('mae384:coach',JSON.stringify(st))}catch(e){}}
 var track0=window.mcTrack||function(){};
 function day(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function streak(){var n=0,d=new Date();while(st.days.indexOf(day(d))>=0){n++;d.setDate(d.getDate()-1)}return n}
+function streak(){/* days in a row with the daily mission done; today counts once it is done */
+ var n=0,d=new Date();if(st.mdays.indexOf(day(d))<0)d.setDate(d.getDate()-1);while(st.mdays.indexOf(day(d))>=0){n++;d.setDate(d.getDate()-1)}return n}
+function mis(){var t=day(new Date());if(st.m.d!==t)st.m={d:t,q:0,n:0,done:false};return st.m}
+function bump(kind){var m=mis();if(m.done)return;if(kind==='q')m.q=1;else m.n++;
+ if(m.q&&m.n>=3){m.done=true;if(st.mdays.indexOf(m.d)<0){st.mdays.push(m.d);st.mdays=st.mdays.slice(-90)}track0('mission_daily_done',{streak:streak()});
+  setTimeout(function(){show(['rocket'],streak()===3?12:21,0,'fanfare')},3600)}
+ save();try{window.dispatchEvent(new Event('drvj:mission'))}catch(e){}}
+window.DrVJ={mission:function(){var m=mis();return{q:m.q,n:m.n,done:m.done,streak:streak()}}};
 
 var css='#drvj{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:60;pointer-events:none;font:600 14px/1.35 system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:flex-end;gap:6px}'
 +'#drvj *{box-sizing:border-box}'
@@ -76,6 +83,9 @@ var last={};function pick(k,ids){var i;do{i=ids[Math.floor(Math.random()*ids.len
 var CHEER=[1,2,3,4,5],NUDGE=[6,9,10,11],run=0;
 
 function react(e,p){p=p||{};
+ if(e==='quick_answer'){if(p.where==='home')bump('q');else if(p.correct)bump('n');if(p.correct)show(['cheer',900,'thumbs'],pick('c',[2,4,5]),0,'yay');else show(['thumbs'],0,'There it is. Read the why underneath.','ok');return}
+ if(e==='quick_miss'){show(['oops',1100,'point'],0,'Not that one. Try another.','uhoh');return}
+ if((e==='tb_attempt'||e==='rush_answer')&&p.correct)bump('n');
  if(e==='tb_attempt'){if(p.correct){run++;show(['cheer',900,'thumbs'],pick('c',run===1?CHEER:[2,3,4,5]),0,'yay')}else{run=0;var ids=NUDGE.slice();if(/implicit|backward|crank/i.test((p.label||'')+(p.item||'')))ids.push(7);if(/gauss|pivot|jordan/i.test((p.label||'')+(p.item||'')+(p.miss_tag||'')))ids.push(8);show(['oops',1100,'point'],pick('n',ids),0,'uhoh')}}
  else if(e==='tb_drill_passed'||e==='tb_guide_landed')later(2600,function(){show(['rocket'],17,0,'fanfare')});
  else if(e==='mission_complete'){if(p.missions_total&&p.missions_done>=p.missions_total)show(['cheer',900,'rocket'],15,0,'fanfare');else show(['cheer',900,'thumbs'],5,0,'yay')}
@@ -88,11 +98,12 @@ function greet(){var today=day(new Date()),first=st.seen!==today;
  if(st.days.indexOf(today)<0){st.days.push(today);st.days=st.days.slice(-60)}
  st.seen=today;save();if(!first)return;
  var n=streak(),d=Math.ceil((EXAM-new Date())/864e5);
- if(n===3)show(['rocket'],12,0,'fanfare');else if(n>3)show(['rocket'],13,0,'yay');else show(['wave'],pick('w',[18,19,20]),0,'hi');
+ if(n>=2)show(['rocket'],13,0,'yay');else show(['wave'],pick('w',[18,19,20]),0,'hi');
  if(d>0&&d<=21)later(5200,function(){show(['point'],0,d+(d===1?' day':' days')+' to Exam 5. Let’s make today count.')})}
 function init(){rig=el.querySelector('.dvr');say=el.querySelector('.dvb span');
  if(st.hidden)el.classList.add('hid');
  el.querySelector('.dvx').onclick=function(){st.hidden=true;save();el.classList.add('hid');track0('coach_hidden',{})};
  el.querySelector('.dvk').onclick=function(){st.hidden=false;save();el.classList.remove('hid');show(['wave'],20,0,'hi')};
- requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,900)}
+ requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,900);
+ var ps=document.createElement('script');ps.src=BASE+'play.js';document.head.appendChild(ps)}
 })();
