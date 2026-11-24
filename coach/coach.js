@@ -1,7 +1,7 @@
 /* Dr. VJ coach for MAE 384 Mission Control. Loads after the page; reacts to the same events the site already tracks. */
 (function(){
 if(window.__drvj)return;window.__drvj=1;
-var BASE=(document.currentScript&&document.currentScript.src||'coach/coach.js').replace(/coach\.js.*$/,'');
+var SRC=(document.currentScript&&document.currentScript.src||'coach/coach.js'),BASE=SRC.replace(/coach\.js.*$/,''),V=((SRC.match(/[?&]v=([^&]+)/)||[])[1]||'');V=V?'?v='+V:'';
 var EXAM=new Date(2026,11,3);
 var T={1:"Boom. First try. Newton would be jealous.",2:"That converged faster than bisection ever will.",3:"Exact fraction, no calculator. Chef's kiss.",4:"Correct! Your error just hit machine precision.",5:"Yes! That's how it's done.",6:"So close. Check your signs. They bite.",7:"Old point or new point? Implicit means new.",8:"Even Gauss–Jordan needs a pivot. Swap and try again.",9:"Hmm. Look at the equation sheet one more time.",10:"Not yet. Slow down and write every step.",11:"Good try. The first step was right. Keep going.",12:"Three days in a row. Your streak is more stable than explicit Euler.",13:"Streak alive! Unlike my coffee, it never runs out.",14:"That's second-order commitment.",15:"Module mastered! We have liftoff.",17:"Badge earned. Frame it. Or at least screenshot it.",18:"You're back! Five minutes today?",19:"There you are. Today's mission is short, I promise.",20:"Welcome back. I saved your streak a seat.",21:"Mission complete. See you tomorrow.",22:"That's today done. Future you says thanks."};
 var POSES=['idle','cheer','think','point','wave','rocket','thumbs','oops'],TALK=['idle'];
@@ -42,7 +42,7 @@ var css='#drvj{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bot
 +'@media(prefers-reduced-motion:reduce){#drvj .dvr,#drvj .dvp{animation:none!important}#drvj .dvf{transition:none}}'
 +'@media print{#drvj{display:none}}';
 var el=document.createElement('div');el.id='drvj';
-var imgs='';POSES.forEach(function(p){imgs+='<img data-p="'+p+'" alt="" src="'+BASE+'art/'+p+'.webp">'});
+var imgs='';POSES.forEach(function(p){imgs+='<img data-p="'+p+'" alt="" src="'+BASE+'art/'+p+'.webp'+V+'">'});
 el.innerHTML='<style>'+css+'</style><div class="dvb" role="status" aria-live="polite"><b>Dr. VJ</b><span></span></div>'
 +'<div class="dvf"><div class="dvr">'+imgs+'</div><div class="dvc"><button type="button" class="dvx" aria-label="Hide Dr. VJ" title="Hide">×</button></div></div>'
 +'<button type="button" class="dvk" aria-label="Show Dr. VJ">Dr. VJ</button>';
@@ -52,8 +52,8 @@ if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount
 var rig,say,cur='idle',tm=[],extra={},busyUntil=0,talkUntil=0;
 function img(p){return rig.querySelector('[data-p="'+p+'"]')}
 function lazy(){/* mouth and blink frames, after the page has settled */
- TALK.forEach(function(p){[1,2].forEach(function(i){var m=new Image();m.alt='';m.src=BASE+'art/'+p+'_m'+i+'.webp';m.dataset.k=p+i;rig.appendChild(m);extra[p+i]=m})});
- var b=new Image();b.alt='';b.src=BASE+'art/idle_b.webp';rig.appendChild(b);extra.blink=b}
+ TALK.forEach(function(p){[1,2].forEach(function(i){var m=new Image();m.alt='';m.src=BASE+'art/'+p+'_m'+i+'.webp'+V;m.dataset.k=p+i;rig.appendChild(m);extra[p+i]=m})});
+ var b=new Image();b.alt='';b.src=BASE+'art/idle_b.webp'+V;rig.appendChild(b);extra.blink=b}
 function pose(p){cur=p;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
 function later(ms,f){tm.push(setTimeout(f,ms))}
 function frame(){var lv=0,now=performance.now();
@@ -105,5 +105,5 @@ function init(){rig=el.querySelector('.dvr');say=el.querySelector('.dvb span');
  el.querySelector('.dvx').onclick=function(){st.hidden=true;save();el.classList.add('hid');track0('coach_hidden',{})};
  el.querySelector('.dvk').onclick=function(){st.hidden=false;save();el.classList.remove('hid');show(['wave'],20,0,'hi')};
  requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,900);
- var ps=document.createElement('script');ps.src=BASE+'play.js';document.head.appendChild(ps)}
+ var ps=document.createElement('script');ps.src=BASE+'play.js'+V;document.head.appendChild(ps)}
 })();
