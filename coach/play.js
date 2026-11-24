@@ -101,6 +101,7 @@ function home(){var app=document.querySelector('.app'),banner=app&&app.querySele
   el.innerHTML='<div class="k">Today’s mission</div><h2>'+(m.done?'Mission complete. See you tomorrow.':'Two small things, about five minutes.')+'</h2>'
   +'<ul><li class="'+(m.q?'done':'')+'"><i>'+(m.q?'✓':'1')+'</i><span>Answer the question of the day</span></li>'
   +'<li class="'+(m.n>=3?'done':'')+'"><i>'+(m.n>=3?'✓':'2')+'</i><span>Get 3 right in Training Bay or Method Rush <b>('+Math.min(3,m.n)+'/3)</b></span></li></ul>'
+  +'<a class="more" href="rush.html">Daily challenge in Method Rush ▸</a>'
   +'<div class="chips"><span>🔥 '+m.streak+'-day streak</span>'+(d>0?'<span>'+d+(d===1?' day':' days')+' to Exam 5</span>':'')+'</div>'}
  mission();window.addEventListener('drvj:mission',mission);
  var r=sec.querySelector('#dqR'),R=readiness(),avg=Math.round(R.reduce(function(a,b){return a+b},0)/8);
@@ -114,6 +115,8 @@ function bay(){var p=document.getElementById('p_drill'),mods=document.getElement
   card.hidden=false;lastQ=pool[Math.floor(Math.random()*pool.length)];
   quick(card,lastQ,'tb','Warm-up · tap to answer',function(){var b=document.createElement('button');b.type='button';b.className='more';b.textContent='Another warm-up ▸';b.onclick=next;card.appendChild(b)})}
  next();
+ /* log every wrong try (the page only records an item once it is finally answered) */
+ try{if(typeof window.bad==='function'&&!window.bad.__dv){var ob=window.bad;window.bad=function(){ob.apply(this,arguments);var tab='';try{var tb=document.querySelector('[id^="p_"]:not([hidden])');tab=tb?tb.id.slice(2):''}catch(e){}track('tb_miss',{module:'m'+(S.get('tb:mod',6)+1),tab:tab})};window.bad.__dv=1}}catch(e){}
  mods.addEventListener('click',function(e){if(!e.target.closest('button'))return;setTimeout(function(){next();var t=document.getElementById('modTitle');if(t){t.classList.remove('dqflash');void t.offsetWidth;t.classList.add('dqflash');var r=t.getBoundingClientRect();if(r.top<0||r.top>innerHeight*.7)t.scrollIntoView({behavior:'smooth',block:'start'})}},30)});
  /* a wrong typed answer: tapping the box selects it so retyping is one step, and the red clears as you type */
  document.addEventListener('focusin',function(e){var t=e.target;if(t&&t.tagName==='INPUT'&&t.classList.contains('bad')){try{t.select()}catch(_){}}});

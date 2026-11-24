@@ -36,16 +36,27 @@ var css='#drvj{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bot
 +'#drvj button:focus-visible{outline:3px solid #ffd166}'
 +''
 +'#drvj.hid .dvf,#drvj.hid .dvb{display:none}'
++'#drvj .dvq{pointer-events:auto;position:absolute;right:0;bottom:calc(100% + 8px);width:min(300px,calc(100vw - 24px));background:#fffaf0;color:#14213d;border:2px solid #ffb86b;border-radius:16px;padding:12px;box-shadow:0 10px 26px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:8px;font-weight:600}'
++'#drvj .dvq[hidden]{display:none}'
++'#drvj .dvq b{font-size:15px}#drvj .dvq small{font-size:12px;font-weight:500;line-height:1.35;color:#4a5578}'
++'#drvj .dvq textarea{font:500 15px/1.4 inherit;font-family:inherit;width:100%;border:2px solid #d5dcef;border-radius:10px;padding:8px;resize:vertical;color:#14213d;background:#fff}'
++'#drvj .dvq textarea:focus{outline:3px solid #ffd166;border-color:#ffb86b}'
++'#drvj .dvt,#drvj .dvs{display:flex;gap:6px;flex-wrap:wrap}#drvj .dvs{justify-content:flex-end}'
++'#drvj .dvq button{width:auto;height:auto;border-radius:999px;padding:6px 11px;font-size:13px;background:#e8ecf8;color:#14213d;border:0;box-shadow:none;display:inline-block}'
++'#drvj .dvq button[aria-pressed="true"],#drvj .dvq .dvgo{background:#14213d;color:#fff}'
 +'#drvj .dvk{display:none;pointer-events:auto;width:auto;height:auto;border-radius:16px;padding:6px 11px;font-size:12px}'
 +'#drvj.hid .dvk{display:block}'
-+'@media(max-width:640px){#drvj .dvf{width:74px}#drvj.on .dvf{width:128px}#drvj .dvb{margin-bottom:40px;font-size:13px}}'
++'@media(max-width:640px){#drvj .dvf{width:56px}#drvj.on .dvf{width:116px}#drvj button{width:20px;height:20px;font-size:11px}#drvj .dvc{left:-16px}#drvj .dvb{margin-bottom:40px;font-size:13px}}'
 +'@media(prefers-reduced-motion:reduce){#drvj .dvr,#drvj .dvp{animation:none!important}#drvj .dvf{transition:none}}'
++'@media(max-width:640px){#drvj .dvf,#drvj .dvb{transition:opacity .2s,transform .2s,width .28s}#drvj.tuck .dvf,#drvj.tuck .dvb{opacity:0;transform:translateY(40%);pointer-events:none}#drvj.tuck .dvc{pointer-events:none}}'
++'@keyframes dqpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,107,0)}30%,70%{box-shadow:0 0 0 6px rgba(255,184,107,.9)}}.dqpulse{animation:dqpulse 1.6s ease-in-out 2}'
 +'@media print{#drvj{display:none}}';
 var el=document.createElement('div');el.id='drvj';
 var imgs='';POSES.forEach(function(p){imgs+='<img data-p="'+p+'" alt="" src="'+BASE+'art/'+p+'.webp'+V+'">'});
 el.innerHTML='<style>'+css+'</style><div class="dvb" role="status" aria-live="polite"><b>Dr. VJ</b><span></span></div>'
-+'<div class="dvf"><div class="dvr">'+imgs+'</div><div class="dvc"><button type="button" class="dvx" aria-label="Hide Dr. VJ" title="Hide">×</button></div></div>'
-+'<button type="button" class="dvk" aria-label="Show Dr. VJ">Dr. VJ</button>';
++'<div class="dvf"><div class="dvr">'+imgs+'</div><div class="dvc"><button type="button" class="dva" aria-label="Ask Dr. VJ or send feedback" title="Ask or send feedback">?</button><button type="button" class="dvx" aria-label="Hide Dr. VJ" title="Hide">×</button></div></div>'
++'<button type="button" class="dvk" aria-label="Show Dr. VJ">Dr. VJ</button>'
++'<form class="dvq" hidden><b>Tell Dr. VJ</b><div class="dvt" role="group" aria-label="What is it about"><button type="button" data-k="question" aria-pressed="true">A question</button><button type="button" data-k="broken" aria-pressed="false">Something\u2019s broken</button><button type="button" data-k="idea" aria-pressed="false">An idea</button></div><textarea maxlength="400" rows="4" aria-label="Your message" placeholder="Type here\u2026"></textarea><small>Anonymous: please leave out your name and ID. Dr. VJ reads these and answers common questions in class or on Ed.</small><div class="dvs"><button type="button" class="dvc2">Cancel</button><button type="submit" class="dvgo">Send</button></div></form>';
 function mount(){document.body.appendChild(el);init()}
 if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
 
@@ -80,13 +91,14 @@ function show(seq,id,text,snd){/* seq: [pose, ms, pose] */
  later(hold,function(){el.classList.remove('on');pose('idle')})}
 function quick(p){if(st.hidden||Date.now()<busyUntil)return;tm.forEach(clearTimeout);tm=[];pose(p);if(p==='thumbs')puff(['\u2B50']);later(900,function(){pose('idle')})}
 var last={};function pick(k,ids){var i;do{i=ids[Math.floor(Math.random()*ids.length)]}while(ids.length>1&&i===last[k]);last[k]=i;return i}
-var CHEER=[1,2,3,4,5],NUDGE=[6,9,10,11],run=0;
+var CHEER=[1,2,3,4,5],NUDGE=[6,9,10,11],run=0,lastMiss=0;
 
 function react(e,p){p=p||{};
  if(e==='quick_answer'){if(p.where==='home')bump('q');else if(p.correct)bump('n');if(p.correct)show(['cheer',900,'thumbs'],pick('c',[2,4,5]),0,'yay');else show(['thumbs'],0,'There it is. Read the why underneath.','ok');return}
  if(e==='quick_miss'){show(['oops',1100,'point'],0,'Not that one. Try another.','uhoh');return}
  if((e==='tb_attempt'||e==='rush_answer')&&p.correct)bump('n');
- if(e==='tb_attempt'){if(p.correct){run++;show(['cheer',900,'thumbs'],pick('c',run===1?CHEER:[2,3,4,5]),0,'yay')}else{run=0;var ids=NUDGE.slice();if(/implicit|backward|crank/i.test((p.label||'')+(p.item||'')))ids.push(7);if(/gauss|pivot|jordan/i.test((p.label||'')+(p.item||'')+(p.miss_tag||'')))ids.push(8);show(['oops',1100,'point'],pick('n',ids),0,'uhoh')}}
+ if(e==='tb_miss'){run=0;if(Date.now()-lastMiss>7000){lastMiss=Date.now();var ids=NUDGE.slice();show(['oops',1100,'point'],pick('n',ids),0,'uhoh')}else quick('oops');return}
+ if(e==='tb_attempt'){if(p.correct){run++;show(['cheer',900,'thumbs'],pick('c',run===1?CHEER:[2,3,4,5]),0,'yay')}else{run=0;show(['thumbs'],0,'There it is. Keep going.','ok')}}
  else if(e==='tb_drill_passed'||e==='tb_guide_landed')later(2600,function(){show(['rocket'],17,0,'fanfare')});
  else if(e==='mission_complete'){if(p.missions_total&&p.missions_done>=p.missions_total)show(['cheer',900,'rocket'],15,0,'fanfare');else show(['cheer',900,'thumbs'],5,0,'yay')}
  else if(e==='rush_answer')quick(p.correct?'thumbs':'oops');
@@ -94,16 +106,36 @@ function react(e,p){p=p||{};
  else if(e==='rush_finish')show(['cheer',900,'thumbs'],14,0,'yay')}
 window.mcTrack=function(e,p){try{track0(e,p)}catch(_){}try{react(e,p)}catch(_){}};
 
-function greet(){var today=day(new Date()),first=st.seen!==today;
+function tuck(){var t=0;
+ document.addEventListener('focusin',function(e){var x=e.target;if(x&&/^(INPUT|TEXTAREA|SELECT)$/.test(x.tagName)&&!el.contains(x)){clearTimeout(t);el.classList.add('tuck')}});
+ document.addEventListener('focusout',function(){clearTimeout(t);t=setTimeout(function(){el.classList.remove('tuck')},250)})}
+function ask(){var f=el.querySelector('.dvq'),ta=f.querySelector('textarea'),kind='question';
+ function close(){f.hidden=true}
+ el.querySelector('.dva').onclick=function(){f.hidden=!f.hidden;if(!f.hidden){el.classList.remove('on');try{ta.focus()}catch(e){}}};
+ f.querySelector('.dvc2').onclick=close;
+ [].forEach.call(f.querySelectorAll('.dvt button'),function(b){b.onclick=function(){kind=b.dataset.k;[].forEach.call(f.querySelectorAll('.dvt button'),function(x){x.setAttribute('aria-pressed',x===b)})}});
+ f.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+ f.onsubmit=function(e){e.preventDefault();var t=ta.value.replace(/\s+/g,' ').trim();if(t.length<3){ta.focus();return}
+  var today=day(new Date());if(!st.fb||st.fb.d!==today)st.fb={d:today,n:0};
+  if(st.fb.n>=5){close();show(['thumbs'],0,'That is plenty for today. Thank you!');return}
+  st.fb.n++;save();track0('coach_feedback',{kind:kind,text:t.slice(0,400),page:(location.pathname.split('/').pop()||'index.html')});
+  ta.value='';close();show(['thumbs'],0,kind==='question'?'Got it. I answer the common ones in class or on Ed.':'Thanks! That helps me make this better.','ok')}}
+function greet(){var today=day(new Date()),first=st.seen!==today,newbie=!st.days.length;
  if(st.days.indexOf(today)<0){st.days.push(today);st.days=st.days.slice(-60)}
  st.seen=today;save();if(!first)return;
- var n=streak(),d=Math.ceil((EXAM-new Date())/864e5);
- if(n>=2)show(['rocket'],13,0,'yay');else show(['wave'],pick('w',[18,19,20]),0,'hi');
- if(d>0&&d<=21)later(5200,function(){show(['point'],0,d+(d===1?' day':' days')+' to Exam 5. Let’s make today count.')})}
+ var n=streak(),d=Math.ceil((EXAM-new Date())/864e5),qcard=document.getElementById('dqQ'),qopen=qcard&&!mis().q;
+ function nudgeQ(){if(qcard){qcard.classList.remove('dqpulse');void qcard.offsetWidth;qcard.classList.add('dqpulse')}}
+ if(newbie){if(qopen){show(['wave'],0,'Hi, I\u2019m Dr. VJ! Start with the question of the day, up top. One tap.','hi');nudgeQ()}
+  else show(['wave'],0,'Hi, I\u2019m Dr. VJ! I\u2019ll cheer you on. Tap ? if you want to ask me something.','hi')}
+ else if(n>=2)show(['rocket'],13,0,'yay');
+ else if(qopen){show(['wave'],0,'You\u2019re back! Today\u2019s question is waiting up top.','hi');nudgeQ()}
+ else show(['wave'],pick('w',[18,19,20]),0,'hi');
+ if(!newbie&&d>0&&d<=21)later(5600,function(){show(['point'],0,d+(d===1?' day':' days')+' to Exam 5. Let\u2019s make today count.')})}
 function init(){rig=el.querySelector('.dvr');say=el.querySelector('.dvb span');
  if(st.hidden)el.classList.add('hid');
- el.querySelector('.dvx').onclick=function(){st.hidden=true;save();el.classList.add('hid');track0('coach_hidden',{})};
- el.querySelector('.dvk').onclick=function(){st.hidden=false;save();el.classList.remove('hid');show(['wave'],20,0,'hi')};
- requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,900);
+ el.querySelector('.dvx').onclick=function(){st.hidden=true;save();el.classList.add('hid');track0('coach_hidden',{page:(location.pathname.split('/').pop()||'index.html'),narrow:innerWidth<=640})};
+ ask();
+ el.querySelector('.dvk').onclick=function(){st.hidden=false;save();el.classList.remove('hid');track0('coach_shown',{});show(['wave'],20,0,'hi')};
+ requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,1500);tuck();
  var ps=document.createElement('script');ps.src=BASE+'play.js'+V;document.head.appendChild(ps)}
 })();
