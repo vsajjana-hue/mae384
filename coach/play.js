@@ -101,7 +101,7 @@ function quick(host,item,where,label,after){
 function readiness(){var done=S.get('done:tb',[]),stats=S.get('tb:stats',{}),ok=S.get('quick:ok',{}),out=[];
  for(var i=0;i<9;i++){var id='m'+(i+1),stars=['d','l','b'].filter(function(k){return done.indexOf(id+k)>=0}).length,a=0,c=0;
   for(var k in stats){var e=stats[k];if(e&&e.m===i){a+=e.a||0;c+=e.c||0}}
-  var pct=i===8?Math.round(60*Math.min(1,S.get('done:m9',[]).length/5)+40*Math.min(1,(ok[id]||0)/5)):Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
+  var pct=i===8?Math.round(40*stars/3+20*Math.min(1,a/10)*(a?c/a:0)+25*Math.min(1,S.get('done:m9',[]).length/5)+15*Math.min(1,(ok[id]||0)/5)):Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
  return out}
 function home(){var app=document.querySelector('.app'),banner=app&&app.querySelector('.banner');if(!banner||document.getElementById('drvjHome'))return;
  var sec=document.createElement('section');sec.id='drvjHome';
@@ -123,11 +123,11 @@ function home(){var app=document.querySelector('.app'),banner=app&&app.querySele
   +'<div class="chips"><span>🔥 '+m.streak+'-day streak</span>'+(d>0?'<span>'+d+(d===1?' day':' days')+' to Exam 5</span>':'')+'</div>';remindUI(el)}
  mission();window.addEventListener('drvj:mission',mission);
  var r=sec.querySelector('#dqR'),R=readiness(),avg=Math.round(R.reduce(function(a,b){return a+b},0)/R.length);
- r.innerHTML='<div class="k">Exam 5 readiness · '+avg+'% overall</div><div class="bars">'+R.map(function(p,i){return '<button type="button" class="bar" data-i="'+i+'"><span>M'+(i+1)+' · '+NAMES[i]+'</span><b>'+p+'%</b><u><i style="width:'+p+'%"></i></u></button>'}).join('')+'</div><small>Each bar fills as you practise that module: warm-ups, drills, guided solves and bug hunts. Tap a bar to practise it.</small><div id="dqN" hidden></div>';
+ r.innerHTML='<div class="k">Exam 5 readiness · '+avg+'% overall</div><div class="bars">'+R.map(function(p,i){return '<button type="button" class="bar" data-i="'+i+'"><span>M'+(i+1)+' · '+NAMES[i]+'</span><b>'+p+'%</b><u><i style="width:'+p+'%"></i></u></button>'}).join('')+'</div><small>Each bar fills as you practice that module: warm-ups, drills, guided solves and bug hunts. Tap a bar to practice it.</small><div id="dqN" hidden></div>';
  var nine=r.querySelector('#dqN'),last9=null;
  function m9(){var pool=BANK.filter(function(b){return b.m===9&&b!==last9});last9=pool[Math.floor(Math.random()*pool.length)];nine.hidden=false;nine.className='dq';nine.style.cssText='background:var(--panel2);border-bottom:0;margin-top:6px';
   quick(nine,last9,'home9','Module 9 warm-up',function(){var b=document.createElement('button');b.type='button';b.className='more';b.textContent='Another Module 9 question ▸';b.onclick=m9;nine.appendChild(b);var R2=readiness(),bar=r.querySelector('.bar[data-i="8"]');if(bar){bar.querySelector('b').textContent=R2[8]+'%';bar.querySelector('u i').style.width=R2[8]+'%'}})}
- [].forEach.call(r.querySelectorAll('.bar'),function(b){b.onclick=function(){var i=+b.dataset.i;track('readiness_click',{module:'m'+(i+1)});if(i===8){m9();nine.scrollIntoView({behavior:'smooth',block:'nearest'});return}S.set('tb:mod',i);location.href='tb.html'}});
+ [].forEach.call(r.querySelectorAll('.bar'),function(b){b.onclick=function(){var i=+b.dataset.i;track('readiness_click',{module:'m'+(i+1)});S.set('tb:mod',i);location.href='tb.html'}});
  fold()}
 
 /* ---------- reminders and install ---------- */
