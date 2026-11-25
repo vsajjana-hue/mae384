@@ -21,8 +21,8 @@ window.DrVJ={mission:function(){var m=mis();return{q:m.q,n:m.n,done:m.done,strea
 
 var css='#drvj{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:60;pointer-events:none;font:600 14px/1.35 system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:flex-end;gap:6px}'
 +'#drvj *{box-sizing:border-box}'
-+'#drvj .dvf{position:relative;width:112px;aspect-ratio:500/820;transition:width .28s cubic-bezier(.3,1.4,.5,1);transform-origin:50% 100%;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}'
-+'#drvj.on .dvf{width:200px}'
++'#drvj .dvf{position:relative;width:84px;aspect-ratio:500/820;transition:width .28s cubic-bezier(.3,1.4,.5,1);transform-origin:50% 100%;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}'
++'#drvj.on .dvf{width:150px}'
 +'#drvj .dvf img{position:absolute;inset:0;width:100%;height:100%;opacity:0;max-width:none}'
 +'#drvj .dvr{position:absolute;inset:0;transform-origin:50% 97%;animation:drvjB 3.2s ease-in-out infinite}'
 +'#drvj.pop .dvr{animation:drvjP .55s cubic-bezier(.3,1.5,.5,1)}'
@@ -37,7 +37,8 @@ var css='#drvj{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bot
 +''
 +'#drvj.hid .dvf,#drvj.hid .dvb{display:none}'
 +'#drvj .dvq{pointer-events:auto;position:absolute;right:0;bottom:calc(100% + 8px);width:min(300px,calc(100vw - 24px));background:#fffaf0;color:#14213d;border:2px solid #ffb86b;border-radius:16px;padding:12px;box-shadow:0 10px 26px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:8px;font-weight:600}'
-+'#drvj .dvq[hidden]{display:none}'
++'#drvj .dvq[hidden],#drvj .dvans[hidden]{display:none}'
++'#drvj .dvans{background:#fff;border:2px solid #d5dcef;border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;max-height:42vh;overflow:auto}#drvj .dvans p{margin:0;font-weight:500;font-size:14px;line-height:1.45}'
 +'#drvj .dvq b{font-size:15px}#drvj .dvq small{font-size:12px;font-weight:500;line-height:1.35;color:#4a5578}'
 +'#drvj .dvq textarea{font:500 15px/1.4 inherit;font-family:inherit;width:100%;border:2px solid #d5dcef;border-radius:10px;padding:8px;resize:vertical;color:#14213d;background:#fff}'
 +'#drvj .dvq textarea:focus{outline:3px solid #ffd166;border-color:#ffb86b}'
@@ -56,7 +57,7 @@ var imgs='';POSES.forEach(function(p){imgs+='<img data-p="'+p+'" alt="" src="'+B
 el.innerHTML='<style>'+css+'</style><div class="dvb" role="status" aria-live="polite"><b>Dr. VJ</b><span></span></div>'
 +'<div class="dvf"><div class="dvr">'+imgs+'</div><div class="dvc"><button type="button" class="dva" aria-label="Ask Dr. VJ or send feedback" title="Ask or send feedback">?</button><button type="button" class="dvx" aria-label="Hide Dr. VJ" title="Hide">×</button></div></div>'
 +'<button type="button" class="dvk" aria-label="Show Dr. VJ">Dr. VJ</button>'
-+'<form class="dvq" hidden><b>Tell Dr. VJ</b><div class="dvt" role="group" aria-label="What is it about"><button type="button" data-k="question" aria-pressed="true">A question</button><button type="button" data-k="broken" aria-pressed="false">Something\u2019s broken</button><button type="button" data-k="idea" aria-pressed="false">An idea</button></div><textarea maxlength="400" rows="4" aria-label="Your message" placeholder="Type here\u2026"></textarea><small>Anonymous: please leave out your name and ID. Dr. VJ reads these and answers common questions in class or on Ed.</small><div class="dvs"><button type="button" class="dvc2">Cancel</button><button type="submit" class="dvgo">Send</button></div></form>';
++'<form class="dvq" hidden><b>Tell Dr. VJ</b><div class="dvt" role="group" aria-label="What is it about"><button type="button" data-k="question" aria-pressed="true">A question</button><button type="button" data-k="broken" aria-pressed="false">Something\u2019s broken</button><button type="button" data-k="idea" aria-pressed="false">An idea</button></div><textarea maxlength="400" rows="4" aria-label="Your message" placeholder="Type here\u2026"></textarea><div class="dvans" hidden><b></b><p></p><div class="dvs"><button type="button" class="dvno">Not what I needed</button><button type="button" class="dvyes">That helped</button></div></div><small>I answer course questions from my notes. Anything I can\u2019t answer goes to Dr. VJ anonymously, so leave out your name and ID.</small><div class="dvs"><button type="button" class="dvc2">Cancel</button><button type="submit" class="dvgo">Ask</button></div></form>';
 function mount(){document.body.appendChild(el);init()}
 if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
 
@@ -97,8 +98,8 @@ function react(e,p){p=p||{};
  if(e==='quick_answer'){if(p.where==='home')bump('q');else if(p.correct)bump('n');if(p.correct)show(['cheer',900,'thumbs'],pick('c',[2,4,5]),0,'yay');else show(['thumbs'],0,'There it is. Read the why underneath.','ok');return}
  if(e==='quick_miss'){show(['oops',1100,'point'],0,'Not that one. Try another.','uhoh');return}
  if((e==='tb_attempt'||e==='rush_answer')&&p.correct)bump('n');
- if(e==='tb_miss'){run=0;if(Date.now()-lastMiss>7000){lastMiss=Date.now();var ids=NUDGE.slice();show(['oops',1100,'point'],pick('n',ids),0,'uhoh')}else quick('oops');return}
- if(e==='tb_attempt'){if(p.correct){run++;show(['cheer',900,'thumbs'],pick('c',run===1?CHEER:[2,3,4,5]),0,'yay')}else{run=0;show(['thumbs'],0,'There it is. Keep going.','ok')}}
+ if(e==='tb_miss'){run=0;if(Date.now()-lastMiss>20000){lastMiss=Date.now();var ids=NUDGE.slice();show(['oops',1100,'point'],pick('n',ids),0,'uhoh')}else quick('oops');return}
+ if(e==='tb_attempt'){if(p.correct){run++;if(run===1||run%3===0)show(['cheer',900,'thumbs'],pick('c',run===1?CHEER:[2,3,4,5]),0,'yay');else quick('thumbs')}else{run=0;show(['thumbs'],0,'There it is. Keep going.','ok')}}
  else if(e==='tb_drill_passed'||e==='tb_guide_landed')later(2600,function(){show(['rocket'],17,0,'fanfare')});
  else if(e==='mission_complete'){if(p.missions_total&&p.missions_done>=p.missions_total)show(['cheer',900,'rocket'],15,0,'fanfare');else show(['cheer',900,'thumbs'],5,0,'yay')}
  else if(e==='rush_answer')quick(p.correct?'thumbs':'oops');
@@ -109,17 +110,27 @@ window.mcTrack=function(e,p){try{track0(e,p)}catch(_){}try{react(e,p)}catch(_){}
 function tuck(){var t=0;
  document.addEventListener('focusin',function(e){var x=e.target;if(x&&/^(INPUT|TEXTAREA|SELECT)$/.test(x.tagName)&&!el.contains(x)){clearTimeout(t);el.classList.add('tuck')}});
  document.addEventListener('focusout',function(){clearTimeout(t);t=setTimeout(function(){el.classList.remove('tuck')},250)})}
-function ask(){var f=el.querySelector('.dvq'),ta=f.querySelector('textarea'),kind='question';
- function close(){f.hidden=true}
- el.querySelector('.dva').onclick=function(){f.hidden=!f.hidden;if(!f.hidden){el.classList.remove('on');try{ta.focus()}catch(e){}}};
+function ask(){var f=el.querySelector('.dvq'),ta=f.querySelector('textarea'),go=f.querySelector('.dvgo'),ans=f.querySelector('.dvans'),kind='question',lastQ='',lastHit=null,loaded=false;
+ function page(){return location.pathname.split('/').pop()||'index.html'}
+ function reset(){ans.hidden=true;go.textContent=kind==='question'?'Ask':'Send'}
+ function close(){f.hidden=true;reset()}
+ function load(){if(loaded)return;loaded=true;var a=document.createElement('script');a.src=BASE+'ask.js'+V;document.head.appendChild(a)}
+ function allow(){var today=day(new Date());if(!st.fb||st.fb.d!==today)st.fb={d:today,n:0};if(st.fb.n>=8){close();show(['thumbs'],0,'That is plenty for today. Thank you!');return false}st.fb.n++;save();return true}
+ function send(text,why){track0('coach_feedback',{kind:kind,text:text.slice(0,400),page:page(),reason:why||''})}
+ el.querySelector('.dva').onclick=function(){f.hidden=!f.hidden;if(!f.hidden){load();el.classList.remove('on');reset();try{ta.focus()}catch(e){}}};
  f.querySelector('.dvc2').onclick=close;
- [].forEach.call(f.querySelectorAll('.dvt button'),function(b){b.onclick=function(){kind=b.dataset.k;[].forEach.call(f.querySelectorAll('.dvt button'),function(x){x.setAttribute('aria-pressed',x===b)})}});
+ [].forEach.call(f.querySelectorAll('.dvt button'),function(b){b.onclick=function(){kind=b.dataset.k;[].forEach.call(f.querySelectorAll('.dvt button'),function(x){x.setAttribute('aria-pressed',x===b)});reset()}});
  f.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+ ta.addEventListener('input',function(){if(!ans.hidden)reset()});
+ f.querySelector('.dvyes').onclick=function(){track0('ask_helpful',{hit:lastHit,helpful:true});ta.value='';close();show(['thumbs'],0,'Glad that helped. Keep going!','ok')};
+ f.querySelector('.dvno').onclick=function(){track0('ask_helpful',{hit:lastHit,helpful:false});send(lastQ,'answer did not help');ta.value='';close();show(['point'],0,'Okay. I\u2019ve passed your question to Dr. VJ. He answers the common ones in class or on Ed.','ok')};
  f.onsubmit=function(e){e.preventDefault();var t=ta.value.replace(/\s+/g,' ').trim();if(t.length<3){ta.focus();return}
-  var today=day(new Date());if(!st.fb||st.fb.d!==today)st.fb={d:today,n:0};
-  if(st.fb.n>=5){close();show(['thumbs'],0,'That is plenty for today. Thank you!');return}
-  st.fb.n++;save();track0('coach_feedback',{kind:kind,text:t.slice(0,400),page:(location.pathname.split('/').pop()||'index.html')});
-  ta.value='';close();show(['thumbs'],0,kind==='question'?'Got it. I answer the common ones in class or on Ed.':'Thanks! That helps me make this better.','ok')}}
+  if(!allow())return;
+  if(kind!=='question'){send(t);ta.value='';close();show(['thumbs'],0,'Thanks! That helps me make this better.','ok');return}
+  var hit=null;try{hit=window.DrVJAsk?window.DrVJAsk(t):null}catch(_){}
+  lastQ=t;lastHit=hit?hit.id:null;track0('ask_query',{text:t.slice(0,400),hit:lastHit,page:page()});
+  if(hit){ans.querySelector('b').textContent=hit.q;ans.querySelector('p').textContent=hit.a;ans.hidden=false;go.textContent='Ask again';tm.forEach(clearTimeout);tm=[];pose('point');babble(0,8);later(1500,function(){cur='idle';talkUntil=performance.now()+1500})}
+  else{send(t,'no scripted answer');ta.value='';close();show(['think',1200,'point'],0,'I don\u2019t have that one in my notes yet, so I\u2019ve passed it to Dr. VJ. He answers the common ones in class or on Ed.','ok')}}}
 function greet(){var today=day(new Date()),first=st.seen!==today,newbie=!st.days.length;
  if(st.days.indexOf(today)<0){st.days.push(today);st.days=st.days.slice(-60)}
  st.seen=today;save();if(!first)return;
@@ -137,5 +148,8 @@ function init(){rig=el.querySelector('.dvr');say=el.querySelector('.dvb span');
  ask();
  el.querySelector('.dvk').onclick=function(){st.hidden=false;save();el.classList.remove('hid');track0('coach_shown',{});show(['wave'],20,0,'hi')};
  requestAnimationFrame(frame);setTimeout(lazy,1200);setTimeout(greet,1500);tuck();
- var ps=document.createElement('script');ps.src=BASE+'play.js'+V;document.head.appendChild(ps)}
+ var ps=document.createElement('script');ps.src=BASE+'play.js'+V;document.head.appendChild(ps);
+ try{var mf=document.createElement('link');mf.rel='manifest';mf.href=BASE+'manifest.webmanifest';document.head.appendChild(mf);
+  var ic=document.createElement('link');ic.rel='apple-touch-icon';ic.href=BASE+'icon-192.png';document.head.appendChild(ic);
+  var mt=document.createElement('meta');mt.name='apple-mobile-web-app-title';mt.content='Mission Control';document.head.appendChild(mt)}catch(e){}}
 })();

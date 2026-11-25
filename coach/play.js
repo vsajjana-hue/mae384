@@ -6,7 +6,8 @@ var EXAM=new Date(2026,11,3);
 var S={get:function(k,d){try{var v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
 function day(d){d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function track(e,p){try{window.mcTrack&&window.mcTrack(e,p)}catch(_){}}
-var NAMES=['Precision','Linear systems','Root finding','Curve fitting','Derivatives','Integration','ODEs','PDEs'];
+var NAMES=['Precision','Linear systems','Root finding','Curve fitting','Derivatives','Integration','ODEs','PDEs','Fourier'];
+var SITE='https://vsajjana-hue.github.io/mae384/';
 /* first option is the right one; options are shuffled when shown */
 var BANK=[
 {m:1,q:'A computer stores the decimal 0.1 in binary. What happens?',o:['It is stored approximately: 0.1 has no finite binary expansion','It is stored exactly','It is stored as the fraction 1/10','It is rounded to 0'],w:'In base 2, 0.1 repeats forever, so it gets cut off. That tiny error is what added up in the Patriot clock.'},
@@ -32,6 +33,20 @@ var BANK=[
 {m:7,q:'You halve h in classical RK4. The global error drops by about a factor of…',o:['16','4','2','8'],w:'RK4 is fourth-order: (1/2)⁴ = 1/16.'},
 {m:8,q:'The explicit scheme for the heat equation is stable when r = K Δt / Δx² is…',o:['at most 1/2','at least 1/2','exactly 1','any positive value'],w:'Go above 1/2 and the solution oscillates and blows up.'},
 {m:8,q:'At the corner x = 0, t = 0 of a heat problem, which condition do you use?',o:['The boundary condition','The initial condition','The average of the two','Neither'],w:'The initial condition applies inside the domain (0 < x < L). Boundary conditions apply at the ends, including at t = 0.'},
+{m:9,q:'You sample a signal at 500 Hz for 20 s. What is the highest frequency you can detect?',o:['250 Hz','500 Hz','1000 Hz','20 Hz'],w:'Nyquist: you must sample at least twice the frequency you want to see, so the limit is half the sampling frequency.'},
+{m:9,q:'You sample a signal at 500 Hz for 20 s. What is the lowest nonzero frequency you can detect?',o:['1/20 Hz','1/500 Hz','20 Hz','250 Hz'],w:'To see a frequency f you must record for at least one period, 1/f. A 20 s record gives F = 1/T = 1/20 Hz.'},
+{m:9,q:'A gearbox signal has useful content from 0.5 Hz to 250 Hz. What is the minimum measurement you need?',o:['500 Hz for 2 s','250 Hz for 0.5 s','500 Hz for 0.5 s','250 Hz for 2 s'],w:'Sample at twice the highest frequency (2 × 250 = 500 Hz) and record for one period of the lowest (1/0.5 = 2 s).'},
+{m:9,q:'You sample at 400 Hz for 10 s. The dominant signal is 40 Hz. What is its wave number k?',o:['400','40','4','10'],w:'F = 1/T = 1/10 Hz, so k = f/F = 40 × 10 = 400. The sampling rate does not enter.'},
+{m:9,q:'A probe records every 0.01 s from 0 s to 5 s. The power at k = 1 belongs to which frequency?',o:['0.2 Hz','1 Hz','5 Hz','100 Hz'],w:'k = 1 is the fundamental frequency F = 1/T = 1/5 Hz. The time step only sets how high you can go.'},
+{m:9,q:'You repeat a measurement of the same process but record twice as long. Which quantity stays the same?',o:['The frequency of the dominant signal','Its wave number k','The fundamental frequency F','The fundamental period T'],w:'T doubles, so F halves and k = f/F doubles. The physical frequency of the signal does not change.'},
+{m:9,q:'Same record length, but you sample twice as fast. What happens to the wave number k of the dominant signal?',o:['It stays the same','It doubles','It halves','It becomes N/2'],w:'k = f·T. Neither f nor T changed. Sampling faster only adds higher wave numbers you can resolve.'},
+{m:9,q:'You have N = 100 unique, equally spaced points. What is the maximum wave number?',o:['50','100','101','25'],w:'k_max = N/2. The last point repeats the first one, so it is not unique.'},
+{m:9,q:'Y = 7 + 10 sin(7ωt) + 3 cos(7ωt) + …, sampled with N = 100 unique points. What is the power at k = 7?',o:['109/200','109/2','13/200','109/100'],w:'P_k = (a_k² + b_k²)/(2N) = (3² + 10²)/(2·100) = 109/200.'},
+{m:9,q:'For Y = 7 + 2 sin(ωt) + cos(3ωt), what does the DFT give for a_0?',o:['7','0','14','9'],w:'a_0 is the mean of the data. Every sine and cosine averages to zero over a full period, so only the 7 is left.'},
+{m:9,q:'To find a 600 Hz pressure fluctuation, how many measurements per second? (Only these choices are available.)',o:['2400','600','300','None of these'],w:'You need at least 2 × 600 = 1200 per second. Of the choices, only 2400 meets that minimum.'},
+{m:9,q:'A 2 s recording has a 60 Hz hum. Which coefficients do you scale toward zero to remove it?',o:['a_120 and b_120','a_60 and b_60','a_30 and b_30','a_0'],w:'First find the wave number: k = f/F = 60 × 2 = 120. Then multiply a_k and b_k by α < 1 and rebuild the signal.'},
+{m:9,q:'Your data set has a jump (it is not periodic over the record). How does its power spectrum look?',o:['Power decays slowly and spreads over many frequencies','A single sharp peak','Power drops to zero after k = 1','Exactly the same as without the jump'],w:'A jump needs many sines to build, so power leaks across the whole spectrum instead of falling off quickly.'},
+{m:9,q:'A signal is the sum of a 5 Hz sine and a 12 Hz sine. Its power spectrum shows…',o:['two peaks, at 5 Hz and 12 Hz','one peak, at 17 Hz','one peak, at 8.5 Hz','one peak, at 7 Hz'],w:'The transform separates a signal into the frequencies it contains. It does not add or average them.'},
 {m:8,q:'In the upwind scheme with positive wave speed c, the spatial difference uses…',o:['the point the flow is coming from (i − 1)','the point downstream (i + 1)','both neighbours equally','only the point i'],w:'Information travels with the flow, so you look upstream.'}
 ];
 function shuffle(a,seed){a=a.slice();var r=function(){seed=(seed*9301+49297)%233280;return seed/233280};for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
@@ -61,6 +76,9 @@ var css='.dq{background:var(--panel);color:var(--ink);border-radius:18px;padding
 +'.dq .bar u{grid-column:1/-1;display:block;height:9px;border-radius:9px;background:var(--panel2);overflow:hidden;text-decoration:none}'
 +'.dq .bar u i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--heat),var(--sun))}'
 +'.dq small{color:var(--muted);font-size:.85rem;line-height:1.35}'
++'.rem{display:flex;flex-direction:column;gap:6px}.rem .remp{display:flex;flex-direction:column;gap:8px}.rem .remp[hidden]{display:none}.rem .chips button,.rem .cal{background:var(--panel2);color:var(--ink);border-radius:999px;padding:6px 12px;font-weight:800;font-size:.85rem;min-height:0;text-decoration:none;cursor:pointer;border:0}.rem .chips button[aria-pressed="true"]{background:var(--heat);color:#fff}.rem .cal{outline:2px solid var(--heat)}@media(min-width:641px){.rem .inst{display:none}}'
++'#dqFold{margin-top:4px}#dqFold>summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:12px 16px;background:var(--panel);border-radius:14px;list-style-position:inside}#dqFold[open]>summary{margin-bottom:12px}'
++'#dqK{position:absolute;z-index:55;display:flex;gap:6px;background:var(--panel,#fff);padding:6px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.28)}#dqK[hidden]{display:none}#dqK button{min-width:40px;min-height:40px;border-radius:9px;background:var(--panel2,#e8ecf8);color:var(--ink,#14213d);font:800 18px/1 system-ui,sans-serif;border:0;padding:0 8px}#dqK button[data-m]{font-size:13px;background:var(--heat,#e2570f);color:#fff}'
 +'@keyframes dqflash{0%{background:var(--sun)}100%{background:transparent}}.dqflash{animation:dqflash .9s ease-out;border-radius:8px}'
 +'@media(max-width:640px){#drvjHome .two{grid-template-columns:1fr}.dq .bars{grid-template-columns:1fr}}';
 var stl=document.createElement('style');stl.textContent=css;document.head.appendChild(stl);
@@ -81,9 +99,9 @@ function quick(host,item,where,label,after){
 
 /* ---------- home page ---------- */
 function readiness(){var done=S.get('done:tb',[]),stats=S.get('tb:stats',{}),ok=S.get('quick:ok',{}),out=[];
- for(var i=0;i<8;i++){var id='m'+(i+1),stars=['d','l','b'].filter(function(k){return done.indexOf(id+k)>=0}).length,a=0,c=0;
+ for(var i=0;i<9;i++){var id='m'+(i+1),stars=['d','l','b'].filter(function(k){return done.indexOf(id+k)>=0}).length,a=0,c=0;
   for(var k in stats){var e=stats[k];if(e&&e.m===i){a+=e.a||0;c+=e.c||0}}
-  var pct=Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
+  var pct=i===8?Math.round(100*Math.min(1,(ok[id]||0)/5)):Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
  return out}
 function home(){var app=document.querySelector('.app'),banner=app&&app.querySelector('.banner');if(!banner||document.getElementById('drvjHome'))return;
  var sec=document.createElement('section');sec.id='drvjHome';
@@ -102,11 +120,60 @@ function home(){var app=document.querySelector('.app'),banner=app&&app.querySele
   +'<ul><li class="'+(m.q?'done':'')+'"><i>'+(m.q?'✓':'1')+'</i><span>Answer the question of the day</span></li>'
   +'<li class="'+(m.n>=3?'done':'')+'"><i>'+(m.n>=3?'✓':'2')+'</i><span>Get 3 right in Training Bay or Method Rush <b>('+Math.min(3,m.n)+'/3)</b></span></li></ul>'
   +'<a class="more" href="rush.html">Daily challenge in Method Rush ▸</a>'
-  +'<div class="chips"><span>🔥 '+m.streak+'-day streak</span>'+(d>0?'<span>'+d+(d===1?' day':' days')+' to Exam 5</span>':'')+'</div>'}
+  +'<div class="chips"><span>🔥 '+m.streak+'-day streak</span>'+(d>0?'<span>'+d+(d===1?' day':' days')+' to Exam 5</span>':'')+'</div>';remindUI(el)}
  mission();window.addEventListener('drvj:mission',mission);
- var r=sec.querySelector('#dqR'),R=readiness(),avg=Math.round(R.reduce(function(a,b){return a+b},0)/8);
- r.innerHTML='<div class="k">Exam 5 readiness · '+avg+'% overall</div><div class="bars">'+R.map(function(p,i){return '<button type="button" class="bar" data-i="'+i+'"><span>M'+(i+1)+' · '+NAMES[i]+'</span><b>'+p+'%</b><u><i style="width:'+p+'%"></i></u></button>'}).join('')+'</div><small>Each bar fills as you practise that module: warm-ups, drills, guided solves and bug hunts. Tap a bar to practise it.</small>';
- [].forEach.call(r.querySelectorAll('.bar'),function(b){b.onclick=function(){S.set('tb:mod',+b.dataset.i);track('readiness_click',{module:'m'+(+b.dataset.i+1)});location.href='tb.html'}})}
+ var r=sec.querySelector('#dqR'),R=readiness(),avg=Math.round(R.reduce(function(a,b){return a+b},0)/R.length);
+ r.innerHTML='<div class="k">Exam 5 readiness · '+avg+'% overall</div><div class="bars">'+R.map(function(p,i){return '<button type="button" class="bar" data-i="'+i+'"><span>M'+(i+1)+' · '+NAMES[i]+'</span><b>'+p+'%</b><u><i style="width:'+p+'%"></i></u></button>'}).join('')+'</div><small>Each bar fills as you practise that module: warm-ups, drills, guided solves and bug hunts. Tap a bar to practise it.</small><div id="dqN" hidden></div>';
+ var nine=r.querySelector('#dqN'),last9=null;
+ function m9(){var pool=BANK.filter(function(b){return b.m===9&&b!==last9});last9=pool[Math.floor(Math.random()*pool.length)];nine.hidden=false;nine.className='dq';nine.style.cssText='background:var(--panel2);border-bottom:0;margin-top:6px';
+  quick(nine,last9,'home9','Module 9 warm-up',function(){var b=document.createElement('button');b.type='button';b.className='more';b.textContent='Another Module 9 question ▸';b.onclick=m9;nine.appendChild(b);var R2=readiness(),bar=r.querySelector('.bar[data-i="8"]');if(bar){bar.querySelector('b').textContent=R2[8]+'%';bar.querySelector('u i').style.width=R2[8]+'%'}})}
+ [].forEach.call(r.querySelectorAll('.bar'),function(b){b.onclick=function(){var i=+b.dataset.i;track('readiness_click',{module:'m'+(i+1)});if(i===8){m9();nine.scrollIntoView({behavior:'smooth',block:'nearest'});return}S.set('tb:mod',i);location.href='tb.html'}});
+ fold()}
+
+/* ---------- reminders and install ---------- */
+function pad(n){return(n<10?'0':'')+n}
+function stamp(d,h){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(h)+'0000'}
+function remindUI(host){var box=document.createElement('div');box.className='rem';
+ box.innerHTML='<button type="button" class="more" aria-expanded="false">⏰ Remind me daily ▸</button><div class="remp" hidden><small>Adds a 10-minute daily event to your own calendar, ending the night before Exam 5. Pick a time:</small><div class="chips" role="group" aria-label="Reminder time"><button type="button" data-h="9" aria-pressed="false">9 am</button><button type="button" data-h="16" aria-pressed="false">4 pm</button><button type="button" data-h="20" aria-pressed="true">8 pm</button></div><div class="chips"><a class="cal" data-k="ics">Apple or Outlook calendar</a><a class="cal" data-k="google" target="_blank" rel="noopener">Google Calendar</a></div><small class="inst">On a phone you can also add this site to your home screen: in Safari tap Share, then “Add to Home Screen”; in Chrome open the ⋮ menu and choose “Add to Home screen”.</small></div>';
+ host.appendChild(box);var tg=box.querySelector('.more'),pn=box.querySelector('.remp'),h=20;
+ function links(){var now=new Date(),d=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(now.getHours()>=h)d.setDate(d.getDate()+1);
+  var s0=stamp(d,h),s1=s0.slice(0,11)+'1000',title='MAE 384 Mission Control: today\u2019s mission (5 min)';
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MAE 384//Mission Control//EN','BEGIN:VEVENT','UID:mc-daily-'+s0+'@mae384','DTSTAMP:'+stamp(now,now.getHours())+'Z','DTSTART:'+s0,'DTEND:'+s1,'RRULE:FREQ=DAILY;UNTIL=20261202T235900','SUMMARY:'+title,'DESCRIPTION:Question of the day and three practice problems: '+SITE,'URL:'+SITE,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+title,'TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var a=box.querySelector('[data-k="ics"]');a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);a.setAttribute('download','mission-control-reminder.ics');
+  box.querySelector('[data-k="google"]').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates='+s0+'/'+s1+'&ctz=America/Phoenix&recur='+encodeURIComponent('RRULE:FREQ=DAILY;UNTIL=20261203T065900Z')+'&details='+encodeURIComponent('Question of the day and three practice problems: '+SITE)}
+ tg.onclick=function(){pn.hidden=!pn.hidden;tg.setAttribute('aria-expanded',!pn.hidden);links()};
+ [].forEach.call(box.querySelectorAll('[data-h]'),function(b){b.onclick=function(){h=+b.dataset.h;[].forEach.call(box.querySelectorAll('[data-h]'),function(x){x.setAttribute('aria-pressed',x===b)});links()}});
+ [].forEach.call(box.querySelectorAll('.cal'),function(a){a.addEventListener('click',function(){track('reminder_set',{kind:a.dataset.k,hour:h})})});links()}
+
+/* ---------- shorter home page: practice first, stories folded ---------- */
+function fold(){var cards=document.getElementById('cards');if(!cards||document.getElementById('dqFold'))return;
+ var all=[].slice.call(cards.querySelectorAll('a.card')),keep=[],rest=[];
+ all.forEach(function(c){var h=c.getAttribute('href')||'',go=(c.querySelector('.go')||{}).textContent||'';
+  if(h==='tb.html'||h==='rush.html'||h==='m8.html'||/^Continue/.test(go))keep.push(c);else rest.push(c)});
+ if(rest.length<3)return;
+ keep.sort(function(a,b){var o=function(c){var h=c.getAttribute('href');return h==='tb.html'?0:h==='rush.html'?1:2};return o(a)-o(b)});
+ keep.forEach(function(c){cards.appendChild(c)});
+ var d=document.createElement('details');d.id='dqFold';var open=false;try{open=localStorage.getItem('mae384:foldopen')==='1'}catch(e){}d.open=open;
+ d.innerHTML='<summary>All module stories ('+rest.length+' more)</summary><div class="cards"></div>';
+ var inner=d.querySelector('.cards');rest.forEach(function(c){inner.appendChild(c)});cards.insertAdjacentElement('afterend',d);
+ d.addEventListener('toggle',function(){try{localStorage.setItem('mae384:foldopen',d.open?'1':'0')}catch(e){}if(d.open)track('stories_opened',{})})}
+
+/* ---------- phone keys for typed answers ---------- */
+function keys(){if(!(window.matchMedia&&matchMedia('(pointer:coarse)').matches))return;
+ var bar=document.createElement('div');bar.id='dqK';bar.hidden=true;var cur=null,mode=S.get('keys:mode','num');
+ bar.innerHTML=['−','/','.','^','(',')'].map(function(c){return '<button type="button" data-c="'+(c==='−'?'-':c)+'">'+c+'</button>'}).join('')+'<button type="button" data-m="1"></button>';
+ document.body.appendChild(bar);var mb=bar.querySelector('[data-m]');
+ function apply(){if(cur)cur.setAttribute('inputmode',mode==='num'?'decimal':'text');mb.textContent=mode==='num'?'abc':'123'}
+ function place(){if(!cur)return;var r=cur.getBoundingClientRect();bar.style.top=(window.scrollY+r.bottom+6)+'px';bar.style.left=Math.max(8,Math.min(window.scrollX+r.left,window.scrollX+innerWidth-bar.offsetWidth-8))+'px'}
+ document.addEventListener('focusin',function(e){var t=e.target;if(t&&t.tagName==='INPUT'&&(!t.type||t.type==='text')&&!t.closest('#drvj')&&t.closest('#p_drill,#p_guide,#p_bug')){cur=t;apply();bar.hidden=false;place()}});
+ document.addEventListener('focusout',function(){setTimeout(function(){if(document.activeElement!==cur){bar.hidden=true}},150)});
+ bar.addEventListener('pointerdown',function(e){e.preventDefault()});
+ bar.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||!cur)return;
+  if(b.dataset.m){mode=mode==='num'?'text':'num';S.set('keys:mode',mode);apply();cur.blur();setTimeout(function(){cur.focus()},60);return}
+  var s0=cur.selectionStart==null?cur.value.length:cur.selectionStart,e0=cur.selectionEnd==null?s0:cur.selectionEnd;
+  cur.value=cur.value.slice(0,s0)+b.dataset.c+cur.value.slice(e0);try{cur.setSelectionRange(s0+1,s0+1)}catch(_){}cur.dispatchEvent(new Event('input',{bubbles:true}));cur.focus()});
+ window.addEventListener('scroll',place,{passive:true});window.addEventListener('resize',place)}
+function unused(){[].forEach.call([],function(b){b.onclick=function(){S.set('tb:mod',+b.dataset.i);track('readiness_click',{module:'m'+(+b.dataset.i+1)});location.href='tb.html'}})}
 
 /* ---------- Training Bay ---------- */
 function bay(){var p=document.getElementById('p_drill'),mods=document.getElementById('mods');if(!p||!mods||document.getElementById('dqW'))return;
@@ -122,6 +189,6 @@ function bay(){var p=document.getElementById('p_drill'),mods=document.getElement
  document.addEventListener('focusin',function(e){var t=e.target;if(t&&t.tagName==='INPUT'&&t.classList.contains('bad')){try{t.select()}catch(_){}}});
  document.addEventListener('input',function(e){var t=e.target;if(t&&t.tagName==='INPUT'&&t.classList.contains('bad'))t.classList.remove('bad')})}
 
-function go(){try{home()}catch(e){}try{bay()}catch(e){}}
+function go(){try{home()}catch(e){}try{bay()}catch(e){}try{if(document.getElementById('p_drill'))keys()}catch(e){}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
 })();
