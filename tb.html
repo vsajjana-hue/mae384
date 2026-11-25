@@ -627,7 +627,7 @@ const M6={id:'m6',name:'Integration',title:'Module 6 · Numerical integration',
  drills:[
   {id:'count',name:'Which rule?',sub:'count the intervals',mc:true,gen(){const pts=ri(4,10),N=pts-1,ok13=N%2===0,ok38=N%3===0;
     const right=ok13&&ok38?0:ok13?1:ok38?2:3;const O=['Both Simpson 1/3 and Simpson 3/8','Simpson 1/3 only','Simpson 3/8 only','Neither alone: combine 1/3 on N − 3 intervals with 3/8 on 3'];
-    return {p:`${pts} equally spaced points. Which Simpson rule can cover all of them in one pass?`,opts:O.map((o,i)=>({html:o,ok:i===right,why:i===right?`Right: ${pts} points means N = ${N} intervals.`:`Count intervals, not points: N = ${pts} − 1 = ${N}. Simpson 1/3 needs N even; 3/8 needs N a multiple of 3.`}))}}},
+    return {p:`${pts} equally spaced points. Which Simpson rule can cover all of them in one pass?`,opts:O.map((o,i)=>({html:o,ok:i===right,why:i===right?`Right: ${pts} points means N = ${N} intervals.`:((i===1&&ok13)||(i===2&&ok38))?`That rule does work here, but it is not the only one. N = ${pts} − 1 = ${N} is even and a multiple of 3, so Simpson 1/3 and Simpson 3/8 both cover it. The answer is “Both”.`:`Count intervals, not points: N = ${pts} − 1 = ${N}. Simpson 1/3 needs N even; 3/8 needs N a multiple of 3.`}))}}},
   {id:'trapz',name:'Trapezoid',sub:'weights 1, 2, …, 2, 1',gen(){const h=R([q(1,2),q(1),q(2)]),f=[ri(0,9),ri(0,9),ri(0,9)];
     return {p:`${M(T`f=${f.join(',\\;')}`)} at three equally spaced points, ${M('h='+h.tex())}. Trapezoid rule:`,ans:[trap(f,h)],h:`${M(T`\frac{h}{2}\left[f_1+2f_2+f_3\right]`)}.`}}},
   {id:'simp',name:'Simpson 1/3',sub:'weights 1, 4, 2, …, 4, 1',gen(){const h=R([q(1,2),q(1),q(3)]),f=[ri(0,9),ri(0,9),ri(0,9),ri(0,9),ri(0,9)];
@@ -784,4 +784,4 @@ function renderStats(){const S=st.get('tb:stats',{}),E=Object.values(S),card=$('
 render();
 </script>
 
-<script src="coach/coach.js?v=6" defer></script></body></html>
+<script src="coach/coach.js?v=8" defer></script></body></html>
