@@ -416,6 +416,11 @@ const SHEET={
  systems:['Module 7 · Systems and higher order','y″ = … → y′ = z, z′ = … ; apply the method to each equation (y is a vector)'],
  stab:['Not on the sheet · derive it','Apply the method to y′ = λy:  Explicit Euler G = 1 + λh, stable if |G| ≤ 1 → h ≤ 2/|λ|.  Implicit G = 1/(1 − λh).','off'],
  eps:['Module 1 · Floating-point table','Single: 23 mantissa bits → ε = 2⁻²³ ≈ 1.2×10⁻⁷.   Double: 52 bits → ε ≈ 2.2×10⁻¹⁶'],
+ heat:['Not on the sheet · derive it','Heat equation, explicit Euler in time + central in space:  Tᵢⁿ⁺¹ = Tᵢⁿ + r(Tᵢ₊₁ⁿ − 2Tᵢⁿ + Tᵢ₋₁ⁿ),  r = KΔt/Δx²,  stable if r ≤ 1/2','off'],
+ pde:['Module 8 · Numerical PDE procedure','Grid in x → replace ∂/∂x by finite differences → apply initial and boundary conditions → solve the ODE system. The lowest-order method sets the overall order.'],
+ sov:['Module 8 · Separation of variables','u(x,y) = X(x)Y(y): put everything in x on one side, everything in y on the other, set each side equal to a constant c'],
+ dft:['Module 9 · DFT','F = 1/T,  f = kF,  k_max = N/2,  Pₖ = (aₖ² + bₖ²)/(2N)'],
+ nyq:['Module 9 · Summary (Nyquist)','To detect f: sample at f_sample ≥ 2f and record for at least 1/f'],
  errplot:['Module 1 + Module 7','Slope of log|E| vs log h = order p.  Floor ≈ machine ε (single ≈ 10⁻⁷, double ≈ 10⁻¹⁶)']
 };
 function sheetHTML(k){const e=SHEET[k];if(!e)return '';return `<div class="sheet${e[2]?' off':''}"><span>${e[2]?'':'📄 On your sheet · '}${e[0]}</span><code>${e[1]}</code></div>`}
@@ -436,6 +441,7 @@ const BIS_CTX=[(w,t)=>`🔥 A cooling turbine blade hits 600 °C somewhere in a 
  (w,t)=>`🛰️ A satellite crosses the equator somewhere in a ${w} min window. Pin it to ±${t} min, guaranteed. Bisection iterations?`];
 const STAB_CTX=[['🌡️ Thermocouple bead cooling','θ′ = −λθ'],['⚡ RC circuit discharging','V′ = −λV'],['🚁 Drone rotor spinning down','ω′ = −λω'],['🏭 Pollutant flushing out of a tank','c′ = −λc'],['🚗 Shock absorber settling','x′ = −λx']];
 const SIM_CTX=['🛰️ a satellite orbit','🚀 a rocket ascent','🌉 a bridge deck vibration','🔋 a battery temperature model','🏀 a projectile with drag','🌊 a draining tank'];
+const FR=(n,d)=>{const g=(a,b)=>b?g(b,a%b):a,q=g(n,d);return d/q===1?String(n/q):`${n/q}/${d/q}`};
 const gens=[
  ()=>{const s=5+Math.floor(Math.random()*24),N=s-1;const a=N%2==0?S13:(N%3==0?S38:SMIX);
    const both=N%2==0&&N%3==0;const why=both?`${s} samples = ${N} intervals: even and a multiple of 3, so Simpson's 1/3 and Simpson's 3/8 are both fourth order and both correct. Simpson's 1/3 is the usual pick: for the same h its error is about 2.25 times smaller.`:N%2==0?`${s} samples = ${N} intervals, even → Simpson's 1/3.`:(N%3==0?`${s} samples = ${N} intervals: odd, but a multiple of 3 → Simpson's 3/8.`:`${s} samples = ${N} intervals: odd and not a multiple of 3 → split 1/3 + 3/8.`);
@@ -452,10 +458,35 @@ const gens=[
  ()=>{const m=rnd([['Euler',1],['Modified Euler',2],['RK-3',3],['RK-4',4]]);return {tag:'Order',q:`You simulate ${rnd(SIM_CTX)} with ${m[0]}, then halve h. The error shrinks by about…`,a:'÷ '+2**m[1],opts:['÷ 2','÷ 4','÷ 8','÷ 16'],why:`Order p = ${m[1]} → error ÷ 2^p = ${2**m[1]}.`,sheet:'order'}},
  ()=>{const p=rnd([1,2,4]),d=rnd([0.012,0.03,0.006]),e=d/(2**p-1);const f=x=>x.toPrecision(2);
    return {tag:'Error estimate',q:`You simulate ${rnd(SIM_CTX)} with an order-${p} method: |y₂ₕ − yₕ| = ${d}. Estimated error of the step-h result?`,a:f(e),opts:[...new Set([f(e),f(d),f(d/2**p),f(d/(2**p+1)),f(d*2)])].slice(0,4),why:`e = |y₂ₕ − yₕ|/(2^p − 1) = ${d}/${2**p-1}.`,sheet:'errest'}},
- ()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}},()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}},()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}}
+ ()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}},()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}},()=>{const q=rnd(FIXED);return {...q,q:Array.isArray(q.q)?rnd(q.q):q.q}},
+ ()=>{const K=rnd([1,2,4]),dx=rnd([[1,2],[1,4],[1,10]]),num=dx[0]*dx[0],den=2*K*dx[1]*dx[1];const fr=(n,d)=>{const g=(a,b)=>b?g(b,a%b):a,q=g(n,d);return d/q===1?String(n/q):`${n/q}/${d/q}`};
+   const ctx=rnd(['🔥 A heat-shield tile','♨️ A steel rod in a furnace','🧊 A cooling turbine disk','🍳 A pan base on a burner']);
+   const dxs=dx[1]===10?'0.1':`${dx[0]}/${dx[1]}`,a=fr(num,den);
+   return {tag:'PDE',q:`${ctx}: ∂T/∂t = ${K}·∂²T/∂x², explicit Euler in time, central in space, Δx = ${dxs}. Largest stable Δt?`,a,opts:[a,fr(num,K*dx[1]*dx[1]),fr(dx[0],2*K*dx[1]),fr(2*num,K*dx[1]*dx[1])],why:`Stable if r = KΔt/Δx² ≤ 1/2 → Δt ≤ Δx²/(2K) = (${dxs})²/(2·${K}) = ${a}.`,sheet:'heat'}},
+ ()=>{const c=rnd([[1,1,8],[1,1,16],[1,2,16],[2,1,8],[1,1,4],[4,1,32]]),K=c[0],dt=`${c[1]}/${c[2]}`,dx='1/2',r=K*c[1]/c[2]*4;const rs=FR(K*c[1]*4,c[2]);
+   const a=`r = ${rs}, ${r<=0.5?'stable':'unstable'}`;const flip=`r = ${rs}, ${r<=0.5?'unstable':'stable'}`;
+   return {tag:'PDE',q:`∂T/∂t = ${K}·∂²T/∂x², explicit Euler + central, Δx = 1/2, Δt = ${dt}. What is r, and is it stable?`,a,opts:[a,flip,`r = ${FR(K*c[1]*2,c[2])}, ${K*c[1]*2/c[2]<=0.5?'stable':'unstable'}`,`r = ${FR(K*c[1]*8,c[2])}, unstable`],why:`r = KΔt/Δx² = ${K}·(${dt})/(1/4) = ${rs}. Stable needs r ≤ 1/2.`,sheet:'heat'}},
+ ()=>{const f=rnd([0.49,0.77,1.05,50,60,250,400]),T=rnd([2,10,20,100]),ctx=rnd(['🌉 Bridge deck sensor','⚙️ Gearbox vibration','🎵 Microphone','💨 Duct pressure probe']);const kind=rnd(['nyq','k','kmax','F']);
+   if(kind==='nyq'){const a=String(+(2*f).toFixed(2))+' Hz';return {tag:'Fourier',q:`${ctx}: you need to detect ${f} Hz. Minimum sampling frequency?`,a,opts:[a,f+' Hz',String(+(f/2).toFixed(3))+' Hz',String(+(4*f).toFixed(2))+' Hz'],why:`Nyquist: f_sample ≥ 2f = ${+(2*f).toFixed(2)} Hz. That is a minimum; faster is fine.`,sheet:'nyq'}}
+   if(kind==='k'){const k=Math.round(f*T*100)/100;if(!Number.isInteger(k))return {tag:'Fourier',q:`${ctx}: record length T = ${T} s. Lowest frequency you can see?`,a:`1/${T} Hz`,opts:[`1/${T} Hz`,`${T} Hz`,`${FR(2,T)} Hz`,`1/${2*T} Hz`],why:`F = 1/T = 1/${T} Hz, and every frequency in the DFT is a multiple of it.`,sheet:'dft'};return {tag:'Fourier',q:`${ctx}: a ${f} Hz signal in a T = ${T} s record. Wave number k of its peak?`,a:String(k),opts:[String(k),String(f),String(+(k/2).toFixed(2)),String(+(k*2).toFixed(2))],why:`k = f/F = f·T = ${f} × ${T} = ${k}.`,sheet:'dft'}}
+   if(kind==='kmax'){const fs=rnd([4,5,10,100]),N=fs*T;return {tag:'Fourier',q:`${ctx}: sampled at ${fs} Hz for ${T} s. Maximum wave number k_max?`,a:String(N/2),opts:[String(N/2),String(N),String(N+1),String(N/4)],why:`N = f_s·T = ${N} unique points (the point at t = T repeats the first), k_max = N/2 = ${N/2}.`,sheet:'dft'}}
+   const fs=rnd([2,5,8,10,1000]);return {tag:'Fourier',q:`${ctx}: sampled at ${fs} Hz. Highest frequency you can detect?`,a:String(fs/2)+' Hz',opts:[String(fs/2)+' Hz',fs+' Hz',2*fs+' Hz',String(fs/4)+' Hz'],why:'You need at least two samples per period, so the limit is f_s/2.',sheet:'nyq'}},
+ ()=>{const p=rnd([1,2,3,4]),a0=rnd([4,3,5]),span=rnd([1,1,2]),e1=-(p*span+rnd([1,2,3])+0.1*Math.floor(Math.random()*9)),e2=+(e1+p*span+(Math.random()-0.5)*0.4).toFixed(1);
+   const sup=v=>String(v).replace('-','⁻').replace(/[0-9.]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'['0123456789'.indexOf(d)]??'·');
+   const x1='10'+sup(-a0),x2='10'+sup(-(a0-span));return {tag:'Error plot',q:`Straight part of a log–log error plot: at Δx = ${x1}, |E| ≈ 10${sup(e1.toFixed(1))}; at Δx = ${x2}, |E| ≈ 10${sup(e2.toFixed(1))}. Order of the method?`,a:String(p),opts:['1','2','3','4'],why:`Order = (decades of error) / (decades of Δx) = (${e2.toFixed(1)} − (${e1.toFixed(1)})) / ${span} ≈ ${((e2-e1)/span).toFixed(1)} → round to ${p}. Read every gridline: one line = one decade.`,sheet:'errplot'}},
+ ()=>{const p=rnd([2,3,4]),d={2:'0.6',3:'0.9',4:'1.2'}[p];return {tag:'Error plot',q:`On an error plot Δx halves from one marker to the next, and on the straight part the error drops about ${d} decades per marker. Order?`,a:String(p),opts:['1','2','3','4'],why:`Halving Δx cuts the error by 2ᵖ; log₁₀(2ᵖ) = 0.3p decades. ${d}/0.3 = ${p}.`,sheet:'order'}}
 ];
 const F=(tag,q,a,others,why,sheet)=>({tag,q,a,opts:[a,...others],why,sheet});
 const FIXED=[
+ F('PDE','A PDE in x and t: where does the initial condition apply?','Inside the domain at t = 0',['At the two ends for all t','Only at x = 0','At the final time'],'Initial condition: inside the domain at t = 0. Boundary conditions: at the ends for every t, including t = 0.','pde'),
+ F('PDE','Heat equation, explicit Euler in time, central in space. You halve Δx. What happens to the largest stable Δt?','It drops to a quarter',['It halves','It stays the same','It doubles'],'Δt_max = Δx²/(2K): halve Δx → Δt_max ÷ 4. Twice the points and four times the steps: about 8 times the work.','heat'),
+ F('PDE','RK-4 in time, first-order backward difference in space. Overall order for small steps?','First order',['Fourth order','Second order','Fifth order'],'Truncation errors add up, and the lowest-order method dominates.','pde'),
+ F('PDE','Explicit Euler in time, central difference in space, run at the stability limit Δt ∝ Δx². Overall error in terms of Δx?','O(Δx²)',['O(Δx)','O(Δx⁴)','O(Δx³)'],'Euler gives O(Δt) = O(Δx²) when Δt ∝ Δx², and the central difference is O(Δx²).','pde'),
+ F('PDE','Convection ∂φ/∂t + u ∂φ/∂x = 0 with u > 0. Which first-order space difference does the course use?','Backward (upwind)',['Forward','Central','None, solve it exactly'],'Information travels in the +x direction, so use the point behind: backward.','pde'),
+ F('PDE','Separation of variables on y ∂u/∂x − sin(x) ∂u/∂y = 0. First step?','Assume u = X(x)Y(y) and substitute',['Discretize x into a grid','Apply the boundary conditions first','Take a Fourier transform'],'Assume a product, separate x and y onto two sides, set both equal to a constant c.','sov'),
+ F('Fourier','You record twice as long. Which stays the same?','The frequency of each peak',['The wave number k of each peak','The fundamental frequency F','N, the number of points'],'F = 1/T halves and k = f·T doubles. The signal\'s frequencies do not change.','dft'),
+ F('Fourier','Your data jumps where it should repeat (not periodic over the record). The spectrum…','spreads power over many frequencies',['shows one sharp peak','drops to zero above k = 1','is unchanged'],'A jump needs many sines to build, so power leaks across the spectrum.','dft'),
+ F('Fourier','To remove 60 Hz hum from a 2 s record, which coefficients do you scale toward 0?','a₁₂₀ and b₁₂₀',['a₆₀ and b₆₀','a₃₀ and b₃₀','a₀ only'],'k = f·T = 60 × 2 = 120. Multiply a_k and b_k by α < 1, then rebuild.','dft'),
  F('Clue word',['🌬️ Noisy wind-tunnel data: drag D = b·Vᵐ. Find b and m.','🔩 Noisy creep-test data: strain rate ε̇ = b·σᵐ. Find b and m.','🚁 Noisy rotor data: thrust T = b·ωᵐ. Find b and m.'],'Log both, then linear regression',['Lagrange interpolation','Log y only, then regression','Cubic splines'],'Noisy → regression. Power law → ln y vs ln x.','pow'),
  F('Clue word',['🔋 Noisy discharge data: V = b·e^(mt). Find b and m.','☕ Noisy cooling-curve data: ΔT = b·e^(mt). Find b and m.','🛬 Noisy brake-test data: speed v = b·e^(mt). Find b and m.'],'Log y only, then linear regression',['Log both, then regression','Polynomial interpolation','Newton\'s method'],'Exponential → ln y vs x.','exp'),
  F('Clue word',['♨️ Steam-table values at 100 °C and 120 °C; you need 112 °C.','🌍 Standard-atmosphere table at 5 km and 6 km; you need 5.4 km.','✈️ Tabulated lift coefficients at 4° and 6°; you need 5°.'],'Interpolation (Lagrange or spline)',['Simpson\'s 1/3','Bisection','Euler\'s method'],'Exact table values → pass through them.','interp'),
@@ -700,4 +731,4 @@ $('prNext').onclick=()=>{P.i++;prRound()};
 show('home');
 </script>
 
-<script src="coach/coach.js?v=8" defer></script></body></html>
+<script src="coach/coach.js?v=10" defer></script></body></html>
