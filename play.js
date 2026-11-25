@@ -101,7 +101,7 @@ function quick(host,item,where,label,after){
 function readiness(){var done=S.get('done:tb',[]),stats=S.get('tb:stats',{}),ok=S.get('quick:ok',{}),out=[];
  for(var i=0;i<9;i++){var id='m'+(i+1),stars=['d','l','b'].filter(function(k){return done.indexOf(id+k)>=0}).length,a=0,c=0;
   for(var k in stats){var e=stats[k];if(e&&e.m===i){a+=e.a||0;c+=e.c||0}}
-  var pct=i===8?Math.round(100*Math.min(1,(ok[id]||0)/5)):Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
+  var pct=i===8?Math.round(60*Math.min(1,S.get('done:m9',[]).length/5)+40*Math.min(1,(ok[id]||0)/5)):Math.round(50*stars/3+30*Math.min(1,a/10)*(a?c/a:0)+20*Math.min(1,(ok[id]||0)/3));out.push(pct)}
  return out}
 function home(){var app=document.querySelector('.app'),banner=app&&app.querySelector('.banner');if(!banner||document.getElementById('drvjHome'))return;
  var sec=document.createElement('section');sec.id='drvjHome';
@@ -149,7 +149,7 @@ function remindUI(host){var box=document.createElement('div');box.className='rem
 function fold(){var cards=document.getElementById('cards');if(!cards||document.getElementById('dqFold'))return;
  var all=[].slice.call(cards.querySelectorAll('a.card')),keep=[],rest=[];
  all.forEach(function(c){var h=c.getAttribute('href')||'',go=(c.querySelector('.go')||{}).textContent||'';
-  if(h==='tb.html'||h==='rush.html'||h==='m8.html'||/^Continue/.test(go))keep.push(c);else rest.push(c)});
+  if(h==='tb.html'||h==='rush.html'||h==='m8.html'||h==='m9.html'||/^Continue/.test(go))keep.push(c);else rest.push(c)});
  if(rest.length<3)return;
  keep.sort(function(a,b){var o=function(c){var h=c.getAttribute('href');return h==='tb.html'?0:h==='rush.html'?1:2};return o(a)-o(b)});
  keep.forEach(function(c){cards.appendChild(c)});

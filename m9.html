@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init("phc_CsYaGRvd32HJqVmgmDVDHaNpgx4BwAnoYnGGFmnDTz5m",{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,session_recording:{maskAllInputs:true}});posthog.register({site:"mission-control",page:(location.pathname.split("/").pop()||"index.html").replace(".html","")||"index"});try{var _q=new URLSearchParams(location.search).get("staff");if(_q==="1")posthog.opt_out_capturing();if(_q==="0")posthog.opt_in_capturing()}catch(_){};window.mcTrack=function(e,p){try{window.posthog&&posthog.capture(e,p||{})}catch(_){}};</script>
+<title>The Wobbly Bridge</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* layout: the bridge above the sway and spectrum plots, story captions, then the five-part lab */
+:root{--bg:#0e1730;--panel:#1b2647;--panel2:#26335c;--ink:#f2f5ff;--muted:#a6b1d4;--heat:#ff8a3d;--sea:#2fd3d3;--plum:#b48cff;--sun:#ffd640;--stop:#ff5d6c;--go:#58d68d;
+  --display:"Fredoka","Segoe UI",system-ui,sans-serif;--body:"Nunito",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef2fb;--panel:#ffffff;--panel2:#dfe6f7;--ink:#14204a;--muted:#55628c;--heat:#d9601a;--sea:#0d8f8f;--plum:#7a4fd0;--sun:#9a7400;--stop:#c9283a;--go:#1c8a4d;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:500;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{max-width:880px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--heat)}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+p{margin:0}.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:700;color:var(--ink);background:var(--panel);border:0;border-bottom:3px solid rgba(0,0,0,.28);border-radius:12px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:default}
+button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stage{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.stage canvas{display:block;width:100%;height:auto}
+.cap{background:var(--panel);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.cap .n{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cap .t{font-size:1.08rem;font-weight:700;line-height:1.4}
+.sheet{border-left:4px solid var(--sun);background:var(--panel2);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;overflow-x:auto}
+.sheet span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:800}
+.sheet code{font-family:var(--body);font-size:1rem;white-space:nowrap}
+.transport{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.transport .play,.big{background:var(--heat);color:#1a0d00;font-family:var(--display);font-weight:600;font-size:1.08rem}
+.big{padding:12px 20px;min-height:50px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.dots i.on{background:var(--heat)}
+.lab{display:flex;flex-direction:column;gap:10px}
+.ctl{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctl>span{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.ctl output{font-family:var(--display);color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--heat);height:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--panel);border-radius:14px;padding:10px 12px;min-width:0}
+.stat span{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat small{display:block;color:var(--muted);font-size:.8rem}
+.mission{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border-radius:14px;padding:10px 12px}
+.mission i{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;color:transparent}
+.mission.done i{background:var(--go);border-color:var(--go);color:#062312}
+.mission small{color:var(--muted);display:block}
+.memo{font-size:.88rem;color:var(--muted);border-top:1px solid var(--panel2);padding-top:10px}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:14px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--panel2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.view{display:grid;grid-template-columns:0.55fr 1fr;gap:12px}
+@media (max-width:720px){.view{grid-template-columns:1fr}}
+.view .stage{min-width:0}
+.study{border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--panel2)}
+.study canvas{display:block;width:100%;height:auto}
+</style>
+
+
+<style>
+.view.one{grid-template-columns:1fr}
+.lab h2{margin-top:8px}
+.quiz,.ctl#hand,.ctl#bug{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.qhead{font-size:.8rem;color:var(--sun);letter-spacing:.06em;text-transform:uppercase}
+.qq{font-weight:700;font-size:1.05rem}
+.qo{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.qo button{background:var(--panel2);text-align:left}
+.qo button.right,.ln.right{background:var(--go);color:#062312}
+.qo button.wrong,.ln.wrong{background:var(--stop);color:#2a0007}
+.qw{color:var(--ink)}.qw .nx,#bNew{margin-left:6px;min-height:36px;padding:6px 12px;background:var(--heat);color:#1a0d00}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.hgrid label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:.9rem}
+.hgrid input{font:inherit;font-family:var(--mono);font-size:1rem;color:var(--ink);background:var(--bg);border:2px solid var(--panel2);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+.hgrid input.ok{border-color:var(--go)}.hgrid input.bad{border-color:var(--stop)}
+.code{display:flex;flex-direction:column;gap:2px;overflow-x:auto;background:var(--bg);border-radius:10px;padding:6px}
+.ln{display:flex;gap:10px;align-items:center;text-align:left;background:transparent;border:0;border-radius:8px;padding:4px 8px;min-height:32px;font-weight:500}
+.ln span{color:var(--muted);font-family:var(--mono);font-size:.8rem;min-width:1.6em;text-align:right}
+.ln code{font-family:var(--mono);font-size:.86rem;white-space:pre}
+#hMsg code,#bMsg code{font-family:var(--mono);font-size:.86rem}
+</style>
+<style id="eqfit">.sheet,.cap{min-width:0;max-width:100%}.sheet code{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}</style></head><body>
+<div class="app">
+  <div><p class="muted">MAE 384 · Module 9 · discrete Fourier transforms</p><h1>The Wobbly <span>Bridge</span></h1></div>
+
+  <div class="view one">
+    <div class="stage"><canvas id="br" aria-label="Top view of the Millennium Bridge over the Thames, swaying sideways"></canvas></div>
+    <div class="stage"><canvas id="pl" aria-label="Sideways sway of the deck against time, and its power spectrum"></canvas></div>
+  </div>
+
+  <div class="cap"><span class="n" id="capN"></span><div class="t" id="capT"></div><div class="sheet"><span id="shL"></span><code id="shF"></code></div></div>
+  <div class="transport"><button id="back">◀ Back</button><button class="play" id="play">▶ Play</button><button id="next">Next ▶</button><div class="dots" id="dots"></div></div>
+
+  <div class="lab" id="lab" hidden>
+    <h2>1 · Plan the measurement</h2>
+    <div class="grid">
+      <div class="ctl"><span>Sampling frequency f<sub>s</sub></span><div class="row" id="fsRow"></div></div>
+      <div class="ctl"><span>Record length T</span><div class="row" id="tRow"></div></div>
+    </div>
+    <div class="row"><button class="big" id="rec">▶ Record the deck</button><span class="muted" id="hint"></span></div>
+    <div class="grid">
+      <div class="stat"><span>Unique points N</span><b id="sN">–</b><small>N = f<sub>s</sub> · T</small></div>
+      <div class="stat"><span>Fundamental F</span><b id="sF">–</b><small>F = 1/T</small></div>
+      <div class="stat"><span>Max wave number</span><b id="sK">–</b><small>k<sub>max</sub> = N/2</small></div>
+      <div class="stat"><span>Highest frequency</span><b id="sH">–</b><small>f<sub>s</sub>/2 = k<sub>max</sub>·F</small></div>
+    </div>
+    <div class="mission" id="m1"><i>✓</i><div><b>See all three spans.</b><small>Choose a sampling frequency and record length so the spectrum shows clean peaks at 0.49, 0.77 and 1.05 Hz.</small></div></div>
+
+    <h2>2 · Read the spectrum like an exam</h2>
+    <div class="quiz" id="qz"></div>
+    <div class="mission" id="m2"><i>✓</i><div><b>Four in a row.</b><small>Answer four exam-style questions in a row without a miss. No calculator needed.</small></div></div>
+
+    <h2>3 · A DFT by hand</h2>
+    <div class="ctl" id="hand"></div>
+    <div class="mission" id="m3"><i>✓</i><div><b>Do the sums yourself.</b><small>Compute a₀, a₁, b₁, a₂ and the power P₁ for four sensor readings, as on the exam. Exact fractions.</small></div></div>
+
+    <h2>4 · Damp the bridge</h2>
+    <div class="grid" id="damp"></div>
+    <div class="grid">
+      <div class="stat"><span>Largest sway</span><b id="dMax">–</b><small>target: 15 mm or less</small></div>
+      <div class="stat"><span>Verdict</span><b id="dV">–</b><small id="dS">&nbsp;</small></div>
+    </div>
+    <div class="mission" id="m4"><i>✓</i><div><b>Make it walkable.</b><small>Scale a<sub>k</sub> and b<sub>k</sub> at each span's wave number until the rebuilt sway is 15 mm or less.</small></div></div>
+
+    <h2>5 · Find the bug</h2>
+    <div class="ctl" id="bug"></div>
+    <div class="mission" id="m5"><i>✓</i><div><b>Debug the analysis code.</b><small>Tap the one wrong line in the engineers' MATLAB function on your first try.</small></div></div>
+
+    <p class="memo">Facts from Arup and the Royal Academy of Engineering (Ingenia): the bridge opened on 10 June 2000 and closed two days later; about 90,000 people crossed on the first day, up to 2,000 at once; measured sideways frequencies were about 0.49 Hz (centre span), 0.77 Hz (south span) and 1.05 Hz (north span); sideways crowd loading is possible below about 1.3 Hz; 37 viscous dampers and 52 tuned mass dampers were fitted for about £5 million, and the bridge reopened on 22 February 2002. In this model the three spans are added into one sensor record, and the sway amplitudes are made-up teaching values. It is a teaching model, not Arup's analysis.</p>
+  </div>
+</div>
+
+<script>window.KIT_PAGE='m9';window.KIT_HUB='./';</script>
+<style>
+/* ---- shared kit: top bar, XP, stars, confetti ---- */
+.kitbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border-radius:14px;padding:8px 10px}
+.kitbar a,.kitbar button,.kitbar span.chip{font:inherit;font-weight:800;font-size:.88rem;color:var(--ink);background:var(--panel2);border:0;border-radius:999px;padding:7px 12px;min-height:36px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-bottom:0}
+.kitbar span.chip{cursor:default}
+.kitbar .xp{margin-left:auto}
+.kitbar{position:relative}
+.kitmenu{position:absolute;left:8px;top:calc(100% + 6px);z-index:40;background:var(--panel);border:2px solid var(--panel2);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kitmenu b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 6px 2px}
+.kitmenu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:transparent;border:0;border-radius:10px;padding:8px 10px;min-height:40px;font-weight:700}
+.kitmenu button small{color:var(--muted);font-weight:600;font-size:.78rem}
+.kitmenu button[aria-checked="true"]{background:var(--heat);color:#1a0d00}.kitmenu button[aria-checked="true"] small{color:#3a1d00}
+.kitbar .rank{color:var(--sun)}
+.kitbar .bar{width:64px;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.kitbar .bar i{display:block;height:100%;background:var(--sun);border-radius:4px;transition:width .5s}
+.kitbar button[aria-pressed="true"]{background:var(--heat);color:#1a0d00}
+.kittoast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);opacity:0;visibility:hidden;background:var(--sun);color:#1a1200;font-family:var(--display);font-weight:600;font-size:1.05rem;padding:10px 18px;border-radius:999px;z-index:50;transition:transform .35s cubic-bezier(.2,1.4,.4,1);box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.kittoast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.kitfx{position:fixed;inset:0;pointer-events:none;z-index:49}
+.mission{transition:transform .2s,box-shadow .2s}
+.mission.pop{animation:kitpop .5s ease-out}
+@keyframes kitpop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sheet code mjx-container,.eq mjx-container{margin:0!important}
+.eq{overflow-x:auto;padding:6px 0}
+@media (prefers-reduced-motion:reduce){.mission.pop{animation:none}.kittoast{transition:none}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']]},svg:{fontCache:'global'},options:{enableMenu:false,skipHtmlTags:['script','noscript','style','textarea','pre']},startup:{typeset:true}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<script>
+/* ===== shared kit: math typesetting, switchable math-music, XP and stars ===== */
+const Kit=(()=>{
+  const page=window.KIT_PAGE||'page',hub=window.KIT_HUB||'';
+  const st={get(k,d){try{const v=localStorage.getItem('mae384:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('mae384:'+k,JSON.stringify(v))}catch(e){}}};
+  /* ---------- math ---------- */
+  const q=[];function flush(){if(!(window.MathJax&&MathJax.typesetPromise))return;const els=q.splice(0);if(els.length)MathJax.typesetPromise(els).catch(()=>{})}
+  function tex(el,latex){if(typeof el==='string')el=document.getElementById(el);if(!el)return;el.dataset.tex=latex;el.textContent='\\('+latex+'\\)';q.push(el);flush()}
+  const iv=setInterval(()=>{if(window.MathJax&&MathJax.typesetPromise){clearInterval(iv);flush()}},200);
+  /* plain-text formulas used by the earlier pages, mapped to their typeset form */
+  const DICT={
+   'yᵢ₊₁ = yᵢ + h f(xᵢ, yᵢ)':'y_{i+1}=y_i+h\\,f(x_i,\\,y_i)',
+   'k₂ = f(xᵢ + h/2, yᵢ + (h/2)k₁),   yᵢ₊₁ = yᵢ + h k₂':'k_2=f\\!\\left(x_i+\\tfrac{h}{2},\\;y_i+\\tfrac{h}{2}k_1\\right),\\qquad y_{i+1}=y_i+h\\,k_2',
+   'k₂ = f(xᵢ + h, yᵢ + h k₁),   yᵢ₊₁ = yᵢ + (h/2)(k₁ + k₂)':'k_2=f\\!\\left(x_i+h,\\;y_i+h\\,k_1\\right),\\qquad y_{i+1}=y_i+\\tfrac{h}{2}\\left(k_1+k_2\\right)',
+   'yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)':'y_{i+1}=y_i+\\tfrac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)',
+   'O(hᵖ): halving h cuts the error by about 2ᵖ':'E=O(h^{p})\\;\\Rightarrow\\;\\text{halving }h\\text{ cuts the error by about }2^{p}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾) / f′(x⁽ᵏ⁾)':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)}{f\'\\!\\left(x^{(k)}\\right)}',
+   'x⁽ᵏ⁺¹⁾ = x⁽ᵏ⁾ − f(x⁽ᵏ⁾)(x⁽ᵏ⁾ − x⁽ᵏ⁻¹⁾) / [f(x⁽ᵏ⁾) − f(x⁽ᵏ⁻¹⁾)]':'x^{(k+1)}=x^{(k)}-\\dfrac{f\\!\\left(x^{(k)}\\right)\\left(x^{(k)}-x^{(k-1)}\\right)}{f\\!\\left(x^{(k)}\\right)-f\\!\\left(x^{(k-1)}\\right)}',
+   'n = ⌈ log((b − a)/(2ε)) / log 2 ⌉   (bracket [1, 8] keeps it supersonic)':'n=\\left\\lceil\\dfrac{\\log\\!\\left(\\dfrac{b-a}{2\\epsilon}\\right)}{\\log 2}\\right\\rceil\\qquad\\text{bracket }[1,\\,8]',
+   'predicted range = r + v·Δt, with time t = (number of clock ticks) × 0.1 s':'r_{\\text{predicted}}=r+v\\,\\Delta t,\\qquad t=(\\text{number of ticks})\\times 0.1\\ \\text{s}',
+   'Spacing between stored numbers ≈ 2^(p−m). Chopping loses up to one interval every time.':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(chopping loses up to one interval each time)}',
+   'Total error = (error per tick) × (number of ticks) = 9.5×10⁻⁸ × 3.6×10⁶ ≈ 0.34 s':'E_{\\text{total}}=E_{\\text{tick}}\\times N_{\\text{ticks}}=9.5\\times10^{-8}\\times3.6\\times10^{6}\\approx0.34\\ \\text{s}',
+   'spacing 2^(p−m): every extra bit halves the round-off error per tick':'\\text{interval}=2^{\\,p-m}\\qquad\\text{(each extra bit halves the round-off error)}'
+  };
+  function watchSheets(){document.querySelectorAll('.sheet code').forEach(el=>{const fix=()=>{const t=el.textContent.trim();if(DICT[t]&&el.dataset.tex!==DICT[t])tex(el,DICT[t]);else if(!DICT[t]&&!el.querySelector('mjx-container'))delete el.dataset.tex};fix();new MutationObserver(fix).observe(el,{childList:true,characterData:true,subtree:true})})}
+  /* ---------- audio ---------- */
+  let ac=null,mus,sfx,NOISE,timer=0;const S={sfx:st.get('sfx',true),theme:st.get('theme',1),mood:'calm',step:0,next:0};
+  const midi=m=>440*Math.pow(2,(m-69)/12);
+  const THEMES=[null,
+   {name:'π',seq:'31415926535897932384626433832795028841971693993751',root:57,scale:[0,3,5,7,10],prog:[[0,3,7,10],[-4,0,3,7],[3,7,10,14],[-2,2,5,9]],lead:'triangle'},
+   {name:'e',seq:'27182818284590452353602874713526624977572470936999',root:55,scale:[0,2,4,7,9],prog:[[0,4,7,11],[5,9,12,16],[-3,0,4,7],[2,5,9,12]],lead:'sine'},
+   {name:'√2',seq:'14142135623730950488016887242096980785696718753769',root:50,scale:[0,2,3,7,8],prog:[[0,3,7,12],[-2,2,5,10],[-4,0,3,8],[-5,-1,2,7]],lead:'square'},
+   {name:'φ',seq:'16180339887498948482045868343656381177203091798057',root:52,scale:[0,2,5,7,9],prog:[[0,5,7,12],[-2,3,5,10],[3,7,10,15],[-4,0,3,8]],lead:'triangle'},
+   {name:'Fibonacci',seq:'1123581347965493257291011235813',root:53,scale:[0,2,4,5,7,9,11],prog:[[0,4,7,12],[-3,0,4,9],[-7,-3,0,5],[-5,-1,2,7]],lead:'sine',mod:7},
+   {name:'Lo-fi study',src:'π',focus:'lofi',bpm:72,seq:'31415926535897932384626433832795028841971693993751',root:50,scale:[0,3,5,7,10],prog:[[0,3,7,10,14],[5,8,12,15],[-2,2,5,9],[3,7,10,14]]},
+   {name:'Ambient',src:'e',focus:'ambient',bpm:60,seq:'27182818284590452353602874713526624977572470936999',root:48,scale:[0,2,4,7,9],prog:[[0,7,12,16],[-3,4,9,12],[5,9,12,17],[-5,2,7,11]]},
+   {name:'Rain',src:'√2',focus:'rain',bpm:60,seq:'14142135623730950488016887242096980785696718753769',root:45,scale:[0,2,3,7,8],prog:[[0,7,12],[-4,3,8],[-2,5,10],[-5,2,7]]}];
+  const FOCUS_FIRST=[6,7,8,1,2,3,4,5];
+  function wake(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mus=ac.createGain();mus.gain.value=S.theme?0.5:0;mus.connect(ac.destination);sfx=ac.createGain();sfx.gain.value=1;sfx.connect(ac.destination);
+      NOISE=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;timer=setInterval(tick,25);if(S.theme&&THEMES[S.theme].focus==='rain')rainBed(true)}if(ac.state!=='running')ac.resume()}catch(e){}}
+  function note(fq,d,v,type,at,bus){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=Math.max(30,Math.min(6000,fq));g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g).connect(bus);o.start(t);o.stop(t+d+0.03)}
+  function tone(fq,d=0.2,v=0.25,type='triangle',at=0){if(S.sfx&&ac)note(fq,d,v,type,at,sfx)}
+  function noise(d,fq,v,type='lowpass',at=0,bus){if(!ac||(!S.sfx&&!bus))return;const t=ac.currentTime+0.02+at,src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);src.connect(fl).connect(g).connect(bus||sfx);src.start(t,Math.random());src.stop(t+d+0.03)}
+  function loop(fq,v){if(!ac||!S.sfx)return {stop(){}};const src=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();src.buffer=NOISE;src.loop=true;fl.type='lowpass';fl.frequency.value=fq;g.gain.value=0.0001;g.gain.setTargetAtTime(v,ac.currentTime,0.08);src.connect(fl).connect(g).connect(sfx);src.start();return {stop(){g.gain.setTargetAtTime(0.0001,ac.currentTime,0.1);setTimeout(()=>{try{src.stop()}catch(e){}},600)}}}
+  function pad(fq,d,v,at){if(!ac)return;const t=ac.currentTime+0.02+(at||0),o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='sine';o2.type='triangle';o.frequency.value=fq;o2.frequency.value=fq*1.003;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(2,d*0.35));g.gain.linearRampToValueAtTime(0.0001,t+d);o.connect(g);o2.connect(g);g.connect(mus);o.start(t);o2.start(t);o.stop(t+d+0.05);o2.stop(t+d+0.05)}
+  let rain=null;function rainBed(on){if(rain){const r=rain;rain=null;r.g.gain.setTargetAtTime(0.0001,ac.currentTime,0.3);setTimeout(()=>{try{r.a.stop();r.b.stop()}catch(e){}},1500)}
+    if(!on||!ac)return;const mk=(fq,type,v)=>{const src=ac.createBufferSource(),fl=ac.createBiquadFilter();src.buffer=NOISE;src.loop=true;fl.type=type;fl.frequency.value=fq;src.connect(fl);return {src,fl,v}};
+    const g=ac.createGain();g.gain.value=0.0001;g.connect(mus);const a=mk(700,'lowpass'),b=mk(2600,'bandpass');const ga=ac.createGain(),gb=ac.createGain();ga.gain.value=0.22;gb.gain.value=0.05;a.fl.connect(ga).connect(g);b.fl.connect(gb).connect(g);
+    a.src.start();b.src.start(ac.currentTime+0.37);g.gain.setTargetAtTime(1,ac.currentTime,0.8);rain={g,a:a.src,b:b.src}}
+  /* focus tracks: slower, softer, no bright lead; still driven by the digits of a constant */
+  function focusStep(th,k,t,sp){const dg=+th.seq[k%th.seq.length],sc=th.scale;
+    if(th.focus==='lofi'){const stp=k%16,ch=th.prog[Math.floor(k/16)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+12+n),sp*16,0.018,t+i*0.03));
+      if(stp%4===2&&dg%2)note(midi(th.root+24+sc[dg%sc.length]),sp*5,0.035,'sine',t,mus);
+      if(stp===0||stp===10)note(52,0.3,0.2,'sine',t,mus);if(stp===4||stp===12)noise(0.09,1400,0.018,'bandpass',t,mus);if(stp%2===0)noise(0.02,8500,0.006,'highpass',t+(stp%4===2?sp*0.18:0),mus)}
+    else if(th.focus==='ambient'){const stp=k%32,ch=th.prog[Math.floor(k/32)%4];
+      if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*36,0.03,t+i*0.4));
+      if(stp%8===4&&dg>4)pad(midi(th.root+24+sc[dg%sc.length]),sp*10,0.012,t)}
+    else{const stp=k%32,ch=th.prog[Math.floor(k/32)%4];if(stp===0)ch.forEach((n,i)=>pad(midi(th.root+n),sp*34,0.016,t+i*0.6));if(stp%12===6&&dg>6)note(midi(th.root+24+sc[dg%sc.length]),2.2,0.012,'sine',t,mus)}}
+  /* one melody note per eighth: the next digit of the chosen constant picks the pitch; 0 is a rest */
+  function tick(){if(!ac||!S.theme)return;const th=THEMES[S.theme],drive=S.mood==='drive'&&!th.focus,sp=60/(th.focus?th.bpm:(drive?126:84))/4;if(S.next<ac.currentTime)S.next=ac.currentTime+0.05;
+    while(S.next<ac.currentTime+0.15){if(th.focus){focusStep(th,S.step,S.next-ac.currentTime-0.02,sp);S.next+=sp;S.step++;continue}const k=S.step,stp=k%16,ch=th.prog[Math.floor(k/16)%4],t=S.next-ac.currentTime-0.02;
+      if(stp===0)ch.forEach(n=>note(midi(th.root+12+n),sp*16,0.03,'triangle',t,mus));
+      if(stp%2===0){let dg=+th.seq[(k/2)%th.seq.length];if(th.mod)dg=dg%th.mod;if(dg){const sc=th.scale,n=th.root+24+sc[dg%sc.length]+12*Math.floor(dg/sc.length)-(dg>7?12:0);note(midi(n),sp*(drive?1.7:3),th.lead==='square'?0.035:0.06,th.lead,t,mus)}}
+      if(drive){if(stp%4===0)note(58,0.2,0.38,'sine',t,mus);if(stp%2===0)note(midi(th.root-12+ch[0]),sp*1.5,0.1,'sawtooth',t,mus);if(stp%4===2)noise(0.04,8000,0.05,'highpass',t,mus)}
+      else{if(stp===0||stp===10)note(midi(th.root-12+ch[0]),sp*5,0.13,'sine',t,mus);if(stp===4||stp===12)noise(0.03,7000,0.02,'highpass',t,mus)}
+      S.next+=sp;S.step++}}
+  function setTheme(i){S.theme=i;st.set('theme',i);wake();if(mus)mus.gain.setTargetAtTime(i?0.5:0,ac.currentTime,0.05);S.step=0;rainBed(!!(i&&THEMES[i].focus==='rain'));paint();if(i){const th=THEMES[i];toast(th.focus?'♪ '+th.name+' · from the digits of '+th.src:'♪ Now playing the digits of '+th.name)}}
+  /* ---------- XP, stars, ranks ---------- */
+  const RANKS=[[0,'Cadet'],[100,'Flight Engineer'],[250,'Test Pilot'],[450,'Mission Specialist'],[700,'Flight Director'],[1000,'Chief Engineer']];
+  const rank=x=>{let r=RANKS[0],n=null;for(const k of RANKS){if(x>=k[0])r=k;else{n=k;break}}return {name:r[1],lo:r[0],hi:n?n[0]:null}};
+  let bar,toastEl,fx,menu;
+  function paint(){if(!bar)return;const xp=st.get('xp',0),r=rank(xp),done=st.get('done:'+page,[]),total=document.querySelectorAll('.mission').length;
+    bar.querySelector('.stars').textContent='★ '+done.length+(total?' / '+total:'');bar.querySelector('.rank').textContent=r.name;bar.querySelector('.xpn').textContent=xp+' XP';
+    bar.querySelector('.bar i').style.width=(r.hi?100*(xp-r.lo)/(r.hi-r.lo):100)+'%';const mb=bar.querySelector('.mus');mb.textContent=S.theme?'♪ '+THEMES[S.theme].name:'♪ off';mb.setAttribute('aria-expanded',!!(menu&&!menu.hidden));mb.setAttribute('aria-pressed',!!S.theme);
+    const sb=bar.querySelector('.sfx');sb.textContent=S.sfx?'🔊':'🔇';sb.setAttribute('aria-pressed',S.sfx)}
+  function toast(t){if(!toastEl)return;toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)}
+  function confetti(){if(!fx||matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=fx.getContext('2d');fx.width=innerWidth;fx.height=innerHeight;const cols=['#ffd640','#ff8a3d','#2fd3d3','#58d68d','#b48cff'];
+    const P=[...Array(90)].map(()=>({x:innerWidth/2,y:innerHeight*0.3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:4+Math.random()*5,c:cols[Math.random()*5|0],a:Math.random()*6}));const t0=performance.now();
+    (function f(){const t=performance.now()-t0;c.clearRect(0,0,fx.width,fx.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.45;p.a+=0.2;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-t/1600);c.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);c.restore()});if(t<1600)requestAnimationFrame(f);else c.clearRect(0,0,fx.width,fx.height)})()}
+  function award(id,el){const done=st.get('done:'+page,[]);if(done.includes(id))return;done.push(id);st.set('done:'+page,done);const before=rank(st.get('xp',0)).name;st.set('xp',st.get('xp',0)+50);const after=rank(st.get('xp',0)).name;
+    if(el){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),600)}confetti();[0,4,7,12,16].forEach((s,i)=>tone(659*Math.pow(2,s/12),0.35,0.2,'triangle',i*0.07));
+    const total=document.querySelectorAll('.mission').length;toast(after!==before?'Promoted: '+after+'!':done.length===total?'★ Module mastered · +50 XP':'★ Mission complete · +50 XP');paint();
+    try{window.mcTrack&&mcTrack('mission_complete',{module_page:page,mission:id,missions_done:done.length,missions_total:total})}catch(e){}}
+  function watchMissions(){const done=st.get('done:'+page,[]);document.querySelectorAll('.mission').forEach(el=>{if(!el.id)return;if(done.includes(el.id))el.classList.add('done');
+    new MutationObserver(()=>{if(el.classList.contains('done'))award(el.id,el)}).observe(el,{attributes:true,attributeFilter:['class']})})}
+  function init(){const app=document.querySelector('.app');if(!app)return;bar=document.createElement('div');bar.className='kitbar';
+    bar.innerHTML=(hub?`<a href="${hub}">◀ Mission Control</a>`:'')+'<span class="chip stars">★ 0</span><button class="mus" aria-label="Change the music">♪</button><button class="sfx" aria-label="Sound effects on or off">🔊</button><span class="chip xp"><span class="rank"></span><span class="bar"><i></i></span><span class="xpn"></span></span>';
+    app.insertBefore(bar,app.firstChild);toastEl=document.createElement('div');toastEl.className='kittoast';toastEl.setAttribute('role','status');document.body.appendChild(toastEl);fx=document.createElement('canvas');fx.className='kitfx';document.body.appendChild(fx);
+    menu=document.createElement('div');menu.className='kitmenu';menu.hidden=true;menu.setAttribute('role','menu');
+    menu.innerHTML='<b>Focus</b>'+[6,7,8].map(i=>`<button role="menuitemradio" data-t="${i}">${THEMES[i].name}<small>${THEMES[i].focus==='lofi'?'soft beat, 72 bpm':THEMES[i].focus==='ambient'?'slow pads, no beat':'rain with soft tones'}</small></button>`).join('')+'<b>Math melodies</b>'+[1,2,3,4,5].map(i=>`<button role="menuitemradio" data-t="${i}">Digits of ${THEMES[i].name}</button>`).join('')+'<button role="menuitemradio" data-t="0">Music off</button>';
+    bar.appendChild(menu);menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{setTheme(+b.dataset.t);menu.hidden=true;paint()});
+    bar.querySelector('.mus').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden;menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.t===S.theme));paint()};
+    document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)){menu.hidden=true;paint()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;paint()}});bar.querySelector('.sfx').onclick=()=>{S.sfx=!S.sfx;st.set('sfx',S.sfx);paint();const old=document.getElementById('snd');if(old&&(old.getAttribute('aria-pressed')==='true')!==S.sfx)old.click()};
+    ['pointerdown','keydown','touchend'].forEach(ev=>document.addEventListener(ev,wake,true));document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume()});
+    const oldM=document.getElementById('mus');if(oldM)oldM.hidden=true;const oldS=document.getElementById('snd');if(oldS)oldS.hidden=true;
+    watchMissions();watchSheets();document.querySelectorAll('[data-tex]').forEach(el=>tex(el,el.dataset.tex));paint()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  /* ---------- story engine: scenes with a caption, a typeset formula and Play / Back / Next ---------- */
+  function story(SC,opt={}){const $=id=>document.getElementById(id),T={st:0,t0:0,p:1,playing:false,timer:0};
+    function caption(){const s=SC[T.st];$('capN').textContent=`Scene ${T.st+1} of ${SC.length}`;$('capT').textContent=s.cap;$('shL').textContent=s.sheet[0];if(s.sheet[2])$('shF').textContent=s.sheet[1];else tex($('shF'),s.sheet[1]);
+      $('dots').innerHTML=SC.map((_,i)=>`<i class="${i<=T.st?'on':''}"></i>`).join('');$('back').disabled=T.st===0;$('next').disabled=T.st===SC.length-1;if($('lab'))$('lab').hidden=!s.lab;if(opt.onScene)opt.onScene(s,T.st)}
+    function render(){const s=SC[T.st];T.p=s.dur?Math.min(1,(performance.now()-T.t0)/s.dur):1;s.draw(T.p,s);if(T.p<1||s.live)T.raf=requestAnimationFrame(render)}
+    function go(i,animate=true){cancelAnimationFrame(T.raf);T.st=i;SC[i].k=-1;T.t0=animate?performance.now():-1e9;caption();if(SC[i].enter)SC[i].enter();T.raf=requestAnimationFrame(render)}
+    function stop(){T.playing=false;clearTimeout(T.timer);$('play').textContent='▶ Play'}
+    function play(){wake();T.playing=true;$('play').textContent='❚❚ Pause';go(T.st>=SC.length-1?0:T.st+1);const tick=()=>{if(!T.playing)return;if(T.st>=SC.length-1)return stop();go(T.st+1);T.timer=setTimeout(tick,SC[T.st].dur+3400)};clearTimeout(T.timer);T.timer=setTimeout(tick,SC[T.st].dur+3400)}
+    $('next').onclick=()=>{wake();stop();go(T.st+1)};$('back').onclick=()=>{stop();go(T.st-1,false)};$('play').onclick=()=>{T.playing?stop():play()};
+    go(0,true);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T.p>=1)render()});
+    return {go,redraw(){if(T.p>=1&&!SC[T.st].live)render()},get scene(){return T.st},stop}}
+  return {tex,tone,noise,loop,wake,toast,confetti,story,mood(m){S.mood=m},get sfxOn(){return S.sfx},store:st,rank,RANKS}
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id),css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NARROW=window.innerWidth<720;
+/* three spans, north to south; real frequencies, made-up amplitudes (mm) */
+const SP=[{n:'North',f:1.05,A:12,ph:0.4,c:'--sea',len:81},{n:'Centre',f:0.49,A:18,ph:1.9,c:'--plum',len:144},{n:'South',f:0.77,A:25,ph:3.1,c:'--heat',len:108}];
+const LIMIT=15;
+const L={fs:5,T:100,res:null,al:[1,1,1],rec:false,grow:1};
+/* ---------- helpers ---------- */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(Date.now()&0xffff),pick=a=>a[Math.floor(R()*a.length)],shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+function fr(n,d=1){if(d<0){n=-n;d=-d}const g=gcd(n,d);n/=g;d/=g;return d===1?String(n):n+'/'+d}
+function parse(s){s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');if(!s)return NaN;const m=s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);if(m)return +m[1]/+m[2];return /^-?\d*\.?\d+$/.test(s)?+s:NaN}
+function txt(c,t,x,y,col,size=18,weight=700,align='left'){c.fillStyle=col;c.font=`${weight} ${size}px Nunito, sans-serif`;c.textAlign=align;c.fillText(t,x,y);c.textAlign='left'}
+const sway=(j,t,al=1)=>al*SP[j].A*Math.sin(2*Math.PI*SP[j].f*t+SP[j].ph);
+const g=(t,al=[1,1,1],grow=1)=>grow*(sway(0,t,al[0])+sway(1,t,al[1])+sway(2,t,al[2]));
+/* the course DFT: N unique points t_n = (n-1)Δt, last point (t = T) repeats the first and is not used */
+function dft(fs,T,al=[1,1,1]){const N=Math.round(fs*T),r=rng(977),y=new Float64Array(N);for(let n=0;n<N;n++){const u=r(),v=r();y[n]=g(n/fs,al)+0.5*Math.sqrt(-2*Math.log(u+1e-12))*Math.cos(2*Math.PI*v)}
+  const K=Math.floor(N/2),P=new Float64Array(K+1),w=2*Math.PI/T;let a0=0;for(let n=0;n<N;n++)a0+=y[n];a0/=N;
+  for(let k=1;k<=K;k++){let a=0,b=0;for(let n=0;n<N;n++){const th=k*w*n/fs;a+=y[n]*Math.cos(th);b+=y[n]*Math.sin(th)}a*=(k===K?1:2)/N;b*=2/N;P[k]=(a*a+b*b)/(2*N)}
+  return {N,K,P,T,fs,a0}}
+/* ---------- canvases ---------- */
+const bc=$('br'),bx=bc.getContext('2d'),BW=NARROW?640:900,BH=NARROW?480:440;bc.width=BW;bc.height=BH;bc.style.aspectRatio=BW+'/'+BH;
+const pc=$('pl'),px=pc.getContext('2d'),PW=NARROW?640:900,PH=NARROW?560:500;pc.width=PW;pc.height=PH;pc.style.aspectRatio=PW+'/'+PH;
+const T0=performance.now(),now=()=>(performance.now()-T0)/1000;
+/* side view (as you would see it from the river bank) above a plan strip that shows the sideways sway */
+function drawBridge(o={}){const c=bx,t=o.t==null?now():o.t,al=o.al||[1,1,1],grow=o.grow==null?1:o.grow;c.clearRect(0,0,BW,BH);
+  const dark=getComputedStyle(document.documentElement).colorScheme.indexOf('dark')>=0,EH=BH*0.6,yw=EH*0.74,yd=yw-EH*0.13,xa=BW*0.12,xb=BW*0.88;
+  const sky=c.createLinearGradient(0,0,0,yw);sky.addColorStop(0,dark?'#16244a':'#bcd8f2');sky.addColorStop(1,dark?'#2b3d6e':'#e9f2fb');c.fillStyle=sky;c.fillRect(0,0,BW,yw);
+  const wat=c.createLinearGradient(0,yw,0,EH);wat.addColorStop(0,dark?'#1d4f73':'#5f97bf');wat.addColorStop(1,dark?'#12324d':'#3f7aa3');c.fillStyle=wat;c.fillRect(0,yw,BW,EH-yw);
+  c.strokeStyle='rgba(255,255,255,.25)';c.lineWidth=1.5;for(let i=0;i<14;i++){const x=((i*97+t*18)%(BW+60))-30,y=yw+6+(i*13)%(EH-yw-10);c.beginPath();c.moveTo(x,y);c.lineTo(x+22,y);c.stroke()}
+  const bld=dark?'#3a4a78':'#8d9cbc',bld2=dark?'#4b3a3a':'#9b6b5a';
+  /* St Paul's Cathedral behind the north end: portico, drum, dome, lantern */
+  const sx=BW*0.075,sb=yd-4,sc=EH/260;c.fillStyle=bld;c.fillRect(sx-46*sc,sb-38*sc,92*sc,38*sc);c.fillRect(sx-58*sc,sb-22*sc,116*sc,22*sc);
+  c.fillRect(sx-24*sc,sb-66*sc,48*sc,28*sc);c.beginPath();c.ellipse(sx,sb-66*sc,26*sc,30*sc,0,Math.PI,0);c.fill();c.fillRect(sx-4*sc,sb-104*sc,8*sc,10*sc);c.beginPath();c.moveTo(sx-3*sc,sb-104*sc);c.lineTo(sx,sb-114*sc);c.lineTo(sx+3*sc,sb-104*sc);c.fill();
+  [-36,-24,24,36].forEach(d=>{c.fillRect(sx+d*sc-4*sc,sb-56*sc,8*sc,18*sc)});
+  /* Tate Modern behind the south end: long brick hall and its central chimney */
+  const tx=BW*0.93;c.fillStyle=bld2;c.fillRect(tx-70*sc,sb-44*sc,140*sc+40,44*sc);c.fillRect(tx-9*sc,sb-118*sc,18*sc,76*sc);c.fillStyle=dark?'#6a5540':'#d9c08a';c.fillRect(tx-70*sc,sb-48*sc,140*sc+40,5*sc);
+  /* embankments */
+  c.fillStyle=dark?'#55607f':'#a9b2c7';c.fillRect(0,yd,xa,yw-yd+8);c.fillRect(xb,yd,BW-xb,yw-yd+8);
+  const tot=SP.reduce((s,q)=>s+q.len,0),ends=[];let xs=xa;SP.forEach(s=>{const xe=xs+(xb-xa)*s.len/tot;ends.push([xs,xe]);xs=xe});
+  /* two river piers with the Y-shaped arms that carry the cables */
+  ends.slice(1).forEach(([x])=>{c.fillStyle=dark?'#6b7594':'#b9c1d3';c.beginPath();c.moveTo(x-9,yw+14);c.lineTo(x+9,yw+14);c.lineTo(x+6,yd+16);c.lineTo(x-6,yd+16);c.fill();
+    c.strokeStyle=dark?'#c9d1e8':'#5a6788';c.lineWidth=4;c.beginPath();c.moveTo(x,yd+16);c.lineTo(x,yd+6);c.lineTo(x-14,yd-10);c.moveTo(x,yd+6);c.lineTo(x+14,yd-10);c.stroke();
+    if(o.damp){c.fillStyle=css('--go');c.fillRect(x-7,yd+4,14,8)}});
+  /* cables: shallow sag, just above the deck at the arms and close to it at mid-span */
+  const anc=[xa,ends[1][0],ends[2][0],xb],hgt=x=>(x===xa||x===xb)?yd-4:yd-10;
+  c.strokeStyle=dark?'#dfe5f5':'#4f5c7c';c.lineWidth=1.4;for(let q=0;q<3;q++){for(let s=0;s<3;s++){const a=anc[s],b=anc[s+1],ha=hgt(a)-q*1.6,hb=hgt(b)-q*1.6;c.beginPath();for(let k=0;k<=30;k++){const u=k/30,x=a+(b-a)*u,y=ha+(hb-ha)*u+(6+q)*4*u*(1-u);k?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}}
+  /* deck, handrail and walkers */
+  c.fillStyle=dark?'#cfd6ea':'#3d4866';c.fillRect(xa,yd,xb-xa,5);c.strokeStyle=dark?'rgba(220,228,245,.7)':'rgba(60,72,102,.7)';c.lineWidth=1;c.beginPath();c.moveTo(xa,yd-9);c.lineTo(xb,yd-9);c.stroke();
+  const nP=Math.round((o.people==null?60:o.people)/2);for(let i=0;i<nP;i++){const dir=i%2?1:-1,u=((i*0.6180339)%1+dir*t*0.01+5)%1,x=xa+u*(xb-xa),step=Math.sin(t*6+i)*1.2;c.fillStyle=i%3?css('--heat'):(dark?'#f2f5ff':'#14204a');
+    c.beginPath();c.arc(x,yd-11,1.9,0,7);c.fill();c.fillRect(x-1,yd-9,2,6);c.fillRect(x-1+step,yd-3,1,3);c.fillRect(x-step,yd-3,1,3)}
+  const f=NARROW?12:14;txt(c,"St Paul's Cathedral",6,16,dark?'#dfe5f5':'#26335c',f,800);txt(c,'Tate Modern',BW-6,16,dark?'#dfe5f5':'#26335c',f,800,'right');txt(c,'North bank',6,yw+18,'#ffffff',f,800);txt(c,'South bank',BW-6,yw+18,'#ffffff',f,800,'right');
+  txt(c,'River Thames',BW/2,EH-8,'rgba(255,255,255,.85)',f,800,'center');
+  /* plan strip: the deck seen from above, sideways sway exaggerated */
+  const py0=EH+8,pyc=py0+(BH-py0)*0.55,amp=(BH-py0)*0.22/40;c.fillStyle=css('--panel');c.fillRect(0,EH,BW,BH-EH);
+  txt(c,'Seen from above · sideways sway, exaggerated',6,py0+12,css('--muted'),NARROW?12:13,800);
+  c.fillStyle='rgba(47,130,200,.18)';c.fillRect(xa,py0+18,xb-xa,BH-py0-24);c.fillStyle=css('--panel2');c.fillRect(0,py0+18,xa,BH-py0-24);c.fillRect(xb,py0+18,BW-xb,BH-py0-24);
+  txt(c,'N',xa/2,pyc+5,css('--muted'),14,800,'center');txt(c,'S',(xb+BW)/2,pyc+5,css('--muted'),14,800,'center');
+  const dy=x=>{for(let j=0;j<3;j++){const [a,b]=ends[j];if(x>=a&&x<=b){const u=(x-a)/(b-a);return amp*Math.sin(Math.PI*u)*sway(j,t,al[j])*grow}}return 0};
+  ends.forEach(([a,b],j)=>{c.fillStyle=css(SP[j].c);c.beginPath();for(let x=a;x<=b;x+=3)c.lineTo(x,pyc-5+dy(x));for(let x=b;x>=a;x-=3)c.lineTo(x,pyc+5+dy(x));c.closePath();c.fill();
+    const m=(a+b)/2;txt(c,SP[j].n+(o.labels!==false?' · '+SP[j].f.toFixed(2)+' Hz':''),m,BH-8,css(SP[j].c),NARROW?12:14,800,'center')});
+  ends.slice(1).forEach(([a])=>{c.fillStyle=css('--ink');c.fillRect(a-3,pyc-12,6,24)});
+  for(let i=0;i<(o.people==null?60:o.people);i++){const u=((i*0.6180339)%1+t*0.01*(i%2?1:-1)+5)%1,x=xa+u*(xb-xa);c.fillStyle=css('--ink');c.beginPath();c.arc(x,pyc+((i*7)%5-2)*1.3+dy(x),1.6,0,7);c.fill()}
+  if(o.stamp){c.fillStyle='rgba(201,40,58,.9)';const w=NARROW?250:300;c.fillRect(BW/2-w/2,yw*0.28,w,34);txt(c,o.stamp,BW/2,yw*0.28+24,'#ffffff',NARROW?15:18,800,'center')}}
+/* right panel: sway against time (top) and the power spectrum (bottom) */
+function drawPlot(o={}){const c=px;c.clearRect(0,0,PW,PH);const Lf=64,Rr=24,h1=PH*0.42,t=o.t==null?now():o.t,al=o.al||[1,1,1],grow=o.grow==null?1:o.grow,win=12;
+  txt(c,'Sideways sway of the deck (mm)',Lf,24,css('--ink'),17,800);const ya=h1/2+10,ys=(h1-60)/2/55,X=s=>Lf+(PW-Lf-Rr)*s/win;
+  c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(Lf,38);c.lineTo(Lf,h1-14);c.moveTo(Lf,ya);c.lineTo(PW-Rr,ya);c.stroke();
+  [-40,0,40].forEach(v=>txt(c,String(v),Lf-8,ya-v*ys+5,css('--muted'),14,700,'right'));txt(c,'time (s) →',PW-Rr,h1-2,css('--muted'),14,700,'right');
+  if(o.limit){c.strokeStyle=css('--go');c.setLineDash([6,6]);c.lineWidth=1.5;[LIMIT,-LIMIT].forEach(v=>{c.beginPath();c.moveTo(Lf,ya-v*ys);c.lineTo(PW-Rr,ya-v*ys);c.stroke()});c.setLineDash([]);txt(c,'±15 mm',PW-Rr-4,ya-LIMIT*ys-6,css('--go'),13,800,'right')}
+  const tw=Math.max(0,t-win);c.strokeStyle=css('--heat');c.lineWidth=3;c.beginPath();for(let k=0;k<=300;k++){const s=win*k/300,v=g(tw+s,al,grow);k?c.lineTo(X(s),ya-v*ys):c.moveTo(X(s),ya-v*ys)}c.stroke();
+  if(o.fs){const dt=1/o.fs;let s0=Math.ceil(tw/dt)*dt;for(let s=s0;s<=tw+win;s+=dt){const v=g(s,al,grow);c.fillStyle=css('--sun');c.beginPath();c.arc(X(s-tw),ya-v*ys,4,0,7);c.fill()}}
+  /* spectrum */
+  const y0=h1+30,y1=PH-46,fmax=2,FX=f=>Lf+(PW-Lf-Rr)*f/fmax;txt(c,o.res?'Power spectrum Pₖ (scaled to the tallest peak)':'Power spectrum Pₖ',Lf,y0,css('--ink'),17,800);
+  c.strokeStyle=css('--muted');c.lineWidth=2;c.beginPath();c.moveTo(Lf,y0+12);c.lineTo(Lf,y1);c.lineTo(PW-Rr,y1);c.stroke();
+  [0,0.5,1,1.5,2].forEach(f=>txt(c,String(f),FX(f),y1+20,css('--muted'),14,700,'center'));txt(c,'frequency f = k/T (Hz)',PW-Rr,y1+40,css('--muted'),14,700,'right');
+  c.strokeStyle=css('--stop');c.setLineDash([8,6]);c.lineWidth=2;c.beginPath();c.moveTo(FX(1.3),y0+14);c.lineTo(FX(1.3),y1);c.stroke();c.setLineDash([]);txt(c,'walking limit 1.3 Hz',FX(1.3)+6,y0+30,css('--stop'),13,800);
+  const res=o.res;if(!res)return;const ny=res.fs/2;if(ny<fmax){c.fillStyle='rgba(255,93,108,.12)';c.fillRect(FX(ny),y0+12,FX(fmax)-FX(ny),y1-y0-12);txt(c,'above fₛ/2: cannot be seen',Math.min(FX(ny)+6,PW-Rr-190),y1-10,css('--stop'),13,800)}
+  let mx=0;for(let k=1;k<=res.K;k++)if(k/res.T<=fmax)mx=Math.max(mx,res.P[k]);const sc=o.scale||mx||1,H=y1-y0-62,grow2=o.p==null?1:o.p;
+  const lw=Math.max(1.5,Math.min(10,(PW-Lf-Rr)/(fmax*res.T)*0.7));
+  for(let k=1;k<=res.K;k++){const f=k/res.T;if(f>fmax)break;const h=H*Math.min(1,res.P[k]/sc)*grow2;c.fillStyle=css('--sea');c.fillRect(FX(f)-lw/2,y1-h,lw,h)}
+  const pk=[];for(let k=1;k<=res.K;k++){const f=k/res.T;if(f>fmax)break;const v=res.P[k];if(v>0.12*sc&&v>=(res.P[k-1]||0)&&v>=(res.P[k+1]||0))pk.push(k)}
+  pk.slice(0,5).forEach(k=>{const f=k/res.T,h=H*Math.min(1,res.P[k]/sc)*grow2;txt(c,f.toFixed(2)+' Hz',FX(f),y1-h-24,css('--ink'),14,800,'center');txt(c,'k = '+k,FX(f),y1-h-8,css('--muted'),13,800,'center')})}
+/* ---------- story ---------- */
+const RES100=dft(5,100);
+const SC=[
+ {dur:6000,live:true,cap:'10 June 2000, London. The Millennium Bridge opens: a light steel footbridge from St Paul\'s Cathedral to the Tate Modern. About 90,000 people cross on the first day, up to 2,000 at a time. Then the deck starts to sway sideways under their feet. Two days later, it is closed.',sheet:['The question','How fast is each span swaying, and why does a crowd make it worse?',1],
+  draw(p){const gr=Math.min(1,0.15+p);drawBridge({grow:gr,people:120,labels:false,stamp:p>=1?'CLOSED 12 JUNE 2000':''});drawPlot({grow:gr});if(this.k<0){this.k=1;Kit.tone(220,0.4,0.15,'sine')}}},
+ {dur:5000,live:true,cap:'Each walker pushes a little sideways with every step. Once the deck moves, people fall into step with it and push in time with the sway, which makes it bigger. Engineers call this synchronous lateral excitation. The sway repeats, so the Fourier transform can split it into sines and cosines.',sheet:['📄 Module 9 · Fourier transform of a periodic function','g(t)=a_0+\\sum_{k} a_k\\cos(k\\omega t)+\\sum_{k} b_k\\sin(k\\omega t),\\qquad \\omega=\\dfrac{2\\pi}{T},\\qquad f=kF=\\dfrac{k}{T}'],
+  draw(){drawBridge({people:120,labels:false});drawPlot({})}},
+ {dur:5000,live:true,cap:'First, plan the measurement. Rule 1 (Nyquist): to see a frequency f, sample at least twice as fast, 2f. Walkers can push sideways at up to about 1.3 Hz, so sample at 2.6 Hz or faster. Rule 2: record for at least one period of the slowest sway, 1/f.',sheet:['📄 Module 9 · Nyquist and record length','f_{\\text{sample}}\\ge 2f,\\qquad T\\ge\\dfrac{1}{f}'],
+  draw(){drawBridge({people:120,labels:false});drawPlot({fs:5})}},
+ {dur:5000,live:true,cap:'Record N unique, equally spaced points. The point at t = T would repeat the first one, so it is not counted. The DFT turns the N numbers into a₀ and a pair aₖ, bₖ for every wave number k from 1 up to N/2.',sheet:['📄 Module 9 · Discrete Fourier transform','a_0=\\dfrac1N\\sum_{n=1}^{N} g^{(n)},\\quad a_k=\\dfrac2N\\sum_{n=1}^{N} g^{(n)}\\cos(k\\omega t^{(n)}),\\quad b_k=\\dfrac2N\\sum_{n=1}^{N} g^{(n)}\\sin(k\\omega t^{(n)}),\\quad k_{max}=\\dfrac N2'],
+  draw(){drawBridge({people:120,labels:false});drawPlot({fs:5})}},
+ {dur:4500,live:true,cap:'Here is a 100 s record at 5 Hz. With T = 100 s, F = 1/100 Hz, so each peak sits at k = f·T. Three peaks stand out: 0.49 Hz (centre span), 0.77 Hz (south span) and 1.05 Hz (north span). All three are below 1.3 Hz, within reach of a walking crowd.',sheet:['📄 Module 9 · Power of wave number k','P_k=\\dfrac{a_k^{2}+b_k^{2}}{2N},\\qquad f=kF=\\dfrac{k}{T}\\;\\Rightarrow\\;k=f\\,T'],
+  draw(p){drawBridge({people:120});drawPlot({res:RES100,p});const k=Math.floor(p*3);if(k!==this.k){this.k=k;Kit.tone(392*Math.pow(1.25,k),0.15,0.15,'triangle')}}},
+ {dur:6000,live:true,cap:'The fix took almost two years and about £5 million: 37 viscous dampers and 52 tuned mass dampers. They turn down the sway at the problem frequencies, just as an equalizer turns down a frequency in music. The bridge reopened on 22 February 2002 and has stayed open since.',sheet:['📄 Module 9 · Attenuate a frequency: find k = f/F, then scale','a_k\\to\\alpha\\,a_k,\\qquad b_k\\to\\alpha\\,b_k,\\qquad 0\\le\\alpha<1\\ \\text{attenuates},\\ \\ \\alpha>1\\ \\text{amplifies}'],
+  draw(p){const a=1-0.8*p,al=[a,a,a];if(!this.r||Math.abs(this.ra-a)>0.05){this.r=dft(5,100,al);this.ra=a}drawBridge({al,people:120,damp:p>0.2});drawPlot({al,res:this.r,scale:RES100.P[77]*1.05,limit:true});if(this.k<0&&p>0.9){this.k=1;[0,4,7,12].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.4,0.18,'triangle',i*0.08))}}},
+ {dur:0,lab:true,live:true,cap:'Your turn. Plan and record the measurement, read the spectrum, do a small DFT by hand, damp the bridge, and debug the analysis code.',sheet:['📄 Module 9 · Nyquist and record length','f_{\\text{sample}}\\ge 2f,\\qquad T\\ge\\dfrac{1}{f}'],
+  enter(){labStats()},draw(){drawBridge({al:L.al,damp:L.al.some(a=>a<1)});drawPlot({al:L.al,res:L.res,fs:L.res?null:L.fs,limit:L.al.some(a=>a!==1),scale:L.res&&L.al.some(a=>a!==1)&&L.fs>=2.5&&L.T===100?RES100.P[77]*1.05:null})}}
+];
+/* ---------- lab 1: plan the measurement ---------- */
+const FS=[1,2,2.5,5,10],TS=[1,2,20,100];
+$('fsRow').innerHTML=FS.map(v=>`<button data-fs="${v}">${v} Hz</button>`).join('');$('tRow').innerHTML=TS.map(v=>`<button data-tt="${v}">${v} s</button>`).join('');
+function press(){document.querySelectorAll('[data-fs]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fs===L.fs));document.querySelectorAll('[data-tt]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.tt===L.T))}
+document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>{L.fs=+b.dataset.fs;L.res=null;Kit.tone(440+L.fs*40,0.07,0.14);labStats()});
+document.querySelectorAll('[data-tt]').forEach(b=>b.onclick=()=>{L.T=+b.dataset.tt;L.res=null;Kit.tone(500+L.T,0.07,0.14);labStats()});
+function nice(x){return Number.isInteger(x)?String(x):String(+x.toFixed(3))}
+function labStats(){press();const N=Math.round(L.fs*L.T),K=Math.floor(N/2);$('sN').textContent=N;$('sF').textContent=L.T===1?'1 Hz':'1/'+L.T+' Hz';$('sK').textContent=K;$('sH').textContent=nice(L.fs/2)+' Hz';
+  if(!L.res)$('hint').textContent='Choose fₛ and T, then record.'}
+$('rec').onclick=()=>{Kit.wake();L.al=[1,1,1];paintDamp();L.res=dft(L.fs,L.T);const ny=L.fs/2;let h;
+  if(L.T<=2)h=`F = 1/T = ${nice(1/L.T)} Hz is the lowest frequency you can see, and every frequency is a multiple of it. A ${L.T} s record is far too short to separate 0.49, 0.77 and 1.05 Hz. Record for longer.`;
+  else if(ny<1.05)h=`The highest frequency you can see is fₛ/2 = ${nice(ny)} Hz. The north span sways at 1.05 Hz, so its peak is missing or lands at a frequency no span has. Sample faster: at least 2 × 1.05 = 2.1 Hz, and 2 × 1.3 = 2.6 Hz to cover the walking range.`;
+  else if(L.T===20)h='The peaks are smeared. With T = 20 s, F = 0.05 Hz, and 0.49 and 0.77 Hz are not multiples of F (k = f·T = 9.8 and 15.4 are not whole numbers). A 100 s record puts them at k = 49 and 77.';
+  else{h=`Clean peaks at k = 49, 77 and 105 (F = 0.01 Hz). With fₛ = ${L.fs} Hz you could see up to ${nice(ny)} Hz, which covers the 1.3 Hz walking limit.`;$('m1').classList.add('done');[0,4,7].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.3,0.18,'triangle',i*0.08))}
+  if(!$('m1').classList.contains('done')||L.T!==100||ny<1.05)Kit.tone(220,0.2,0.15,'square');$('hint').textContent=h;mcTrack&&mcTrack('m9_record',{fs:L.fs,T:L.T})};
+/* ---------- lab 2: exam-style questions ---------- */
+const QG=[
+ ()=>{const T=pick([100,200]),s=pick([SP[1],SP[2]]),k=Math.round(s.f*T);return {q:`A ${T} s record of the ${s.n.toLowerCase()} span. It sways at ${s.f} Hz. At what wave number k is its peak?`,a:String(k),o:[String(k),String(Math.round(s.f*100)/100),String(Math.round(k/2)),String(T)],w:`k = f/F = f·T = ${s.f} × ${T} = ${k}.`}},
+ ()=>{const T=pick([100,200]),k=pick([49,77,105].map(x=>x*T/100)),f=k/T;return {q:`A ${T} s record shows a peak at k = ${k}. What frequency is it?`,a:nice(f)+' Hz',o:[nice(f)+' Hz',k*T+' Hz',nice(k/(2*T))+' Hz',k+' Hz'],w:`f = kF = k/T = ${k}/${T} = ${nice(f)} Hz.`}},
+ ()=>{const fs=pick([2,4,5,8,10]);return {q:`You sample the deck at ${fs} Hz. What is the highest frequency you can detect?`,a:nice(fs/2)+' Hz',o:[nice(fs/2)+' Hz',fs+' Hz',2*fs+' Hz',nice(fs/4)+' Hz'],w:'Nyquist: you need at least two samples per period, so the limit is fₛ/2.'}},
+ ()=>{const f=pick([0.49,0.77,1.05,1.3]);return {q:`What is the minimum sampling frequency to detect a ${f} Hz sway?`,a:nice(2*f)+' Hz',o:[nice(2*f)+' Hz',f+' Hz',nice(f/2)+' Hz',nice(4*f)+' Hz'],w:`f_sample ≥ 2f = ${nice(2*f)} Hz. That is a minimum; faster is fine.`}},
+ ()=>{const f=pick([0.5,0.25,0.2,0.1]);return {q:`To detect a sway at ${f} Hz, what is the shortest record you need?`,a:nice(1/f)+' s',o:[nice(1/f)+' s',nice(f)+' s',nice(2/f)+' s',nice(1/(2*f))+' s'],w:`You must record at least one period: 1/f = ${nice(1/f)} s.`}},
+ ()=>{const fs=pick([2,4,5]),T=pick([10,50,100]),N=fs*T;return {q:`You sample at ${fs} Hz for ${T} s. How many unique points N, and what is k_max?`,a:`N = ${N}, k_max = ${N/2}`,o:[`N = ${N}, k_max = ${N/2}`,`N = ${N+1}, k_max = ${N+1}`,`N = ${N}, k_max = ${N}`,`N = ${N/2}, k_max = ${N/4}`],w:`N = fₛ·T = ${N} (the point at t = T repeats the first). k_max = N/2 = ${N/2}.`}},
+ ()=>{const a=pick([1,2,3,4]),b=pick([1,2,3,5]),N=pick([4,10,20,50]);return {q:`At one wave number, a_k = ${a} and b_k = ${b}, with N = ${N}. What is the power P_k?`,a:fr(a*a+b*b,2*N),o:shuf([fr(a*a+b*b,2*N),fr(a*a+b*b,N),fr(a+b,2*N),fr((a+b)*(a+b),2*N)]).filter((v,i,s)=>s.indexOf(v)===i),w:`P_k = (a_k² + b_k²)/(2N) = (${a*a} + ${b*b})/${2*N} = ${fr(a*a+b*b,2*N)}.`}},
+ ()=>({q:'You record the same bridge again, but twice as long. Which quantity stays the same?',a:'The sway frequency of each span',o:['The sway frequency of each span','The wave number k of each peak','The fundamental frequency F','The fundamental period T'],w:'T doubles, so F = 1/T halves and k = f·T doubles. The bridge itself still sways at the same frequencies.'}),
+ ()=>({q:'Same record length, but you sample twice as fast. What happens to the wave number k of the 0.77 Hz peak?',a:'It stays the same',o:['It stays the same','It doubles','It halves','It becomes N/2'],w:'k = f·T, and neither f nor T changed. Sampling faster only adds higher wave numbers.'}),
+ ()=>({q:'The record stops part-way through a sway, so it jumps where it would repeat. How does the power spectrum look?',a:'Power spreads over many frequencies and decays slowly',o:['Power spreads over many frequencies and decays slowly','Three sharp peaks, exactly as before','All the power moves to k = 0','The spectrum becomes zero'],w:'A jump needs many sines to build, so the power leaks across the spectrum instead of staying in a few peaks.'}),
+ ()=>{const c=pick([2,3,4,5]);return {q:`The deck sways about a steady offset of ${c} mm. Which coefficient captures the offset?`,a:`a₀ = ${c}`,o:[`a₀ = ${c}`,`a₁ = ${c}`,`b₁ = ${c}`,`a₀ = ${2*c}`],w:'a₀ is the mean of the data. Every sine and cosine averages to zero over a full period, so the offset sits in a₀.'}},
+ ()=>{const f=pick([0.49,0.77,1.05]),T=100,k=Math.round(f*T);return {q:`To damp the ${f} Hz sway in a ${T} s record, which coefficients do you scale?`,a:`a_${k} and b_${k}`,o:[`a_${k} and b_${k}`,`a_${Math.round(f*100)/100} and b_${Math.round(f*100)/100}`,`a₀ only`,`a_${Math.round(k/2)} and b_${Math.round(k/2)}`],w:`First find the wave number: k = f/F = f·T = ${k}. Then multiply a_k and b_k by α < 1 and rebuild the signal.`}}
+];
+const QZ={streak:0,last:-1};
+function ask(){const host=$('qz');let i;do i=Math.floor(R()*QG.length);while(i===QZ.last);QZ.last=i;const it=QG[i](),opts=shuf(Array.from(new Set(it.o)));
+  host.innerHTML=`<div class="qhead"><b>Streak: ${QZ.streak} / 4</b></div><p class="qq">${it.q}</p><div class="qo">${opts.map(o=>`<button>${o}</button>`).join('')}</div><p class="qw" hidden></p>`;
+  host.querySelectorAll('.qo button').forEach(b=>b.onclick=()=>{Kit.wake();const ok=b.textContent===it.a;host.querySelectorAll('.qo button').forEach(x=>{x.disabled=true;if(x.textContent===it.a)x.classList.add('right')});if(!ok)b.classList.add('wrong');
+    QZ.streak=ok?QZ.streak+1:0;const w=host.querySelector('.qw');w.hidden=false;w.innerHTML=(ok?'<b>Right.</b> ':'<b>Not quite.</b> ')+it.w+` <button class="nx">${QZ.streak>=4?'Another set ▸':'Next ▸'}</button>`;host.querySelector('.qhead b').textContent='Streak: '+Math.min(QZ.streak,4)+' / 4';
+    if(ok){Kit.tone(660,0.1,0.15,'triangle');Kit.tone(880,0.12,0.15,'triangle',0.08)}else Kit.tone(200,0.2,0.15,'square');
+    if(QZ.streak>=4){$('m2').classList.add('done');QZ.streak=0}mcTrack&&mcTrack(ok?'m9_quiz_ok':'m9_quiz_miss',{q:i});w.querySelector('.nx').onclick=ask})}
+ask();
+/* ---------- lab 3: DFT by hand ---------- */
+const H={};
+function newHand(){const v=()=>pick([-4,-3,-2,-1,0,1,2,3,4,5,6]);do{H.g=[v(),v(),v(),v()]}while(H.g[0]===H.g[2]&&H.g[1]===H.g[3]);const [g1,g2,g3,g4]=H.g;
+  H.ans={a0:[g1+g2+g3+g4,4],a1:[g1-g3,2],b1:[g2-g4,2],a2:[g1-g2+g3-g4,4]};const A1=(g1-g3)/2,B1=(g2-g4)/2;H.ans.P1=[(g1-g3)*(g1-g3)+(g2-g4)*(g2-g4),32];
+  const box=$('hand');box.innerHTML=`<p>A sensor reads the sway (mm) every second. The record is T = 4 s, so ω = 2π/4 = π/2, and the reading at t = 4 s repeats the one at t = 0. Compute the DFT coefficients and P₁ = (a₁² + b₁²)/(2N).</p>
+   <div class="tablewrap"><table><tr><th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>(5)</th></tr><tr><td>t (s)</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><td>g (mm)</td>${H.g.map(x=>`<td>${x}</td>`).join('')}<td class="muted">${H.g[0]}</td></tr></table></div>
+   <div class="hgrid">${[['a0','a₀'],['a1','a₁'],['b1','b₁'],['a2','a₂ (k_max)'],['P1','P₁']].map(([id,l])=>`<label>${l}<input id="h_${id}" inputmode="decimal" autocomplete="off" placeholder="e.g. 3/2"></label>`).join('')}</div>
+   <div class="row"><button class="big" id="hChk">Check</button><button id="hHint">Hint</button><button id="hNew">New readings</button></div><p class="muted" id="hMsg"></p>`;
+  $('hChk').onclick=checkHand;$('hNew').onclick=()=>{Kit.tone(500,0.07,0.12);newHand()};
+  $('hHint').onclick=()=>{$('hMsg').innerHTML='At t = 0, 1, 2, 3: cos(π t/2) = 1, 0, −1, 0 and sin(π t/2) = 0, 1, 0, −1. For k = 2 = k_max, cos(π t) = 1, −1, 1, −1, and use 1/N instead of 2/N. Here N = 4.'}}
+function checkHand(){Kit.wake();let all=true;const fmt=k=>fr(H.ans[k][0],H.ans[k][1]);
+  for(const k of ['a0','a1','b1','a2','P1']){const el=$('h_'+k),v=parse(el.value),ok=Math.abs(v-H.ans[k][0]/H.ans[k][1])<1e-9;el.classList.toggle('ok',ok);el.classList.toggle('bad',!ok);if(!ok)all=false}
+  const [g1,g2,g3,g4]=H.g;
+  if(all){$('hMsg').innerHTML=`All five right. a₀ = ${fmt('a0')}, a₁ = ${fmt('a1')}, b₁ = ${fmt('b1')}, a₂ = ${fmt('a2')}, P₁ = ${fmt('P1')}.`;$('m3').classList.add('done');[0,4,7,12].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.35,0.18,'triangle',i*0.08))}
+  else{$('hMsg').innerHTML=`Check the red boxes. Worked: a₀ = (${H.g.join(' + ')})/4 = ${fmt('a0')}; a₁ = (2/4)(g₁ − g₃) = ${fmt('a1')}; b₁ = (2/4)(g₂ − g₄) = ${fmt('b1')}; a₂ = (1/4)(g₁ − g₂ + g₃ − g₄) = ${fmt('a2')}; P₁ = (a₁² + b₁²)/8 = ${fmt('P1')}. Try new readings to earn the star.`;Kit.tone(200,0.2,0.15,'square')}
+  mcTrack&&mcTrack(all?'m9_hand_ok':'m9_hand_miss',{})}
+newHand();
+/* ---------- lab 4: damp the bridge ---------- */
+$('damp').innerHTML=SP.map((s,j)=>`<div class="ctl"><label for="al${j}">${s.n} span, ${s.f} Hz: k = ${Math.round(s.f*100)} <output id="alO${j}">α = 1</output></label><input id="al${j}" type="range" min="0" max="1.5" step="0.05" value="1"><small class="muted">Scales a<sub>${Math.round(s.f*100)}</sub> and b<sub>${Math.round(s.f*100)}</sub> (T = 100 s).</small></div>`).join('');
+function maxSway(al){let m=0;for(let t=0;t<100;t+=0.02)m=Math.max(m,Math.abs(g(t,al)));return m}
+function paintDamp(){SP.forEach((_,j)=>{$('al'+j).value=L.al[j];$('alO'+j).textContent='α = '+L.al[j].toFixed(2)});const m=maxSway(L.al);$('dMax').textContent=m.toFixed(1)+' mm';
+  const ok=m<=LIMIT;$('dV').textContent=ok?'walkable':'too lively';$('dV').style.color=ok?css('--go'):css('--stop');
+  $('dS').textContent=L.al.some(a=>a>1)?'α > 1 amplifies: that is how an equalizer boosts a frequency':ok?'every span is under control':L.al.filter(a=>a<1).length<3?'all three spans are below 1.3 Hz, so all three need damping':'keep turning them down';return ok}
+SP.forEach((_,j)=>{let tm=0;$('al'+j).oninput=e=>{L.al[j]=+e.target.value;$('alO'+j).textContent='α = '+L.al[j].toFixed(2);clearTimeout(tm);tm=setTimeout(()=>{L.fs=5;L.T=100;press();labStats();L.res=dft(5,100,L.al);const ok=paintDamp();if(ok&&!$('m4').classList.contains('done')){$('m4').classList.add('done');[0,4,7,12].forEach((s,i)=>Kit.tone(523*Math.pow(2,s/12),0.4,0.18,'triangle',i*0.08))}else Kit.tone(300+200*L.al[j],0.06,0.1)},80)}});
+paintDamp();
+/* ---------- lab 5: find the bug ---------- */
+const CODE=['function [f, P] = bridgeDFT(t, y)','% t, y: N+1 samples; the last one repeats the first','N  = length(y) - 1;','T  = t(end) - t(1);','w  = 2*pi/T;','a0 = sum(y(1:N))/N;','for k = 1:N/2','    a(k) = 2/N*sum(y(1:N).*cos(k*w*t(1:N)));','    b(k) = 2/N*sum(y(1:N).*sin(k*w*t(1:N)));','end','a(N/2) = a(N/2)/2;','f = (1:N/2)/T;','P = (a.^2 + b.^2)/(2*N);','end'];
+const BUGS=[[2,'N  = length(y);','The last sample repeats the first, so there are length(y) − 1 unique points. Counting it twice gives the wrong N.'],
+ [4,'w  = 2*pi*T;','The fundamental angular frequency is ω = 2π/T, not 2πT.'],
+ [6,'for k = 1:N','Wave numbers only go up to k_max = N/2. Higher k gives nothing new.'],
+ [11,'f = (1:N/2)*T;','Wave number k has frequency f = kF = k/T, so divide by T.'],
+ [12,'P = (a.^2 + b.^2)/N;','The power is P_k = (a_k² + b_k²)/(2N).'],
+ [10,'a(N/2) = a(N/2)*2;','At k_max the coefficient uses 1/N instead of 2/N, so a(N/2) must be halved, not doubled.']];
+let BG=null;
+function newBug(){let b;do b=pick(BUGS);while(BG&&b===BG);BG=b;const lines=CODE.slice();lines[b[0]]=b[1];
+  $('bug').innerHTML=`<p>The engineers' function returns the spectrum f, P from the sensor record. One line is wrong. Tap it.</p><div class="code">${lines.map((l,i)=>`<button class="ln" data-i="${i}"><span>${i+1}</span><code>${l.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></button>`).join('')}</div><p class="muted" id="bMsg"></p>`;
+  $('bug').querySelectorAll('.ln').forEach(el=>el.onclick=()=>{Kit.wake();const i=+el.dataset.i,ok=i===b[0];$('bug').querySelectorAll('.ln').forEach(x=>{x.disabled=true;if(+x.dataset.i===b[0])x.classList.add('right')});if(!ok)el.classList.add('wrong');
+    $('bMsg').innerHTML=(ok?'<b>Found it.</b> ':'<b>Not that one.</b> The bug is line '+(b[0]+1)+'. ')+b[2]+' Correct line: <code>'+CODE[b[0]]+'</code> <button id="bNew">'+(ok?'Another bug ▸':'Try another ▸')+'</button>';
+    if(ok){$('m5').classList.add('done');Kit.tone(660,0.1,0.15,'triangle');Kit.tone(990,0.15,0.15,'triangle',0.1)}else Kit.tone(200,0.2,0.15,'square');$('bNew').onclick=newBug;mcTrack&&mcTrack(ok?'m9_bug_ok':'m9_bug_miss',{line:b[0]+1})})}
+newBug();labStats();
+Kit.story(SC);
+</script>
+
+<script src="coach/coach.js?v=9" defer></script></body></html>
