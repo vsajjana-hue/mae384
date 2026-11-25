@@ -10,6 +10,7 @@
   --display:"Fredoka","Segoe UI",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif; --math:"STIX Two Text","Cambria Math",serif;
   color-scheme:dark;
 }
+.backmc{align-self:flex-start;display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:999px;background:var(--panel2);color:var(--ink);font-weight:800;text-decoration:none;font-size:.95rem}.backmc:hover{background:var(--panel)}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;box-sizing:border-box}
@@ -138,6 +139,7 @@ h1{font-weight:700;letter-spacing:-.01em} h2{font-weight:600}
 <div class="app">
 <!-- HOME -->
 <section class="screen" id="home">
+  <a class="backmc" href="index.html">◀ Mission Control</a>
   <div class="head"><div><p class="muted">MAE 384 · Numerical Methods</p><h1>Method <span>Rush</span></h1></div><div class="audio"><button id="musBtn" aria-pressed="true">♪ Music</button><button id="sfxBtn" aria-pressed="true">🔊 Sounds</button></div></div><p class="audio"><small id="nowPlaying">Tap anywhere to start the music. Each theme plays the digits of a number: e at home, π in Rush, √2 while you think.</small></p>
   <div class="top">
     <div><span class="muted">Total XP</span><b id="xp">0</b></div>
